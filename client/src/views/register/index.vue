@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-svw">
+  <div class="w-full h-screen">
     <DottedBackground class="flex flex-col">
       <div class="w-full max-w-[400px] m-auto">
         <div class="text-center mb-7">
