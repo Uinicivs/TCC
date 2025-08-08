@@ -1,16 +1,20 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+import type { Node, Edge } from '@vue-flow/core'
+import { VueFlow } from '@vue-flow/core'
+import { MiniMap } from '@vue-flow/minimap'
+import { Background } from '@vue-flow/background'
+
+const nodes = ref<Node[]>([])
+const edges = ref<Edge[]>([])
+</script>
+
 <template>
-  <div class="w-full h-svw">
-    <DottedBackground class="flex flex-col">
-      <div class="w-full max-w-[400px] m-auto">
-        <div class="text-center mb-7">
-          <h2 class="text-3xl mb-4">Home</h2>
-          <p>We just need a few details to get you started</p>
-        </div>
-      </div>
-    </DottedBackground>
+  <div class="h-screen">
+    <VueFlow :nodes :edges>
+      <Background variant="dots" />
+      <MiniMap pannable zoomable />
+    </VueFlow>
   </div>
 </template>
-
-<script lang="ts" setup>
-import DottedBackground from '@/components/shared/DottedBackground.vue'
-</script>
