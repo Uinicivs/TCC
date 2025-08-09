@@ -2,3 +2,4 @@
 @import 'tailwindcss';
 @import '@vue-flow/core/dist/style.css';
 @import '@vue-flow/minimap/dist/style.css';
+@import 'primeicons/primeicons.css';
