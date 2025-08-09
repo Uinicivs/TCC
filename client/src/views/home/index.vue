@@ -35,7 +35,7 @@ const edges = ref<Edge[]>([
   <div class="h-screen">
     <VueFlow :nodes :edges>
       <Background variant="dots" />
-      <MiniMap pannable zoomable />
+      <MiniMap pannable zoomable maskColor="#fafafa" />
       <Controls :showInteractive="false" />
 
       <template #node-trigger="props">
