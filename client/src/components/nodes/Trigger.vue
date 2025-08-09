@@ -9,10 +9,10 @@ defineProps<NodeProps>()
   <div>
     <Handle type="target" :position="Position.Top" />
     <div
-      class="bg-white p-4 border rounded-md border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4"
+      class="bg-neutral-50 p-4 border rounded-md border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4"
     >
       <i
-        class="pi pi-bolt bg-white p-4 border rounded-sm border-gray-300 text-emerald-500 dark:bg-neutral-900 dark:border-neutral-800"
+        class="pi pi-bolt bg-neutral-100 p-4 border rounded-sm border-gray-300 text-emerald-500 dark:bg-neutral-900 dark:border-neutral-800"
         style="font-size: 1.3em"
       />
 
