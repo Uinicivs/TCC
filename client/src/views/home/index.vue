@@ -1,34 +1,15 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-
-import type { Node, Edge } from '@vue-flow/core'
+import { storeToRefs } from 'pinia'
 import { VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 
+import { useFlowStore } from '@/stores/flow'
+
 import Trigger from '@/components/nodes/Trigger.vue'
 
-const nodes = ref<Node[]>([
-  {
-    id: '1',
-    type: 'trigger',
-    position: { x: 450, y: 400 },
-  },
-  {
-    id: '2',
-    type: 'trigger',
-    position: { x: 450, y: 600 },
-  },
-])
-const edges = ref<Edge[]>([
-  {
-    id: '1',
-    source: '1',
-    target: '2',
-    animated: true,
-  },
-])
+const { nodes, edges } = storeToRefs(useFlowStore())
 </script>
 
 <template>
