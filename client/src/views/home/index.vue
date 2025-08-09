@@ -5,6 +5,7 @@ import type { Node, Edge } from '@vue-flow/core'
 import { VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
+import { Controls } from '@vue-flow/controls'
 
 import Trigger from '@/components/nodes/Trigger.vue'
 
@@ -35,6 +36,7 @@ const edges = ref<Edge[]>([
     <VueFlow :nodes :edges>
       <Background variant="dots" />
       <MiniMap pannable zoomable />
+      <Controls :showInteractive="false" />
 
       <template #node-trigger="props">
         <Trigger v-bind="props" />
