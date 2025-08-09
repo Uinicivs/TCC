@@ -1,26 +1,31 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { NodeProps } from '@vue-flow/core'
-import { Position } from '@vue-flow/core'
+
+import NodeTemplate from '@/components/shared/NodeTemplate.vue'
+import NodeActions from '@/components/shared/NodeActions.vue'
+import type { NodeActionItem } from '@/components/shared/NodeActions.vue'
 
 defineProps<NodeProps>()
+
+const menuActions = ref<NodeActionItem[]>([
+  { label: 'Add', icon: 'pi pi-plus' },
+  { label: 'Update', icon: 'pi pi-refresh' },
+  { label: 'Delete', icon: 'pi pi-trash', severity: 'danger' },
+])
+
+function onAction({ action, index }: { action: NodeActionItem; index: number }) {}
 </script>
 
 <template>
-  <div>
-    <Handle type="target" :position="Position.Top" />
-    <div
-      class="bg-white p-4 border rounded-lg border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4"
-    >
-      <i
-        class="pi pi-bolt bg-neutral-50 p-4 border rounded-sm border-gray-300 text-emerald-500 dark:bg-neutral-900 dark:border-neutral-800"
-        style="font-size: 1.3em"
-      />
-
-      <div class="w-[200px]">
-        <h4 class="text-lg font-semibold">Trigger</h4>
-        <p class="truncate">Lorem ipsum dolor sit asdasdasd.</p>
-      </div>
-    </div>
-    <Handle type="source" :position="Position.Bottom" />
-  </div>
+  <NodeTemplate
+    icon="pi-bolt"
+    icon-color="text-emerald-500"
+    title="Trigger"
+    description="Lorem ipsum dolor sit asdasdasd."
+  >
+    <template #actions>
+      <NodeActions :actions="menuActions" @action="onAction" />
+    </template>
+  </NodeTemplate>
 </template>
