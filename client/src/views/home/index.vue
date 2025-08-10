@@ -7,6 +7,7 @@ import { Controls } from '@vue-flow/controls'
 import { useFlowStore } from '@/stores/flow'
 
 import Navbar from '@/components/shared/Navbar.vue'
+import AddNode from '@/components/home/AddNode.vue'
 import Trigger from '@/components/nodes/Trigger.vue'
 
 const { nodes, edges } = storeToRefs(useFlowStore())
@@ -14,10 +15,11 @@ const { nodes, edges } = storeToRefs(useFlowStore())
 
 <template>
   <div class="h-screen">
+    <Navbar class="z-10 fixed mt-4 mx-4" />
     <VueFlow :nodes :edges>
-      <Navbar class="z-10 fixed mt-4 mx-4" />
       <Background variant="dots" />
       <Controls :showInteractive="false" />
+      <AddNode />
 
       <template #node-trigger="props">
         <Trigger v-bind="props" />
