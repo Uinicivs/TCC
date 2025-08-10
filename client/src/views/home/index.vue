@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { VueFlow } from '@vue-flow/core'
-import { MiniMap } from '@vue-flow/minimap'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 
 import { useFlowStore } from '@/stores/flow'
 
+import Navbar from '@/components/shared/Navbar.vue'
 import Trigger from '@/components/nodes/Trigger.vue'
 
 const { nodes, edges } = storeToRefs(useFlowStore())
@@ -15,8 +15,8 @@ const { nodes, edges } = storeToRefs(useFlowStore())
 <template>
   <div class="h-screen">
     <VueFlow :nodes :edges>
+      <Navbar class="z-10 fixed mt-4 mx-4" />
       <Background variant="dots" />
-      <MiniMap pannable zoomable maskColor="#fafafa" />
       <Controls :showInteractive="false" />
 
       <template #node-trigger="props">
