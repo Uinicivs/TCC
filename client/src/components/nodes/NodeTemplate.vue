@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
 import type { ButtonProps } from 'primevue'
 
-import NodeActions from '@/components/shared/NodeActions.vue'
+import NodeActions from '@/components/nodes/NodeActions.vue'
 
 const { actions } = defineProps<{
   icon?: string

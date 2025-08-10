@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import NodeTemplate from '@/components/shared/NodeTemplate.vue'
+import NodeTemplate from '@/components/nodes/NodeTemplate.vue'
 
 const menuActions = ref([
   {
