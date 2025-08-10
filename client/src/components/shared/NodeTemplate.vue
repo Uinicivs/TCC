@@ -11,11 +11,9 @@ defineProps<{
 
 <template>
   <div>
-    <slot name="actions" />
-
     <Handle type="target" :position="Position.Top" />
     <div
-      class="bg-white p-4 border rounded-lg border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4"
+      class="bg-white p-4 border rounded-lg border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
     >
       <i
         v-if="icon"
@@ -24,11 +22,13 @@ defineProps<{
         style="font-size: 1.3em"
       />
 
-      <div class="w-[220px]">
+      <div class="overflow-auto">
         <h4 v-if="title" class="text-lg font-semibold">{{ title }}</h4>
         <p v-if="description" class="truncate">{{ description }}</p>
         <slot />
       </div>
+
+      <slot name="actions" />
     </div>
     <Handle type="source" :position="Position.Bottom" />
   </div>
