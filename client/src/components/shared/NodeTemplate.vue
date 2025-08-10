@@ -25,7 +25,7 @@ const handleClick = (): void => {
   <div @click="handleClick" class="cursor-pointer">
     <Handle type="target" :position="Position.Top" />
     <div
-      class="bg-white p-4 border rounded-lg border-gray-300 dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
+      class="bg-white p-4 border rounded-lg border-[#e2e8f0] dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
     >
       <i
         v-if="icon"
