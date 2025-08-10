@@ -7,10 +7,7 @@ const props = defineProps<{
   actions: ButtonProps[]
   position?: Position
   offset?: number
-}>()
-
-const emit = defineEmits<{
-  (event: 'action', payload: { action: ButtonProps; index: number }): void
+  isVisible?: boolean
 }>()
 
 const toolbarPosition = props.position ?? Position.Right
@@ -30,7 +27,12 @@ const getButtonPosition = (index: number, total: number) => {
 </script>
 
 <template>
-  <NodeToolbar :offset="toolbarOffset" :position="toolbarPosition" class="radial-toolbar">
+  <NodeToolbar
+    :offset="toolbarOffset"
+    :position="toolbarPosition"
+    class="radial-toolbar"
+    :is-visible="isVisible"
+  >
     <div class="radial-container">
       <template v-for="(action, index) in actions" :key="index">
         <div
@@ -41,15 +43,7 @@ const getButtonPosition = (index: number, total: number) => {
             '--y': `${getButtonPosition(index, actions.length).y}px`,
           }"
         >
-          <Button
-            :icon="action.icon"
-            :rounded="action.rounded ?? true"
-            :variant="action.variant ?? 'outlined'"
-            :size="action.size ?? 'small'"
-            :severity="action.severity ?? 'secondary'"
-            class="radial-button"
-            @click="emit('action', { action, index })"
-          />
+          <Button v-bind="action" class="radial-button" />
         </div>
       </template>
     </div>
@@ -75,13 +69,13 @@ const getButtonPosition = (index: number, total: number) => {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  animation: slideIn 0.3s ease-out forwards;
+  animation: slideIn 0.2s ease-out forwards;
   animation-delay: var(--delay);
   opacity: 0;
 }
 
 .radial-button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform: scale(1);
 }
 

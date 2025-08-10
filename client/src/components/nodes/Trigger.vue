@@ -1,20 +1,31 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { NodeProps } from '@vue-flow/core'
 
 import NodeTemplate from '@/components/shared/NodeTemplate.vue'
-import NodeActions from '@/components/shared/NodeActions.vue'
-import type { NodeActionItem } from '@/components/shared/NodeActions.vue'
 
-defineProps<NodeProps>()
-
-const menuActions = ref<NodeActionItem[]>([
-  { label: 'Add', icon: 'pi pi-plus' },
-  { label: 'Update', icon: 'pi pi-refresh' },
-  { label: 'Delete', icon: 'pi pi-trash', severity: 'danger' },
+const menuActions = ref([
+  {
+    icon: 'pi pi-plus',
+    rounded: true,
+    variant: 'outlined',
+    size: 'small',
+    severity: 'secondary',
+  },
+  {
+    icon: 'pi pi-refresh',
+    rounded: true,
+    variant: 'outlined',
+    size: 'small',
+    severity: 'secondary',
+  },
+  {
+    icon: 'pi pi-trash',
+    rounded: true,
+    variant: 'outlined',
+    size: 'small',
+    severity: 'danger',
+  },
 ])
-
-function onAction({ action, index }: { action: NodeActionItem; index: number }) {}
 </script>
 
 <template>
@@ -23,9 +34,6 @@ function onAction({ action, index }: { action: NodeActionItem; index: number }) 
     icon-color="text-emerald-500"
     title="Trigger"
     description="Lorem ipsum dolor sit asdasdasd."
-  >
-    <template #actions>
-      <NodeActions :actions="menuActions" @action="onAction" />
-    </template>
-  </NodeTemplate>
+    :actions="menuActions"
+  />
 </template>
