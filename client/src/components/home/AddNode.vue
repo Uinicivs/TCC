@@ -164,6 +164,7 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
     :header="getDialogHeader"
     :style="{ width: '60rem' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+    @hide="selectedNode = null"
   >
     <div class="mb-6">
       <Stepper :value="currentStep" class="w-full">
@@ -179,26 +180,25 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
           <Step
             :value="steps.setupLabel"
             :disabled="!hasNodeTypeSelected"
-            :class="{ 'cursor-pointer': hasNodeTypeSelected }"
+            :class="{
+              'cursor-pointer': hasNodeTypeSelected,
+            }"
             @click="hasNodeTypeSelected ? handleStepClick(steps.setupLabel) : null"
           >
             <span class="hidden sm:inline">Configurar nó</span>
             <span class="sm:hidden">Config</span>
           </Step>
-          <transition name="fade">
-            <Step
-              v-show="shouldShowConfigStep"
-              :value="steps.setupNode"
-              :disabled="!hasNodeTypeSelected || !hasNodeLabelFilled"
-              :class="{ 'cursor-pointer': hasNodeTypeSelected && hasNodeLabelFilled }"
-              @click="
-                hasNodeTypeSelected && hasNodeLabelFilled ? handleStepClick(steps.setupNode) : null
-              "
-            >
-              <span class="hidden sm:inline">Configurar</span>
-              <span class="sm:hidden">Config</span>
-            </Step>
-          </transition>
+          <Step
+            :value="steps.setupNode"
+            :disabled="!hasNodeTypeSelected || !hasNodeLabelFilled"
+            :class="{ 'cursor-pointer': hasNodeTypeSelected && hasNodeLabelFilled }"
+            @click="
+              hasNodeTypeSelected && hasNodeLabelFilled ? handleStepClick(steps.setupNode) : null
+            "
+          >
+            <span class="hidden sm:inline">Configurar</span>
+            <span class="sm:hidden">Config</span>
+          </Step>
         </StepList>
       </Stepper>
     </div>
@@ -291,13 +291,13 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
         @click="handlePreviousStep"
       />
 
-      <div class="flex gap-2">
+      <div class="flex gap-2 w-full">
         <Button
           v-if="currentStep < steps.setupNode"
-          :label="!shouldShowConfigStep ? 'Criar nó' : 'Próximo'"
-          class="self-end"
+          class="ml-auto"
           icon="pi pi-chevron-right"
           icon-pos="right"
+          :label="shouldShowConfigStep ? 'Criar nó' : 'Próximo'"
           :disabled="
             (currentStep === 1 && !hasNodeTypeSelected) ||
             (currentStep === 2 && !hasNodeLabelFilled)
