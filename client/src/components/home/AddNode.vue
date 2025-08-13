@@ -55,16 +55,6 @@ const handleNodeSelect = (node: IMappedNodes) => {
 
 const handleNextStep = () => {
   if (currentStep.value >= steps.setupNode) return
-
-  if (
-    currentStep.value === steps.setupLabel &&
-    selectedNode.value &&
-    !selectedNode.value.configComponent
-  ) {
-    handleCreateNode()
-    return
-  }
-
   currentStep.value++
 }
 
@@ -80,8 +70,10 @@ const handleStepClick = (stepNumber: number) => {
   }
 
   if (stepNumber === steps.setupLabel && !hasNodeTypeSelected.value) return
-  if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value))
+
+  if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)) {
     return
+  }
 
   currentStep.value = stepNumber
 }
@@ -166,7 +158,7 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     @hide="selectedNode = null"
   >
-    <div class="mb-6">
+    <div class="mb-6 sticky top-0 z-10 pb-2 stepper">
       <Stepper :value="currentStep" class="w-full">
         <StepList>
           <Step
@@ -175,7 +167,6 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             @click="handleStepClick(steps.chooseNode)"
           >
             <span class="hidden sm:inline">Selecionar tipo</span>
-            <span class="sm:hidden">Tipo</span>
           </Step>
           <Step
             :value="steps.setupLabel"
@@ -185,8 +176,9 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             }"
             @click="hasNodeTypeSelected ? handleStepClick(steps.setupLabel) : null"
           >
-            <span class="hidden sm:inline">Configurar nó</span>
-            <span class="sm:hidden">Config</span>
+            <span class="hidden sm:inline">
+              {{ shouldShowConfigStep ? 'Configurar nó' : 'Configurar nó' }}
+            </span>
           </Step>
           <Step
             :value="steps.setupNode"
@@ -196,8 +188,7 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
               hasNodeTypeSelected && hasNodeLabelFilled ? handleStepClick(steps.setupNode) : null
             "
           >
-            <span class="hidden sm:inline">Configurar</span>
-            <span class="sm:hidden">Config</span>
+            <span class="hidden sm:inline">Revisar</span>
           </Step>
         </StepList>
       </Stepper>
@@ -267,65 +258,109 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
           </small>
         </div>
       </div>
-    </div>
 
-    <div v-if="currentStep === steps.setupNode && shouldShowConfigStep" class="space-y-6">
       <component
-        :is="selectedNode.configComponent"
-        v-if="!!selectedNode?.configComponent"
+        :is="selectedNode?.configComponent"
+        v-if="shouldShowConfigStep"
         @updated:config="handleConfigData"
         class="w-full"
       />
     </div>
 
-    <div
-      class="flex justify-between items-center mt-8 pt-4 border-t border-gray-200 dark:border-gray-700"
-    >
-      <Button
-        v-if="currentStep > steps.chooseNode"
-        label="Anterior"
-        class="self-start"
-        icon="pi pi-chevron-left"
-        severity="secondary"
-        outlined
-        @click="handlePreviousStep"
-      />
+    <div v-if="currentStep === steps.setupNode" class="space-y-6">
+      <div class="p-6">
+        <h3 class="text-lg font-semibold mb-4">Resumo do Nó</h3>
 
-      <div class="flex gap-2 w-full">
-        <Button
-          v-if="currentStep < steps.setupNode"
-          class="ml-auto"
-          icon="pi pi-chevron-right"
-          icon-pos="right"
-          :label="shouldShowConfigStep ? 'Criar nó' : 'Próximo'"
-          :disabled="
-            (currentStep === 1 && !hasNodeTypeSelected) ||
-            (currentStep === 2 && !hasNodeLabelFilled)
-          "
-          @click="handleNextStep"
-        />
+        <div class="space-y-4">
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
+          >
+            <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
+            <span class="font-medium">{{ selectedNode?.name }}</span>
+          </div>
 
-        <Button
-          v-if="currentStep === steps.setupNode"
-          label="Criar nó"
-          class="self-end"
-          icon="pi pi-check"
-          :disabled="!hasNodeLabelFilled"
-          @click="handleCreateNode"
-        />
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
+          >
+            <span class="text-gray-600 dark:text-gray-400">Label:</span>
+            <span class="font-medium">{{ nodeData.label }}</span>
+          </div>
+
+          <div
+            v-if="nodeData.description"
+            class="flex items-start justify-between py-2 border-b border-gray-200 dark:border-gray-600"
+          >
+            <span class="text-gray-600 dark:text-gray-400">Descrição:</span>
+            <span class="font-medium text-right max-w-xs">{{ nodeData.description }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="shouldShowConfigStep" class="space-y-4 p-6">
+        <div>
+          <h4 class="text-md font-medium mb-3">Configurações Aplicadas</h4>
+
+          <div class="space-y-3 mb-4">
+            <div
+              v-for="(value, key) in nodeData.config"
+              :key="key"
+              class="flex justify-between items-center py-2"
+            >
+              <span class="text-sm capitalize">{{ key }}:</span>
+              <span class="text-sm font-medium">
+                {{ typeof value === 'object' ? JSON.stringify(value) : String(value) }}
+              </span>
+            </div>
+          </div>
+
+          <component :is="selectedNode?.configComponent" :config="nodeData.config" class="w-full" />
+        </div>
       </div>
     </div>
+
+    <template #footer>
+      <div class="flex justify-between items-center w-full pt-5">
+        <Button
+          v-if="currentStep > steps.chooseNode"
+          label="Anterior"
+          class="self-start"
+          size="small"
+          icon="pi pi-chevron-left"
+          severity="secondary"
+          outlined
+          @click="handlePreviousStep"
+        />
+        <div class="flex gap-2 w-full">
+          <Button
+            v-if="currentStep < steps.setupNode"
+            class="ml-auto"
+            icon="pi pi-chevron-right"
+            size="small"
+            icon-pos="right"
+            label="Próximo"
+            :disabled="
+              (currentStep === 1 && !hasNodeTypeSelected) ||
+              (currentStep === 2 && !hasNodeLabelFilled)
+            "
+            @click="handleNextStep"
+          />
+          <Button
+            v-if="currentStep === steps.setupNode"
+            label="Criar nó"
+            class="ml-auto"
+            size="small"
+            icon="pi pi-check"
+            :disabled="!hasNodeLabelFilled"
+            @click="handleCreateNode"
+          />
+        </div>
+      </div>
+    </template>
   </Dialog>
 </template>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease-in-out;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+.stepper {
+  background: var(--p-dialog-background);
 }
 </style>
