@@ -6,6 +6,7 @@ import type { ButtonProps } from 'primevue'
 import type { INode } from '@/interfaces/node'
 
 import NodeActions from '@/components/nodes/NodeActions.vue'
+import AddNode from '@/components/home/AddNode.vue'
 
 type NodeTemplateProps = { data: INode } & {
   icon?: string
@@ -24,7 +25,7 @@ const handleClick = (): void => {
 </script>
 
 <template>
-  <div @click="handleClick" class="cursor-pointer min-w-[250px]">
+  <div @click="handleClick" class="cursor-pointer w-[250px] relative">
     <Handle type="target" :position="Position.Top" />
     <div
       class="bg-white p-4 border rounded-lg border-[#e2e8f0] dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
@@ -46,8 +47,10 @@ const handleClick = (): void => {
         </p>
       </div>
 
-      <NodeActions v-if="actions?.length" :actions :is-visible="isVisibleActions" />
+      <!-- <NodeActions v-if="actions?.length" :actions :is-visible="isVisibleActions" /> -->
     </div>
     <Handle type="source" :position="Position.Bottom" />
+
+    <AddNode class="absolute -bottom-12 left-1/2" />
   </div>
 </template>
