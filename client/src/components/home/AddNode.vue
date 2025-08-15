@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, type Component } from 'vue'
+import { computed, reactive, ref, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   Button,
@@ -33,30 +33,28 @@ const { nodes } = storeToRefs(flowStore)
 
 const steps = {
   chooseNode: 1,
-  setupLabel: 2,
+  setupTitle: 2,
   setupNode: 3,
 }
 
 const visible = ref(false)
 const currentStep = ref(steps.chooseNode)
 const selectedNode = ref<IMappedNodes | null>(null)
-const nodeData = ref<INode>({
-  title: '',
-  description: '',
-})
+
+const nodeData = reactive<INode>({ title: '' })
 
 const toggleCreateNodeDialog = () => {
   visible.value = !visible.value
   if (visible.value) {
     currentStep.value = 1
     selectedNode.value = null
-    nodeData.value = { title: '', description: '' }
+    nodeData.title = ''
   }
 }
 
 const handleNodeSelect = (node: IMappedNodes) => {
   selectedNode.value = node
-  currentStep.value = steps.setupLabel
+  currentStep.value = steps.setupTitle
 }
 
 const handleNextStep = () => {
@@ -75,7 +73,7 @@ const handleStepClick = (stepNumber: number) => {
     return
   }
 
-  if (stepNumber === steps.setupLabel && !hasNodeTypeSelected.value) return
+  if (stepNumber === steps.setupTitle && !hasNodeTypeSelected.value) return
 
   if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)) {
     return
@@ -85,17 +83,13 @@ const handleStepClick = (stepNumber: number) => {
 }
 
 const handleCreateNode = () => {
-  if (!selectedNode.value || !nodeData.value.title.trim()) return
+  if (!selectedNode.value || !nodeData.title.trim()) return
 
   const formatNode: Node = {
     id: Date.now().toString(),
     position: { x: window.innerWidth / 2 - 150, y: 200 },
     type: selectedNode.value.type,
-    data: {
-      title: nodeData.value.title,
-      description: nodeData.value.description,
-      ...(nodeData.value.config && { config: nodeData.value.config }),
-    },
+    data: nodeData,
   }
 
   flowStore.addNodes(formatNode)
@@ -103,17 +97,17 @@ const handleCreateNode = () => {
 }
 
 const handleConfigData = (configData: Record<string, any>) => {
-  nodeData.value.config = configData
+  nodeData.config = configData
 }
 
 const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
-const hasNodeLabelFilled = computed(() => nodeData.value.title.trim().length > 0)
+const hasNodeLabelFilled = computed(() => nodeData.title.trim().length > 0)
 const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
 const getDialogHeader = computed<string>(() => {
   switch (currentStep.value) {
     case steps.chooseNode:
       return 'Escolha o tipo do nó'
-    case steps.setupLabel:
+    case steps.setupTitle:
       return `Configurar ${selectedNode.value?.name}`
     case steps.setupNode:
       return `Configurar ${selectedNode.value?.name}`
@@ -175,12 +169,12 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             <span class="hidden sm:inline">Selecionar tipo</span>
           </Step>
           <Step
-            :value="steps.setupLabel"
+            :value="steps.setupTitle"
             :disabled="!hasNodeTypeSelected"
             :class="{
               'cursor-pointer': hasNodeTypeSelected,
             }"
-            @click="hasNodeTypeSelected ? handleStepClick(steps.setupLabel) : null"
+            @click="hasNodeTypeSelected ? handleStepClick(steps.setupTitle) : null"
           >
             <span class="hidden sm:inline">
               {{ shouldShowConfigStep ? 'Configurar nó' : 'Configurar nó' }}
@@ -228,7 +222,7 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
       </div>
     </div>
 
-    <div v-if="currentStep === steps.setupLabel" class="space-y-6">
+    <div v-if="currentStep === steps.setupTitle" class="space-y-6">
       <div class="space-y-4">
         <div class="space-y-2">
           <label for="nodeLabel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
