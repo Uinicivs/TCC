@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+import type { INode } from '@/interfaces/node'
+
 import NodeTemplate from '@/components/nodes/NodeTemplate.vue'
 
-const menuActions = ref([
+defineProps<INode>()
+
+const actions = ref([
   {
     icon: 'pi pi-plus',
     rounded: true,
@@ -29,11 +33,5 @@ const menuActions = ref([
 </script>
 
 <template>
-  <NodeTemplate
-    icon="pi-bolt"
-    icon-color="text-emerald-500"
-    title="Trigger"
-    description="Lorem ipsum dolor sit asdasdasd."
-    :actions="menuActions"
-  />
+  <NodeTemplate icon="pi-bolt" icon-color="text-emerald-500" :title :description :actions />
 </template>

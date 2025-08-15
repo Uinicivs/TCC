@@ -14,6 +14,8 @@ import {
 } from 'primevue'
 import type { Node } from '@vue-flow/core'
 
+import type { INode } from '@/interfaces/node'
+
 import { useFlowStore } from '@/stores/flow'
 
 import ConditionalNodeConfig from '@/components/home/ConditionalNodeConfig.vue'
@@ -24,12 +26,6 @@ interface IMappedNodes {
   icon: string
   iconColor: string
   configComponent?: Component
-}
-
-interface INodeData {
-  label: string
-  description: string
-  config?: Record<string, any>
 }
 
 const flowStore = useFlowStore()
@@ -44,8 +40,8 @@ const steps = {
 const visible = ref(false)
 const currentStep = ref(steps.chooseNode)
 const selectedNode = ref<IMappedNodes | null>(null)
-const nodeData = ref<INodeData>({
-  label: '',
+const nodeData = ref<INode>({
+  title: '',
   description: '',
 })
 
@@ -54,7 +50,7 @@ const toggleCreateNodeDialog = () => {
   if (visible.value) {
     currentStep.value = 1
     selectedNode.value = null
-    nodeData.value = { label: '', description: '' }
+    nodeData.value = { title: '', description: '' }
   }
 }
 
@@ -89,14 +85,14 @@ const handleStepClick = (stepNumber: number) => {
 }
 
 const handleCreateNode = () => {
-  if (!selectedNode.value || !nodeData.value.label.trim()) return
+  if (!selectedNode.value || !nodeData.value.title.trim()) return
 
   const formatNode: Node = {
     id: Date.now().toString(),
     position: { x: window.innerWidth / 2 - 150, y: 200 },
     type: selectedNode.value.type,
     data: {
-      label: nodeData.value.label,
+      title: nodeData.value.title,
       description: nodeData.value.description,
       ...(nodeData.value.config && { config: nodeData.value.config }),
     },
@@ -111,7 +107,7 @@ const handleConfigData = (configData: Record<string, any>) => {
 }
 
 const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
-const hasNodeLabelFilled = computed(() => nodeData.value.label.trim().length > 0)
+const hasNodeLabelFilled = computed(() => nodeData.value.title.trim().length > 0)
 const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
 const getDialogHeader = computed<string>(() => {
   switch (currentStep.value) {
@@ -236,16 +232,16 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
       <div class="space-y-4">
         <div class="space-y-2">
           <label for="nodeLabel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Label do nó *
+            Label do nó <span class="text-red-700">*</span>
           </label>
 
           <InputText
             id="nodeLabel"
-            v-model="nodeData.label"
+            v-model="nodeData.title"
             placeholder="Digite um nome para o nó"
             required
             class="w-full"
-            :class="{ 'p-invalid': !nodeData.label.trim() && currentStep >= steps.setupNode }"
+            :class="{ 'p-invalid': !nodeData.title.trim() && currentStep >= steps.setupNode }"
           />
           <Message size="small" severity="secondary" variant="simple">
             Este será o nome exibido no nó.
@@ -289,14 +285,14 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
           >
             <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
-            <span class="font-medium">{{ selectedNode?.name }}</span>
+            <span class="font-medium truncate">{{ selectedNode?.name }}</span>
           </div>
 
           <div
             class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
           >
-            <span class="text-gray-600 dark:text-gray-400">Label:</span>
-            <span class="font-medium">{{ nodeData.label }}</span>
+            <span class="text-gray-600 dark:text-gray-400">Title:</span>
+            <span class="font-medium truncate">{{ nodeData.title }}</span>
           </div>
 
           <div
@@ -304,28 +300,13 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             class="flex items-start justify-between py-2 border-b border-gray-200 dark:border-gray-600"
           >
             <span class="text-gray-600 dark:text-gray-400">Descrição:</span>
-            <span class="font-medium text-right max-w-xs">{{ nodeData.description }}</span>
+            <span class="font-medium text-right max-w-xs truncate">{{ nodeData.description }}</span>
           </div>
         </div>
       </div>
 
       <div v-if="shouldShowConfigStep" class="px-6">
-        <div>
-          <div class="space-y-3 mb-4">
-            <div
-              v-for="(value, key) in nodeData.config"
-              :key="key"
-              class="flex justify-between items-center py-2"
-            >
-              <span class="text-sm capitalize">{{ key }}:</span>
-              <span class="text-sm font-medium">
-                {{ typeof value === 'object' ? JSON.stringify(value) : String(value) }}
-              </span>
-            </div>
-          </div>
-
-          <component :is="selectedNode?.configComponent" :config="nodeData.config" class="w-full" />
-        </div>
+        <component :is="selectedNode?.configComponent" :config="nodeData.config" class="w-full" />
       </div>
     </div>
 

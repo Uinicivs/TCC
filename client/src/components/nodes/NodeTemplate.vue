@@ -3,15 +3,17 @@ import { ref } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
 import type { ButtonProps } from 'primevue'
 
+import type { INode } from '@/interfaces/node'
+
 import NodeActions from '@/components/nodes/NodeActions.vue'
 
-const { actions } = defineProps<{
+type NodeTemplateProps = { data: INode } & {
   icon?: string
   iconColor?: string
-  title: string
-  description?: string
   actions?: ButtonProps[]
-}>()
+}
+
+const { actions, data } = defineProps<NodeTemplateProps>()
 
 const isVisibleActions = ref(false)
 
@@ -35,12 +37,12 @@ const handleClick = (): void => {
       />
 
       <div class="overflow-auto">
-        <h4 v-if="title" class="text-lg font-semibold">
-          {{ title }}
+        <h4 v-if="data.title" class="text-lg font-semibold truncate">
+          {{ data.title }}
         </h4>
 
-        <p v-if="description" class="truncate">
-          {{ description }}
+        <p v-if="data.description" class="truncate">
+          {{ data.description }}
         </p>
       </div>
 
