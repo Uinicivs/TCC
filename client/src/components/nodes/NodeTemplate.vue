@@ -1,20 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
 import type { ButtonProps } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
+import { useFlowStore } from '@/stores/flow'
+
 import NodeActions from '@/components/nodes/NodeActions.vue'
 import AddNode from '@/components/home/AddNode.vue'
 
-type NodeTemplateProps = { data: INode } & {
+type NodeTemplateProps = { id: string; data: INode } & {
   icon?: string
   iconColor?: string
   actions?: ButtonProps[]
 }
 
-const { actions, data } = defineProps<NodeTemplateProps>()
+const { getLastNode } = useFlowStore()
+
+const { actions, data, id } = defineProps<NodeTemplateProps>()
 
 const isVisibleActions = ref(false)
 
@@ -22,6 +26,14 @@ const handleClick = (): void => {
   if (!actions?.length) return
   isVisibleActions.value = !isVisibleActions.value
 }
+
+const canAddNewNode = computed<boolean>(() => {
+  const { id: lastNodeId, type: lastNodeType = '' } = getLastNode()
+
+  const couldHaveMoreThanOneWay = ['conditional'].includes(lastNodeType)
+
+  return lastNodeId === id || couldHaveMoreThanOneWay
+})
 </script>
 
 <template>
@@ -51,6 +63,6 @@ const handleClick = (): void => {
     </div>
     <Handle type="source" :position="Position.Bottom" />
 
-    <AddNode class="absolute -bottom-12 left-1/2" />
+    <AddNode v-if="canAddNewNode" class="absolute -bottom-12 left-1/2" />
   </div>
 </template>

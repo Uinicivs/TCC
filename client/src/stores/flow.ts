@@ -21,6 +21,12 @@ export const useFlowStore = defineStore('flow', () => {
     }
   }
 
+  const getLastNode = (): Node => {
+    const [lastNode] = nodes.value.slice(-1)
+
+    return lastNode
+  }
+
   const addEdges = (newEdge: Edge) => {
     if (!getEdgeById(newEdge)) {
       edges.value.push(newEdge)
@@ -35,5 +41,5 @@ export const useFlowStore = defineStore('flow', () => {
     edges.value = edges.value.filter((edge) => edge.source !== node.id && edge.target !== node.id)
   }
 
-  return { nodes, edges, addNodes, addEdges, removeNode }
+  return { nodes, edges, getLastNode, addNodes, addEdges, removeNode }
 })

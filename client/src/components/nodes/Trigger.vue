@@ -5,7 +5,7 @@ import type { INode } from '@/interfaces/node'
 
 import NodeTemplate from '@/components/nodes/NodeTemplate.vue'
 
-defineProps<{ data: INode }>()
+defineProps<{ data: INode; id: string }>()
 
 const actions = ref([
   {
@@ -33,5 +33,5 @@ const actions = ref([
 </script>
 
 <template>
-  <NodeTemplate icon="pi-bolt" icon-color="text-emerald-500" :data :actions />
+  <NodeTemplate icon="pi-bolt" icon-color="text-emerald-500" :id :data :actions />
 </template>
