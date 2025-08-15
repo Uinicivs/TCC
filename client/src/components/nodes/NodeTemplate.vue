@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
 import type { ButtonProps } from 'primevue'
 
@@ -14,7 +14,10 @@ type NodeTemplateProps = { id: string; data: INode } & {
   icon?: string
   iconColor?: string
   actions?: ButtonProps[]
+  containerClass?: string
 }
+
+const nodeWrapperRef = useTemplateRef('node-wrapper')
 
 const { getLastNode } = useFlowStore()
 
@@ -34,13 +37,18 @@ const canAddNewNode = computed<boolean>(() => {
 
   return lastNodeId === id || couldHaveMoreThanOneWay
 })
+
+const getCurrentNodeWrapperWidth = computed<number>(() => {
+  return nodeWrapperRef.value?.clientWidth || 250
+})
 </script>
 
 <template>
-  <div @click="handleClick" class="cursor-pointer w-[250px] relative">
+  <div ref="node-wrapper" class="cursor-pointer relative" @click="handleClick">
     <Handle type="target" :position="Position.Top" />
     <div
-      class="bg-white p-4 border rounded-lg border-[#e2e8f0] dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
+      class="bg-white p-4 border border-[#e2e8f0] dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
+      :class="containerClass"
     >
       <i
         v-if="icon"
@@ -50,7 +58,7 @@ const canAddNewNode = computed<boolean>(() => {
       />
 
       <div class="overflow-auto">
-        <h4 v-if="data.title" class="text-lg font-semibold truncate">
+        <h4 v-if="data.title" class="font-semibold truncate">
           {{ data.title }}
         </h4>
 
@@ -63,6 +71,10 @@ const canAddNewNode = computed<boolean>(() => {
     </div>
     <Handle type="source" :position="Position.Bottom" />
 
-    <AddNode v-if="canAddNewNode" class="absolute -bottom-12 left-1/2" />
+    <AddNode
+      v-if="canAddNewNode"
+      class="absolute -bottom-12"
+      :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }"
+    />
   </div>
 </template>
