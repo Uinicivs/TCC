@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Button, Dialog, Card, Stepper, StepList, Step, InputText, Textarea } from 'primevue'
+import {
+  Button,
+  Dialog,
+  Card,
+  Stepper,
+  StepList,
+  Step,
+  InputText,
+  Textarea,
+  Message,
+} from 'primevue'
 import type { Node } from '@vue-flow/core'
 
 import { useFlowStore } from '@/stores/flow'
@@ -233,10 +243,13 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             id="nodeLabel"
             v-model="nodeData.label"
             placeholder="Digite um nome para o nó"
+            required
             class="w-full"
             :class="{ 'p-invalid': !nodeData.label.trim() && currentStep >= steps.setupNode }"
           />
-          <small class="text-gray-500 dark:text-gray-400"> Este será o nome exibido no nó </small>
+          <Message size="small" severity="secondary" variant="simple">
+            Este será o nome exibido no nó.
+          </Message>
         </div>
 
         <div class="space-y-2">
@@ -253,9 +266,9 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
             rows="3"
             class="w-full"
           />
-          <small class="text-gray-500 dark:text-gray-400">
-            Descrição opcional para documentar o propósito do nó
-          </small>
+          <Message size="small" severity="secondary" variant="simple">
+            Descrição opcional para documentar o propósito do nó.
+          </Message>
         </div>
       </div>
 
@@ -296,10 +309,8 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
         </div>
       </div>
 
-      <div v-if="shouldShowConfigStep" class="space-y-4 p-6">
+      <div v-if="shouldShowConfigStep" class="px-6">
         <div>
-          <h4 class="text-md font-medium mb-3">Configurações Aplicadas</h4>
-
           <div class="space-y-3 mb-4">
             <div
               v-for="(value, key) in nodeData.config"
