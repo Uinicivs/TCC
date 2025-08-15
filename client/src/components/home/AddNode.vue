@@ -14,19 +14,10 @@ import {
 } from 'primevue'
 import type { Node } from '@vue-flow/core'
 
-import type { INode } from '@/interfaces/node'
+import type { INode, IMappedNodes } from '@/interfaces/node'
+import { nodes as mappedNodes } from '@/constants/nodes'
 
 import { useFlowStore } from '@/stores/flow'
-
-import ConditionalNodeConfig from '@/components/home/ConditionalNodeConfig.vue'
-
-interface IMappedNodes {
-  name: string
-  type: string
-  icon: string
-  iconColor: string
-  configComponent?: Component
-}
 
 const flowStore = useFlowStore()
 const { nodes } = storeToRefs(flowStore)
@@ -100,6 +91,7 @@ const handleConfigData = (configData: Record<string, any>) => {
   nodeData.config = configData
 }
 
+const availableNodeTypes = computed<Array<IMappedNodes>>(() => Object.values(mappedNodes))
 const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
 const hasNodeLabelFilled = computed(() => nodeData.title.trim().length > 0)
 const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
@@ -114,26 +106,6 @@ const getDialogHeader = computed<string>(() => {
     default:
       return ''
   }
-})
-
-const mappedNodes = computed<Array<IMappedNodes>>(() => {
-  const nodes: Record<string, IMappedNodes> = {
-    trigger: {
-      name: 'Trigger',
-      type: 'trigger',
-      icon: 'pi-bolt',
-      iconColor: 'text-emerald-500',
-    },
-    conditional: {
-      name: 'Conditional',
-      type: 'conditional',
-      icon: 'pi-question-circle',
-      iconColor: 'text-amber-500',
-      configComponent: ConditionalNodeConfig,
-    },
-  }
-
-  return Object.values(nodes)
 })
 </script>
 
@@ -197,7 +169,7 @@ const mappedNodes = computed<Array<IMappedNodes>>(() => {
     <div v-if="currentStep === steps.chooseNode" class="space-y-6">
       <div class="grid auto-rows-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card
-          v-for="node in mappedNodes"
+          v-for="node in availableNodeTypes"
           :key="node.type"
           class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none h-40 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-300 dark:hover:border-emerald-600"
           @click="handleNodeSelect(node)"
