@@ -24,7 +24,7 @@ const handleClick = (): void => {
 </script>
 
 <template>
-  <div @click="handleClick" class="cursor-pointer">
+  <div @click="handleClick" class="cursor-pointer min-w-[250px]">
     <Handle type="target" :position="Position.Top" />
     <div
       class="bg-white p-4 border rounded-lg border-[#e2e8f0] dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
