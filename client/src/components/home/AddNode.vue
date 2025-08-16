@@ -90,8 +90,8 @@ const handleCreateNode = () => {
   toggleCreateNodeDialog()
 }
 
-const handleConfigData = (configData: Record<string, any>) => {
-  nodeData.config = configData
+const handleConfigData = (settingsData: INode['settings']) => {
+  nodeData.settings = settingsData
 }
 
 const availableNodeTypes = computed<Array<IMappedNodes>>(() => Object.values(mappedNodes))
@@ -201,7 +201,7 @@ const getDialogHeader = computed<string>(() => {
               for="nodeLabel"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Label do nó <span class="text-red-700">*</span>
+              Nome <span class="text-red-700">*</span>
             </label>
             <InputText
               id="nodeLabel"
@@ -237,7 +237,7 @@ const getDialogHeader = computed<string>(() => {
         <component
           :is="selectedNode?.configComponent"
           v-if="shouldShowConfigStep"
-          @updated:config="handleConfigData"
+          @updated:settings="handleConfigData"
           class="w-full"
         />
       </div>
@@ -269,7 +269,11 @@ const getDialogHeader = computed<string>(() => {
           </div>
         </div>
         <div v-if="shouldShowConfigStep" class="px-6">
-          <component :is="selectedNode?.configComponent" :config="nodeData.config" class="w-full" />
+          <component
+            :is="selectedNode?.configComponent"
+            :settings="nodeData.settings"
+            class="w-full"
+          />
         </div>
       </div>
       <template #footer>

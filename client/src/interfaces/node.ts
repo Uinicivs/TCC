@@ -5,7 +5,7 @@ type INodeTypes = 'trigger' | 'conditional'
 export interface INode {
   title: string
   description?: string
-  config?: Record<string, any>
+  settings?: Record<string, unknown>
 }
 
 export interface IMappedNodes {
