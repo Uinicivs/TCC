@@ -4,21 +4,37 @@ import type { Node, Edge } from '@vue-flow/core'
 
 export const useFlowStore = defineStore('flow', () => {
   const nodes = ref<Node[]>([])
-
   const edges = ref<Edge[]>([])
 
-  const getNodeById = (node: Node) => {
-    return nodes.value.find(({ id }) => id === node.id)
+  const getNodeById = (nodeId: Node['id']) => {
+    return nodes.value.find(({ id }) => id === nodeId)
   }
 
-  const getEdgeById = (edge: Edge) => {
-    return edges.value.find(({ id }) => id === edge.id)
+  const getEdgeById = (edgeId: Edge['id']) => {
+    return edges.value.find(({ id }) => id === edgeId)
   }
 
   const addNodes = (newNode: Node) => {
-    if (!getNodeById(newNode)) {
-      nodes.value.push(newNode)
+    if (getNodeById(newNode.id)) return
+    nodes.value.push(newNode)
+    const {
+      data: { parent: parentId },
+    } = newNode
+
+    if (parentId) {
+      addEdges({
+        id: Date.now().toString(),
+        source: parentId,
+        target: newNode.id,
+      })
     }
+  }
+
+  const updateNode = (nodeId: Node['id'], override: Partial<Node>) => {
+    const nodeIndex = nodes.value.findIndex(({ id }) => id === nodeId)
+    if (nodeIndex === -1) return
+
+    nodes.value[nodeIndex] = { ...nodes.value[nodeIndex], ...override }
   }
 
   const getLastNode = (): Node => {
@@ -28,8 +44,21 @@ export const useFlowStore = defineStore('flow', () => {
   }
 
   const addEdges = (newEdge: Edge) => {
-    if (!getEdgeById(newEdge)) {
+    if (!getEdgeById(newEdge.id)) {
       edges.value.push(newEdge)
+
+      const parentNode = getNodeById(newEdge.source)
+      if (parentNode) {
+        const currentChildren = parentNode.data.children || []
+        if (!currentChildren.includes(newEdge.target)) {
+          updateNode(newEdge.source, {
+            data: {
+              ...parentNode.data,
+              children: [...currentChildren, newEdge.target],
+            },
+          })
+        }
+      }
     }
   }
 
@@ -37,9 +66,22 @@ export const useFlowStore = defineStore('flow', () => {
     const nodeIndex = nodes.value.findIndex(({ id }) => id === node.id)
     if (nodeIndex === -1) return
 
+    const parentNode = getNodeById(node.data.parent)
+    if (parentNode && parentNode.data.children) {
+      const updatedChildren = parentNode.data.children.filter(
+        (childId: string) => childId !== node.id,
+      )
+      updateNode(node.data.parent, {
+        data: {
+          ...parentNode.data,
+          children: updatedChildren,
+        },
+      })
+    }
+
     nodes.value.splice(nodeIndex, 1)
     edges.value = edges.value.filter((edge) => edge.source !== node.id && edge.target !== node.id)
   }
 
-  return { nodes, edges, getLastNode, addNodes, addEdges, removeNode }
+  return { nodes, edges, getLastNode, addNodes, addEdges, removeNode, updateNode }
 })

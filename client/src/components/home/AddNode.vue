@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, toRaw } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   Button,
@@ -22,6 +22,8 @@ import { useFlowStore } from '@/stores/flow'
 const flowStore = useFlowStore()
 const { nodes } = storeToRefs(flowStore)
 
+const { parentId } = defineProps<{ parentId: INode['parent'] }>()
+
 const steps = {
   chooseNode: 1,
   setupTitle: 2,
@@ -32,7 +34,7 @@ const visible = ref(false)
 const currentStep = ref(steps.chooseNode)
 const selectedNode = ref<IMappedNodes | null>(null)
 
-const nodeData = reactive<INode>({ title: '' })
+const nodeData = reactive<INode>({ title: '', parent: parentId })
 
 const toggleCreateNodeDialog = () => {
   visible.value = !visible.value
@@ -83,7 +85,7 @@ const handleCreateNode = () => {
     id: Date.now().toString(),
     position: { x: window.innerWidth / 2 - 150, y: axiosY },
     type: selectedNode.value.type,
-    data: nodeData,
+    data: toRaw(nodeData),
   }
 
   flowStore.addNodes(formatNode)

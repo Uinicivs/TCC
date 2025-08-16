@@ -6,6 +6,8 @@ export interface INode {
   title: string
   description?: string
   settings?: Record<string, unknown>
+  parent: string | null
+  children?: Array<string>
 }
 
 export interface IMappedNodes {

@@ -7,10 +7,9 @@ import type { INode } from '@/interfaces/node'
 
 import { useFlowStore } from '@/stores/flow'
 
-import NodeActions from '@/components/nodes/NodeActions.vue'
 import AddNode from '@/components/home/AddNode.vue'
 
-type NodeTemplateProps = { id: string; data: INode } & {
+type NodeTemplateProps = { id?: string; data?: INode } & {
   icon?: string
   iconColor?: string
   actions?: ButtonProps[]
@@ -47,7 +46,7 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
   <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick">
     <Handle type="target" :position="Position.Top" />
     <div
-      class="bg-white p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
+      class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
       :class="containerClass"
     >
       <i
@@ -58,11 +57,11 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
       />
 
       <div class="overflow-auto">
-        <h4 v-if="data.title" class="font-semibold truncate">
+        <h4 v-if="data?.title" class="font-semibold truncate">
           {{ data.title }}
         </h4>
 
-        <p v-if="data.description" class="truncate">
+        <p v-if="data?.description" class="truncate">
           {{ data.description }}
         </p>
       </div>
@@ -75,6 +74,7 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
       v-if="canAddNewNode"
       class="absolute -bottom-12"
       :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }"
+      :parentId="id || null"
     />
   </div>
 </template>

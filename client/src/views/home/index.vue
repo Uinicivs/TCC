@@ -14,7 +14,7 @@ const { nodes, edges } = storeToRefs(useFlowStore())
 
 <template>
   <div class="h-screen">
-    <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" />
+    <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
 
     <VueFlow :nodes :edges>
       <Background variant="dots" />
