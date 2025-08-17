@@ -5,25 +5,22 @@ import type { INode, IMappedNodes } from '@/interfaces/node'
 
 const nodeData = defineModel<INode>('nodeData', { required: true })
 
-defineProps<{
-  selectedNode: IMappedNodes | null
-}>()
+defineProps<{ selectedNode: IMappedNodes | null }>()
 
-const emit = defineEmits<{
-  'updated:settings': [settings: INode['settings']]
-}>()
+const emit = defineEmits<{ 'updated:settings': [settings: INode['settings']] }>()
 </script>
 
 <template>
   <div class="space-y-4">
     <div class="space-y-2">
-      <label for="nodeLabel" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label for="nodeTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Nome <span class="text-red-700">*</span>
       </label>
       <InputText
-        id="nodeLabel"
+        id="nodeTitle"
         v-model="nodeData.title"
         placeholder="Digite um nome para o nó"
+        autofocus
         required
         class="w-full"
       />
