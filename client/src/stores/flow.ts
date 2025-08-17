@@ -16,18 +16,31 @@ export const useFlowStore = defineStore('flow', () => {
 
   const addNodes = (newNode: Node) => {
     if (getNodeById(newNode.id)) return
-    nodes.value.push(newNode)
+
     const {
       data: { parent: parentId },
     } = newNode
 
-    if (parentId) {
-      addEdges({
-        id: buildEdgeId(newNode),
-        source: parentId,
-        target: newNode.id,
-      })
+    if (!parentId) {
+      nodes.value.push(newNode)
+      return
     }
+
+    const parentIndex = nodes.value.findIndex(node => node.id === parentId)
+
+    if (parentIndex !== -1) {
+      nodes.value.splice(parentIndex + 1, 0, newNode)
+    }
+
+    if (parentIndex === -1) {
+      nodes.value.push(newNode)
+    }
+
+    addEdges({
+      id: buildEdgeId(newNode),
+      source: parentId,
+      target: newNode.id,
+    })
   }
 
   const updateNode = (nodeId: Node['id'], override: Partial<Node>) => {
@@ -54,10 +67,8 @@ export const useFlowStore = defineStore('flow', () => {
     })
   }
 
-  const getLastNode = (): Node => {
-    const [lastNode] = nodes.value.slice(-1)
-
-    return lastNode
+  const getLastNodes = (): Array<Node> => {
+    return nodes.value.filter(({ data }) => !data.children)
   }
 
   const buildEdgeId = (node: Node): string => {
@@ -108,7 +119,7 @@ export const useFlowStore = defineStore('flow', () => {
     nodes,
     edges,
     getNodeById,
-    getLastNode,
+    getLastNodes,
     addNodes,
     removeNode,
     updateNode,
