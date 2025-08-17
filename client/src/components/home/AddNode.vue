@@ -1,157 +1,38 @@
+// AddNode.vue (refatorado)
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { storeToRefs } from 'pinia'
-import {
-  Button,
-  Dialog,
-  Card,
-  Stepper,
-  StepList,
-  Step,
-  InputText,
-  Textarea,
-  Message,
-} from 'primevue'
-import type { Node } from '@vue-flow/core'
+import { computed } from 'vue'
+import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
-import type { INode, IMappedNodes } from '@/interfaces/node'
+import type { INode } from '@/interfaces/node'
+
 import { nodes as mappedNodes } from '@/constants/nodes'
 
-import { useFlowStore } from '@/stores/flow'
+import NodeTypeSelector from '@/components/home/NodeTypeSelector.vue'
+import NodeConfigForm from '@/components/home/NodeConfigForm.vue'
+import NodeSummary from '@/components/home/NodeSummary.vue'
 
-const flowStore = useFlowStore()
-const { nodes } = storeToRefs(flowStore)
+import { useNodeCreation } from '@/composable/useNodeCreation'
 
-const { parentId } = defineProps<{ parentId: INode['parent'] }>()
+const props = defineProps<{ parentId: INode['parent'] }>()
 
-const initialNodeState = { title: '', parent: null }
-const steps = {
-  chooseNode: 1,
-  setupTitle: 2,
-  setupNode: 3,
-}
+const {
+  steps,
+  visible,
+  currentStep,
+  selectedNode,
+  nodeData,
+  hasNodeTypeSelected,
+  hasNodeLabelFilled,
+  shouldShowConfigStep,
+  getDialogHeader,
+  toggleCreateNodeDialog,
+  handleNodeSelect,
+  handleStepNavigation,
+  handleCreateNode,
+  handleConfigData
+} = useNodeCreation(props.parentId)
 
-const visible = ref(false)
-const currentStep = ref(steps.chooseNode)
-const selectedNode = ref<IMappedNodes | null>(null)
-
-const nodeData = reactive<INode>(Object.assign({}, initialNodeState))
-
-const toggleCreateNodeDialog = () => {
-  visible.value = !visible.value
-
-  if (visible.value) {
-    reset()
-  }
-}
-
-const reset = () => {
-  currentStep.value = steps.chooseNode
-  selectedNode.value = null
-
-  Object.keys(nodeData).forEach(key => {
-    delete nodeData[key as keyof typeof nodeData]
-  })
-
-  Object.assign(nodeData, JSON.parse(JSON.stringify(initialNodeState)))
-}
-
-const handleNodeSelect = (node: IMappedNodes) => {
-  selectedNode.value = node
-  currentStep.value = steps.setupTitle
-}
-
-const handleNextStep = () => {
-  if (currentStep.value >= steps.setupNode) return
-  currentStep.value++
-}
-
-const handlePreviousStep = () => {
-  if (currentStep.value <= steps.chooseNode) return
-  currentStep.value--
-}
-
-const handleStepClick = (stepNumber: number) => {
-  if (stepNumber === steps.chooseNode) {
-    currentStep.value = steps.chooseNode
-    return
-  }
-
-  if (stepNumber === steps.setupTitle && !hasNodeTypeSelected.value) return
-  if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)) {
-    return
-  }
-
-  currentStep.value = stepNumber
-}
-
-const handleCreateNode = () => {
-  if (!selectedNode.value || !nodeData.title.trim()) return
-
-  let positionX = window.innerWidth / 2 - 150
-  let positionY = 0
-
-  const parentNode = parentId && flowStore.getNodeById(parentId)
-
-  if (parentNode) {
-    const siblings = nodes.value.filter((node) => node.data?.parent === parentId)
-    const hasNoChildren = siblings.length === 0
-
-    if (hasNoChildren) {
-      positionX = parentNode.position.x
-    }
-
-    if (!hasNoChildren) {
-      const minDistance = 300
-      const randomVariation = Math.random() * 100;
-      const baseOffset = siblings.length * 100;
-      const offsetX = minDistance + baseOffset + randomVariation
-
-      positionX = parentNode.position.x + offsetX
-    }
-
-    positionY = parentNode.position.y + 200
-  }
-
-  if (!parentNode) {
-    const [{ position: lastNodePosition } = {}] = nodes.value.slice(-1)
-    positionY = (lastNodePosition?.y ?? 0) + 200
-  }
-
-  const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
-  formattedNodeData.parent = parentId ?? null
-
-  const formatNode: Node = {
-    id: Date.now().toString(),
-    position: { x: positionX, y: positionY },
-    type: selectedNode.value.type,
-    data: formattedNodeData,
-  }
-
-  flowStore.addNodes({ ...formatNode })
-  toggleCreateNodeDialog()
-}
-
-const handleConfigData = (settingsData: INode['settings']) => {
-  nodeData.settings = settingsData
-}
-
-const availableNodeTypes = computed<Array<IMappedNodes>>(() => Object.values(mappedNodes))
-const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
-const hasNodeLabelFilled = computed(() => nodeData.title.trim().length > 0)
-const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
-const getDialogHeader = computed<string>(() => {
-  switch (currentStep.value) {
-    case steps.chooseNode:
-      return 'Escolha o tipo do nó'
-    case steps.setupTitle:
-      return `Configurar ${selectedNode.value?.name}`
-    case steps.setupNode:
-      return `Configurar ${selectedNode.value?.name}`
-    default:
-      return ''
-  }
-})
+const availableNodeTypes = computed(() => Object.values(mappedNodes))
 </script>
 
 <template>
@@ -180,18 +61,16 @@ const getDialogHeader = computed<string>(() => {
           <StepList>
             <Step
               :value="steps.chooseNode"
-              :class="{ 'cursor-pointer': true }"
-              @click="handleStepClick(steps.chooseNode)"
+              class="cursor-pointer"
+              @click="handleStepNavigation.goTo(steps.chooseNode)"
             >
               <span class="hidden sm:inline">Selecionar tipo</span>
             </Step>
             <Step
               :value="steps.setupTitle"
               :disabled="!hasNodeTypeSelected"
-              :class="{
-                'cursor-pointer': hasNodeTypeSelected,
-              }"
-              @click="hasNodeTypeSelected ? handleStepClick(steps.setupTitle) : null"
+              :class="{ 'cursor-pointer': hasNodeTypeSelected }"
+              @click="hasNodeTypeSelected ? handleStepNavigation.goTo(steps.setupTitle) : null"
             >
               <span class="hidden sm:inline">
                 {{ shouldShowConfigStep ? 'Configurar nó' : 'Configurar nó' }}
@@ -202,7 +81,7 @@ const getDialogHeader = computed<string>(() => {
               :disabled="!hasNodeTypeSelected || !hasNodeLabelFilled"
               :class="{ 'cursor-pointer': hasNodeTypeSelected && hasNodeLabelFilled }"
               @click="
-                hasNodeTypeSelected && hasNodeLabelFilled ? handleStepClick(steps.setupNode) : null
+                hasNodeTypeSelected && hasNodeLabelFilled ? handleStepNavigation.goTo(steps.setupNode) : null
               "
             >
               <span class="hidden sm:inline">Revisar</span>
@@ -210,114 +89,26 @@ const getDialogHeader = computed<string>(() => {
           </StepList>
         </Stepper>
       </div>
-      <div v-if="currentStep === steps.chooseNode" class="space-y-6">
-        <div class="grid auto-rows-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <Card
-            v-for="node in availableNodeTypes"
-            :key="node.type"
-            class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none h-40 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-300 dark:hover:border-emerald-600"
-            @click="handleNodeSelect(node)"
-          >
-            <template #content>
-              <div class="h-full flex flex-col justify-between gap-4 text-center">
-                <i
-                  v-if="node.icon"
-                  :class="[node.icon, node.iconColor]"
-                  class="pi p-4 rounded-sm w-full h-20 content-center"
-                  style="font-size: 1.5em"
-                />
-                <div class="overflow-auto">
-                  <h4 class="text-lg font-semibold">
-                    {{ node.name }}
-                  </h4>
-                </div>
-              </div>
-            </template>
-          </Card>
-        </div>
-      </div>
-      <div v-if="currentStep === steps.setupTitle" class="space-y-6">
-        <div class="space-y-4">
-          <div class="space-y-2">
-            <label
-              for="nodeLabel"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Nome <span class="text-red-700">*</span>
-            </label>
-            <InputText
-              id="nodeLabel"
-              v-model="nodeData.title"
-              placeholder="Digite um nome para o nó"
-              required
-              class="w-full"
-              :class="{ 'p-invalid': !nodeData.title.trim() && currentStep >= steps.setupNode }"
-            />
-            <Message size="small" severity="secondary" variant="simple">
-              Este será o nome exibido no nó.
-            </Message>
-          </div>
-          <div class="space-y-2">
-            <label
-              for="nodeDescription"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
-              Descrição
-            </label>
-            <Textarea
-              id="nodeDescription"
-              v-model="nodeData.description"
-              placeholder="Digite uma descrição para o nó (opcional)"
-              rows="3"
-              class="w-full"
-            />
-            <Message size="small" severity="secondary" variant="simple">
-              Descrição opcional para documentar o propósito do nó.
-            </Message>
-          </div>
-        </div>
-        <component
-          :is="selectedNode?.configComponent"
-          v-if="shouldShowConfigStep"
-          @updated:settings="handleConfigData"
-          class="w-full"
-        />
-      </div>
-      <div v-if="currentStep === steps.setupNode" class="space-y-6">
-        <div class="p-6">
-          <h3 class="text-lg font-semibold mb-4">Resumo do Nó</h3>
-          <div class="space-y-4">
-            <div
-              class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
-            >
-              <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
-              <span class="font-medium truncate">{{ selectedNode?.name }}</span>
-            </div>
-            <div
-              class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
-            >
-              <span class="text-gray-600 dark:text-gray-400">Title:</span>
-              <span class="font-medium truncate">{{ nodeData.title }}</span>
-            </div>
-            <div
-              v-if="nodeData.description"
-              class="flex items-start justify-between py-2 border-b border-gray-200 dark:border-gray-600"
-            >
-              <span class="text-gray-600 dark:text-gray-400">Descrição:</span>
-              <span class="font-medium text-right max-w-xs truncate">{{
-                nodeData.description
-              }}</span>
-            </div>
-          </div>
-        </div>
-        <div v-if="shouldShowConfigStep" class="px-6">
-          <component
-            :is="selectedNode?.configComponent"
-            :settings="nodeData.settings"
-            class="w-full"
-          />
-        </div>
-      </div>
+
+      <NodeTypeSelector
+        v-if="currentStep === steps.chooseNode"
+        :available-node-types="availableNodeTypes"
+        @select="handleNodeSelect"
+      />
+
+      <NodeConfigForm
+        v-if="currentStep === steps.setupTitle"
+        v-model:nodeData="nodeData"
+        :selected-node="selectedNode"
+        @updated:settings="handleConfigData"
+      />
+
+      <NodeSummary
+        v-if="currentStep === steps.setupNode"
+        :node-data="nodeData"
+        :selected-node="selectedNode"
+      />
+
       <template #footer>
         <div class="flex justify-between items-center w-full pt-5">
           <Button
@@ -328,7 +119,7 @@ const getDialogHeader = computed<string>(() => {
             icon="pi pi-chevron-left"
             severity="secondary"
             outlined
-            @click="handlePreviousStep"
+            @click="handleStepNavigation.previous"
           />
           <div class="flex gap-2 w-full">
             <Button
@@ -342,7 +133,7 @@ const getDialogHeader = computed<string>(() => {
                 (currentStep === 1 && !hasNodeTypeSelected) ||
                 (currentStep === 2 && !hasNodeLabelFilled)
               "
-              @click="handleNextStep"
+              @click="handleStepNavigation.next"
             />
             <Button
               v-if="currentStep === steps.setupNode"
