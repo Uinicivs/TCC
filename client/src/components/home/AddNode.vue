@@ -1,4 +1,3 @@
-// AddNode.vue (refatorado)
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'

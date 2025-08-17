@@ -1,12 +1,19 @@
 import { ref, reactive, computed } from 'vue'
-import type { INode, IMappedNodes } from '@/interfaces/node'
 import type { Node } from '@vue-flow/core'
+
+import type { INode, IMappedNodes } from '@/interfaces/node'
+
 import { useFlowStore } from '@/stores/flow'
+
 
 export function useNodeCreation(parentId: INode['parent']) {
   const flowStore = useFlowStore()
 
-  const initialNodeState = { title: '', parent: null }
+  const initialNodeState = {
+    title: '',
+    parent: null
+  }
+
   const steps = {
     chooseNode: 1,
     setupTitle: 2,
@@ -14,7 +21,7 @@ export function useNodeCreation(parentId: INode['parent']) {
   }
 
   const visible = ref(false)
-  const currentStep = ref(steps.chooseNode)
+  const currentStep = ref<number>(steps.chooseNode)
   const selectedNode = ref<IMappedNodes | null>(null)
 
   const nodeData = reactive<INode>(Object.assign({}, initialNodeState))
