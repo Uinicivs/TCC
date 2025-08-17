@@ -50,9 +50,9 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
 </script>
 
 <template>
-  <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick">
+  <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick" >
     <Handle type="target" :position="Position.Top" />
-    <div
+      <div
       class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
       :class="containerClass"
     >

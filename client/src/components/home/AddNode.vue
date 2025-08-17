@@ -103,8 +103,8 @@ const handleCreateNode = () => {
 
     if (!hasNoChildren) {
       const minDistance = 300
-      const randomVariation = Math.floor(Math.random() * 100)
-      const baseOffset = siblings.length * 50
+      const randomVariation = Math.random() * 100;
+      const baseOffset = siblings.length * 100;
       const offsetX = minDistance + baseOffset + randomVariation
 
       positionX = parentNode.position.x + offsetX
