@@ -78,12 +78,41 @@ const handleStepClick = (stepNumber: number) => {
 const handleCreateNode = () => {
   if (!selectedNode.value || !nodeData.title.trim()) return
 
-  const [{ position: lastNodePosition } = {}] = nodes.value.slice(-1)
-  const axiosY = (lastNodePosition?.y ?? 0) + 200
+  let positionX = window.innerWidth / 2 - 150
+  let positionY = 0
+
+  const parentNode = nodes.value.find(node => node.id === parentId)
+
+  if (parentNode) {
+    const siblings = nodes.value.filter(node => node.data?.parent === parentId)
+
+    const hasNoChildren = siblings.length === 0
+
+    if (hasNoChildren) {
+      positionX = parentNode.position.x
+    }
+
+    if (!hasNoChildren) {
+      const minDistance = 300
+      const randomVariation = Math.floor(Math.random() * 100)
+      const baseOffset = siblings.length * 50
+
+      const offsetX = minDistance + baseOffset + randomVariation
+
+      positionX = parentNode.position.x + offsetX
+    }
+
+    positionY = parentNode.position.y + 200
+  }
+
+  if (!parentNode) {
+    const [{ position: lastNodePosition } = {}] = nodes.value.slice(-1)
+    positionY = (lastNodePosition?.y ?? 0) + 200
+  }
 
   const formatNode: Node = {
     id: Date.now().toString(),
-    position: { x: window.innerWidth / 2 - 150, y: axiosY },
+    position: { x: positionX, y: positionY },
     type: selectedNode.value.type,
     data: toRaw(nodeData),
   }
