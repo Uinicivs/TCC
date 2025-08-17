@@ -18,7 +18,7 @@ type NodeTemplateProps = { id?: string; data?: INode } & {
 
 const nodeWrapperRef = useTemplateRef('node-wrapper')
 
-const { getLastNode, getNodeById } = useFlowStore()
+const { getLastNodes, getNodeById } = useFlowStore()
 
 const { actions, data, id } = defineProps<NodeTemplateProps>()
 
@@ -31,15 +31,17 @@ const handleClick = (): void => {
 
 const canAddNewNode = computed<boolean>(() => {
   let currentNode: Node | null = null
-  const { id: lastNodeId, type: lastNodeType = '' } = getLastNode()
+  const lastNodes = getLastNodes()
 
   if (id) {
     currentNode = getNodeById(id) ?? null
   }
 
-  const couldHaveMoreThanOneWay = ['conditional'].includes(currentNode?.type || lastNodeType)
+  const isLastNode = lastNodes.some(node => node.id === id)
+  const currentNodeType = currentNode?.type || ''
+  const couldHaveMoreWays = ['conditional'].includes(currentNodeType)
 
-  return lastNodeId === id || couldHaveMoreThanOneWay
+  return isLastNode || couldHaveMoreWays
 })
 
 const getCurrentNodeWrapperWidth = computed<number>(() => {
