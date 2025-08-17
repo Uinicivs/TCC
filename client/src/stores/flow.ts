@@ -6,7 +6,7 @@ export const useFlowStore = defineStore('flow', () => {
   const nodes = ref<Node[]>([])
   const edges = ref<Edge[]>([])
 
-  const getNodeById = (nodeId: Node['id']) => {
+  const getNodeById = (nodeId: Node['id']) : Node | undefined=> {
     return nodes.value.find(({ id }) => id === nodeId)
   }
 
@@ -107,6 +107,7 @@ export const useFlowStore = defineStore('flow', () => {
   return {
     nodes,
     edges,
+    getNodeById,
     getLastNode,
     addNodes,
     removeNode,

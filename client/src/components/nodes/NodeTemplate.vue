@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
-import { Position, Handle } from '@vue-flow/core'
+import { Position, Handle, type Node } from '@vue-flow/core'
 import type { ButtonProps } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
@@ -18,7 +18,7 @@ type NodeTemplateProps = { id?: string; data?: INode } & {
 
 const nodeWrapperRef = useTemplateRef('node-wrapper')
 
-const { getLastNode } = useFlowStore()
+const { getLastNode, getNodeById } = useFlowStore()
 
 const { actions, data, id } = defineProps<NodeTemplateProps>()
 
@@ -30,9 +30,14 @@ const handleClick = (): void => {
 }
 
 const canAddNewNode = computed<boolean>(() => {
+  let currentNode: Node | null = null
   const { id: lastNodeId, type: lastNodeType = '' } = getLastNode()
 
-  const couldHaveMoreThanOneWay = ['conditional'].includes(lastNodeType)
+  if (id) {
+    currentNode = getNodeById(id) ?? null
+  }
+
+  const couldHaveMoreThanOneWay = ['conditional'].includes(currentNode?.type || lastNodeType)
 
   return lastNodeId === id || couldHaveMoreThanOneWay
 })

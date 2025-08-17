@@ -23,6 +23,10 @@ const { nodes, edges } = storeToRefs(useFlowStore())
       <template #node-trigger="props">
         <Trigger v-bind="props" />
       </template>
+
+      <template #node-conditional="props">
+        <Trigger v-bind="props" />
+      </template>
     </VueFlow>
   </div>
 </template>
