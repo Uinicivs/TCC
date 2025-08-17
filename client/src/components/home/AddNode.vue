@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, toRaw } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   Button,
@@ -24,6 +24,7 @@ const { nodes } = storeToRefs(flowStore)
 
 const { parentId } = defineProps<{ parentId: INode['parent'] }>()
 
+const initialNodeState = { title: '', parent: null }
 const steps = {
   chooseNode: 1,
   setupTitle: 2,
@@ -34,15 +35,25 @@ const visible = ref(false)
 const currentStep = ref(steps.chooseNode)
 const selectedNode = ref<IMappedNodes | null>(null)
 
-const nodeData = reactive<INode>({ title: '', parent: parentId })
+const nodeData = reactive<INode>(Object.assign({}, initialNodeState))
 
 const toggleCreateNodeDialog = () => {
   visible.value = !visible.value
+
   if (visible.value) {
-    currentStep.value = 1
-    selectedNode.value = null
-    nodeData.title = ''
+    reset()
   }
+}
+
+const reset = () => {
+  currentStep.value = steps.chooseNode
+  selectedNode.value = null
+
+  Object.keys(nodeData).forEach(key => {
+    delete nodeData[key as keyof typeof nodeData]
+  })
+
+  Object.assign(nodeData, JSON.parse(JSON.stringify(initialNodeState)))
 }
 
 const handleNodeSelect = (node: IMappedNodes) => {
@@ -67,7 +78,6 @@ const handleStepClick = (stepNumber: number) => {
   }
 
   if (stepNumber === steps.setupTitle && !hasNodeTypeSelected.value) return
-
   if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)) {
     return
   }
@@ -81,11 +91,10 @@ const handleCreateNode = () => {
   let positionX = window.innerWidth / 2 - 150
   let positionY = 0
 
-  const parentNode = nodes.value.find(node => node.id === parentId)
+  const parentNode = parentId && flowStore.getNodeById(parentId)
 
   if (parentNode) {
-    const siblings = nodes.value.filter(node => node.data?.parent === parentId)
-
+    const siblings = nodes.value.filter((node) => node.data?.parent === parentId)
     const hasNoChildren = siblings.length === 0
 
     if (hasNoChildren) {
@@ -96,7 +105,6 @@ const handleCreateNode = () => {
       const minDistance = 300
       const randomVariation = Math.floor(Math.random() * 100)
       const baseOffset = siblings.length * 50
-
       const offsetX = minDistance + baseOffset + randomVariation
 
       positionX = parentNode.position.x + offsetX
@@ -110,14 +118,17 @@ const handleCreateNode = () => {
     positionY = (lastNodePosition?.y ?? 0) + 200
   }
 
+  const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
+  formattedNodeData.parent = parentId ?? null
+
   const formatNode: Node = {
     id: Date.now().toString(),
     position: { x: positionX, y: positionY },
     type: selectedNode.value.type,
-    data: toRaw(nodeData),
+    data: formattedNodeData,
   }
 
-  flowStore.addNodes(formatNode)
+  flowStore.addNodes({ ...formatNode })
   toggleCreateNodeDialog()
 }
 
