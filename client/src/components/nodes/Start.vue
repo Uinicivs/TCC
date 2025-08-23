@@ -33,5 +33,11 @@ const actions = ref([
 </script>
 
 <template>
-  <NodeTemplate icon="pi-bolt" icon-color="text-emerald-500" :id :data :actions />
+  <NodeTemplate
+    class="!w-20"
+    container-class="!rounded-full h-20 text-center !w-full outline-emerald-400 outline-4"
+    :id
+    :data
+    :actions
+  />
 </template>

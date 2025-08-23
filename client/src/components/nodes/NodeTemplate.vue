@@ -37,7 +37,7 @@ const canAddNewNode = computed<boolean>(() => {
     currentNode = getNodeById(id) ?? null
   }
 
-  const isLastNode = lastNodes.some(node => node.id === id)
+  const isLastNode = lastNodes.some((node) => node.id === id)
   const currentNodeType = currentNode?.type || ''
   const couldHaveMoreWays = ['conditional'].includes(currentNodeType)
 
@@ -50,10 +50,10 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
 </script>
 
 <template>
-  <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick" >
+  <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick">
     <Handle type="target" :position="Position.Top" />
-      <div
-      class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-950 dark:border-neutral-900 flex gap-4 max-w-[300px]"
+    <div
+      class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-900 dark:border-neutral-900 flex gap-4 max-w-[300px]"
       :class="containerClass"
     >
       <i
@@ -63,7 +63,7 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
         style="font-size: 1.3em"
       />
 
-      <div class="overflow-auto">
+      <div class="overflow-hidden w-full h-full flex flex-col items-center justify-center">
         <h4 v-if="data?.title" class="font-semibold truncate">
           {{ data.title }}
         </h4>
