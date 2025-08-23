@@ -1,44 +1,54 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
-import type { ButtonProps } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
 import { useConditionalHandles } from '@/composable/useConditionalHandles'
 import { useNodeActions } from '@/composable/useNodeActions'
+import { useFlowStore } from '@/stores/flow'
 
+import NodeActions from '@/components/nodes/NodeActions.vue'
 import AddNode from '@/components/home/AddNode.vue'
 
 type NodeTemplateProps = { id?: string; data?: INode } & {
   icon?: string
   iconColor?: string
-  actions?: ButtonProps[]
   containerClass?: string
   handleSourcePosition?: Position
 }
 
+const flowStore = useFlowStore()
 const nodeWrapperRef = useTemplateRef('node-wrapper')
 
-const { actions, data, id } = defineProps<NodeTemplateProps>()
-
-const isVisibleActions = ref(false)
+const { data, id } = defineProps<NodeTemplateProps>()
 
 const { canAddNewNode } = useNodeActions(id)
 const { isConditionalNode, canAddToLeftPath, canAddToRightPath } = useConditionalHandles(id)
 
-const handleClick = (): void => {
-  if (!actions?.length) return
-  isVisibleActions.value = !isVisibleActions.value
-}
+const isVisibleActions = ref(false)
 
 const getCurrentNodeWrapperWidth = computed<number>(() => {
   return nodeWrapperRef.value?.clientWidth || 250
 })
+
+const isFirstNode = computed<boolean>(() => {
+  return flowStore.getFirstNode()?.id === id
+})
+
+const handleClick = (): void => {
+  if (isFirstNode.value) return
+  isVisibleActions.value = !isVisibleActions.value
+}
 </script>
 
 <template>
-  <div ref="node-wrapper" class="cursor-pointer relative w-[250px]" @click="handleClick">
+  <div
+    ref="node-wrapper"
+    class="relative w-[250px]"
+    :class="{ 'cursor-pointer': !isFirstNode }"
+    @click="handleClick"
+  >
     <Handle type="target" :position="Position.Top" />
 
     <div
@@ -105,5 +115,7 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
       :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }"
       :parentId="id || null"
     />
+
+    <NodeActions v-if="id && !isFirstNode" :is-visible="isVisibleActions" :nodeId="id" />
   </div>
 </template>

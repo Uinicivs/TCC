@@ -3,34 +3,8 @@ import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 
 export const useFlowStore = defineStore('flow', () => {
-  const nodes = ref<Node[]>([
-    {
-      id: '1755980546232',
-      position: {
-        x: 302.5,
-        y: 200,
-      },
-      type: 'start',
-      data: { title: 'teste', parent: null, children: ['1755980553131'] },
-    },
-
-    {
-      id: '1755980553131',
-      position: {
-        x: 302.5,
-        y: 400,
-      },
-      type: 'conditional',
-      data: { title: 'teste', parent: '1755980546232' },
-    },
-  ])
-  const edges = ref<Edge[]>([
-    {
-      id: '1755980546232-1755980553131',
-      source: '1755980546232',
-      target: '1755980553131',
-    },
-  ])
+  const nodes = ref<Node[]>([])
+  const edges = ref<Edge[]>([])
 
   const getNodeById = (nodeId: Node['id']): Node | undefined => {
     return nodes.value.find(({ id }) => id === nodeId)
@@ -96,7 +70,11 @@ export const useFlowStore = defineStore('flow', () => {
   }
 
   const getLastNodes = (): Array<Node> => {
-    return nodes.value.filter(({ data }) => !data.children)
+    return nodes.value.filter(({ data }) => !data.children?.length)
+  }
+
+  const getFirstNode = (): Node | undefined => {
+    return nodes.value.find(({ data }) => data.parent === null)
   }
 
   const buildEdgeId = (node: Node): string => {
@@ -174,6 +152,7 @@ export const useFlowStore = defineStore('flow', () => {
     edges,
     getNodeById,
     getLastNodes,
+    getFirstNode,
     addNodes,
     removeNode,
     updateNode,

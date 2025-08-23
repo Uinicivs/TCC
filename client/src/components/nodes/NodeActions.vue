@@ -1,20 +1,25 @@
 <script setup lang="ts">
+import { reactive } from 'vue'
 import { Position } from '@vue-flow/core'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
 import { Button, type ButtonProps } from 'primevue'
 
+import { useFlowStore } from '@/stores/flow'
+
 const props = defineProps<{
-  actions: ButtonProps[]
   position?: Position
   offset?: number
   isVisible?: boolean
+  nodeId: string
 }>()
 
+const flowStore = useFlowStore()
+
 const toolbarPosition = props.position ?? Position.Right
-const toolbarOffset = props.offset ?? 15
+const toolbarOffset = props.offset ?? 35
 
 const getButtonPosition = (index: number, total: number) => {
-  const angleStep = 180 / (total - 1)
+  const angleStep = 180
   const angle = (index * angleStep - 90) * (Math.PI / 180)
   const radius = 40
 
@@ -24,6 +29,22 @@ const getButtonPosition = (index: number, total: number) => {
     delay: index * 100,
   }
 }
+
+const actions = reactive<Array<{ callAction?: VoidFunction } & ButtonProps>>([
+  {
+    icon: 'pi pi-trash',
+    rounded: true,
+    variant: 'outlined',
+    size: 'small',
+    severity: 'danger',
+    callAction: () => {
+      const currentNode = flowStore.getNodeById(props.nodeId)
+      if (!currentNode) return
+
+      flowStore.removeNode(currentNode)
+    },
+  },
+])
 </script>
 
 <template>
@@ -43,7 +64,7 @@ const getButtonPosition = (index: number, total: number) => {
             '--y': `${getButtonPosition(index, actions.length).y}px`,
           }"
         >
-          <Button v-bind="action" class="radial-button" />
+          <Button v-bind="action" class="radial-button" @click="action.callAction" />
         </div>
       </template>
     </div>
