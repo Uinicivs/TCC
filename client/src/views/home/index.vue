@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
@@ -9,6 +10,8 @@ import { useFlowStore } from '@/stores/flow'
 import AddNode from '@/components/home/AddNode.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
+import { nodes as mappedNodes } from '@/constants/nodes'
+
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
 
@@ -18,6 +21,12 @@ const onNodeDragStop = (event: NodeDragEvent) => {
   } = event
   flowStore.updateNode(nodeId, { position })
 }
+
+const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() => ({
+  start: Start,
+  conditional: Conditional,
+  end: End,
+}))
 </script>
 
 <template>
@@ -28,16 +37,8 @@ const onNodeDragStop = (event: NodeDragEvent) => {
       <Background variant="dots" />
       <Controls :showInteractive="false" />
 
-      <template #node-start="props">
-        <Start v-bind="props" />
-      </template>
-
-      <template #node-conditional="props">
-        <Conditional v-bind="props" />
-      </template>
-
-      <template #node-end="props">
-        <End v-bind="props" />
+      <template v-for="(node, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
+        <component :is="node" v-bind="props" />
       </template>
     </VueFlow>
   </div>
