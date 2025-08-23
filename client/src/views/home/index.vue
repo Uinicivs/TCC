@@ -7,13 +7,15 @@ import { Controls } from '@vue-flow/controls'
 import { useFlowStore } from '@/stores/flow'
 
 import AddNode from '@/components/home/AddNode.vue'
-import Trigger from '@/components/nodes/Trigger.vue'
+import Start from '@/components/nodes/Start.vue'
 
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
 
 const onNodeDragStop = (event: NodeDragEvent) => {
-  const { node: { id: nodeId, position } } = event
+  const {
+    node: { id: nodeId, position },
+  } = event
   flowStore.updateNode(nodeId, { position })
 }
 </script>
@@ -26,12 +28,12 @@ const onNodeDragStop = (event: NodeDragEvent) => {
       <Background variant="dots" />
       <Controls :showInteractive="false" />
 
-      <template #node-trigger="props">
-        <Trigger v-bind="props" />
+      <template #node-start="props">
+        <Start v-bind="props" />
       </template>
 
       <template #node-conditional="props">
-        <Trigger v-bind="props" />
+        <Start v-bind="props" />
       </template>
     </VueFlow>
   </div>

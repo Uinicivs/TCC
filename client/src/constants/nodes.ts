@@ -3,9 +3,9 @@ import ConditionalNodeConfig from '@/components/home/ConditionalNodeConfig.vue'
 import type { IMappedNodes } from '@/interfaces/node'
 
 export const nodes: Record<string, IMappedNodes> = {
-  trigger: {
-    name: 'Trigger',
-    type: 'trigger',
+  start: {
+    name: 'Start',
+    type: 'start',
     icon: 'pi-bolt',
     iconColor: 'text-emerald-500',
   },

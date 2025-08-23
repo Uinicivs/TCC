@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 
-type INodeTypes = 'trigger' | 'conditional'
+type INodeTypes = 'start' | 'conditional'
 
 export interface INode {
   title: string
