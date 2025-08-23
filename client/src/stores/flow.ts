@@ -6,7 +6,7 @@ export const useFlowStore = defineStore('flow', () => {
   const nodes = ref<Node[]>([])
   const edges = ref<Edge[]>([])
 
-  const getNodeById = (nodeId: Node['id']) : Node | undefined=> {
+  const getNodeById = (nodeId: Node['id']): Node | undefined => {
     return nodes.value.find(({ id }) => id === nodeId)
   }
 
@@ -14,7 +14,7 @@ export const useFlowStore = defineStore('flow', () => {
     return edges.value.find(({ id }) => id === edgeId)
   }
 
-  const addNodes = (newNode: Node) => {
+  const addNodes = (newNode: Node, skipEdgeCreation = false) => {
     if (getNodeById(newNode.id)) return
 
     const {
@@ -26,7 +26,7 @@ export const useFlowStore = defineStore('flow', () => {
       return
     }
 
-    const parentIndex = nodes.value.findIndex(node => node.id === parentId)
+    const parentIndex = nodes.value.findIndex((node) => node.id === parentId)
 
     if (parentIndex !== -1) {
       nodes.value.splice(parentIndex + 1, 0, newNode)
@@ -36,11 +36,13 @@ export const useFlowStore = defineStore('flow', () => {
       nodes.value.push(newNode)
     }
 
-    addEdges({
-      id: buildEdgeId(newNode),
-      source: parentId,
-      target: newNode.id,
-    })
+    if (!skipEdgeCreation) {
+      addEdges({
+        id: buildEdgeId(newNode),
+        source: parentId,
+        target: newNode.id,
+      })
+    }
   }
 
   const updateNode = (nodeId: Node['id'], override: Partial<Node>) => {
@@ -94,6 +96,32 @@ export const useFlowStore = defineStore('flow', () => {
     }
   }
 
+  const addEdgeWithHandle = (newEdge: Edge & { sourceHandle?: string }) => {
+    const existingEdgeWithHandle = edges.value.find(
+      (edge) => edge.source === newEdge.source && edge.sourceHandle === newEdge.sourceHandle,
+    )
+
+    if (existingEdgeWithHandle) return
+
+    if (!getEdgeById(newEdge.id)) {
+      edges.value.push(newEdge)
+
+      const parentNode = getNodeById(newEdge.source)
+      if (parentNode) {
+        const currentChildren = parentNode.data.children || []
+
+        if (!currentChildren.includes(newEdge.target)) {
+          updateNode(newEdge.source, {
+            data: {
+              ...parentNode.data,
+              children: [...currentChildren, newEdge.target],
+            },
+          })
+        }
+      }
+    }
+  }
+
   const removeNode = (node: Node) => {
     const nodeIndex = nodes.value.findIndex(({ id }) => id === node.id)
     if (nodeIndex === -1) return
@@ -124,5 +152,6 @@ export const useFlowStore = defineStore('flow', () => {
     removeNode,
     updateNode,
     setNodes,
+    addEdgeWithHandle,
   }
 })

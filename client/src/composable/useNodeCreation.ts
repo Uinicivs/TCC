@@ -5,13 +5,12 @@ import type { INode, IMappedNodes } from '@/interfaces/node'
 
 import { useFlowStore } from '@/stores/flow'
 
-
-export function useNodeCreation(parentId: INode['parent']) {
+export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const flowStore = useFlowStore()
 
   const initialNodeState = {
     title: '',
-    parent: null
+    parent: null,
   }
 
   const steps = {
@@ -30,7 +29,7 @@ export function useNodeCreation(parentId: INode['parent']) {
     currentStep.value = steps.chooseNode
     selectedNode.value = null
 
-    Object.keys(nodeData).forEach(key => {
+    Object.keys(nodeData).forEach((key) => {
       delete nodeData[key as keyof typeof nodeData]
     })
 
@@ -63,12 +62,15 @@ export function useNodeCreation(parentId: INode['parent']) {
       }
 
       if (stepNumber === steps.setupTitle && !hasNodeTypeSelected.value) return
-      if (stepNumber === steps.setupNode && (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)) {
+      if (
+        stepNumber === steps.setupNode &&
+        (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)
+      ) {
         return
       }
 
       currentStep.value = stepNumber
-    }
+    },
   }
 
   const handleCreateNode = () => {
@@ -97,6 +99,16 @@ export function useNodeCreation(parentId: INode['parent']) {
       }
 
       positionY = parentNode.position.y + 200
+
+      if (handleId) {
+        if (handleId === 'conditional-left') {
+          positionX = parentNode.position.x - 300
+        }
+
+        if (handleId === 'conditional-right') {
+          positionX = parentNode.position.x + 300
+        }
+      }
     }
 
     if (!parentNode) {
@@ -114,7 +126,20 @@ export function useNodeCreation(parentId: INode['parent']) {
       data: formattedNodeData,
     }
 
-    flowStore.addNodes({ ...formatNode })
+    if (!(handleId && parentId)) {
+      flowStore.addNodes({ ...formatNode })
+    }
+
+    if (handleId && parentId) {
+      flowStore.addNodes({ ...formatNode }, true)
+      flowStore.addEdgeWithHandle({
+        id: `${parentId}-${formatNode.id}-${handleId}`,
+        source: parentId,
+        target: formatNode.id,
+        sourceHandle: handleId,
+      })
+    }
+
     toggleCreateNodeDialog()
   }
 
@@ -153,6 +178,6 @@ export function useNodeCreation(parentId: INode['parent']) {
     handleStepNavigation,
     handleCreateNode,
     handleConfigData,
-    reset
+    reset,
   }
 }

@@ -12,7 +12,10 @@ import NodeSummary from '@/components/home/NodeSummary.vue'
 
 import { useNodeCreation } from '@/composable/useNodeCreation'
 
-const props = defineProps<{ parentId: INode['parent'] }>()
+const props = defineProps<{
+  parentId: INode['parent']
+  handleId?: string
+}>()
 
 const {
   steps,
@@ -28,8 +31,8 @@ const {
   handleNodeSelect,
   handleStepNavigation,
   handleCreateNode,
-  handleConfigData
-} = useNodeCreation(props.parentId)
+  handleConfigData,
+} = useNodeCreation(props.parentId, props.handleId)
 
 const availableNodeTypes = computed(() => Object.values(mappedNodes))
 </script>
@@ -80,7 +83,9 @@ const availableNodeTypes = computed(() => Object.values(mappedNodes))
               :disabled="!hasNodeTypeSelected || !hasNodeLabelFilled"
               :class="{ 'cursor-pointer': hasNodeTypeSelected && hasNodeLabelFilled }"
               @click="
-                hasNodeTypeSelected && hasNodeLabelFilled ? handleStepNavigation.goTo(steps.setupNode) : null
+                hasNodeTypeSelected && hasNodeLabelFilled
+                  ? handleStepNavigation.goTo(steps.setupNode)
+                  : null
               "
             >
               <span class="hidden sm:inline">Revisar</span>
