@@ -17,4 +17,11 @@ export const nodes: Record<string, IMappedNodes> = {
     iconColor: 'text-amber-500',
     configComponent: ConditionalNodeConfig,
   },
+
+  end: {
+    name: 'End',
+    type: 'end',
+    icon: 'pi-flag',
+    iconColor: 'text-red-500',
+  },
 }

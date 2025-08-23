@@ -7,7 +7,7 @@ import { Controls } from '@vue-flow/controls'
 import { useFlowStore } from '@/stores/flow'
 
 import AddNode from '@/components/home/AddNode.vue'
-import { Start, Conditional } from '@/components/nodes'
+import { Start, Conditional, End } from '@/components/nodes'
 
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
@@ -34,6 +34,10 @@ const onNodeDragStop = (event: NodeDragEvent) => {
 
       <template #node-conditional="props">
         <Conditional v-bind="props" />
+      </template>
+
+      <template #node-end="props">
+        <End v-bind="props" />
       </template>
     </VueFlow>
   </div>

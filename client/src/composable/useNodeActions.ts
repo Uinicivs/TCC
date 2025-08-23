@@ -19,9 +19,10 @@ export const useNodeActions = (id?: string) => {
 
     const isLastNode = lastNodes.some((node: Node) => node.id === id)
     const currentNodeType = currentNode?.type || ''
+    const isEndNode = ['end'].includes(currentNodeType)
     const couldHaveMoreWays = ['conditional'].includes(currentNodeType)
 
-    return isLastNode || couldHaveMoreWays
+    return !isEndNode && (isLastNode || couldHaveMoreWays)
   })
 
   return { canAddNewNode }
