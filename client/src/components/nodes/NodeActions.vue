@@ -6,6 +6,8 @@ import { Button, type ButtonProps } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
+import EditNode from '@/components/home/EditNode.vue'
+
 const props = defineProps<{
   position?: Position
   offset?: number
@@ -67,6 +69,8 @@ const actions = reactive<Array<{ callAction?: VoidFunction } & ButtonProps>>([
           <Button v-bind="action" class="radial-button" @click="action.callAction" />
         </div>
       </template>
+
+      <EditNode :nodeId />
     </div>
   </NodeToolbar>
 </template>

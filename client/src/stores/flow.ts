@@ -48,8 +48,10 @@ export const useFlowStore = defineStore('flow', () => {
   const updateNode = (nodeId: Node['id'], override: Partial<Node>) => {
     const nodeIndex = nodes.value.findIndex(({ id }) => id === nodeId)
     if (nodeIndex === -1) return
-
-    nodes.value[nodeIndex] = { ...nodes.value[nodeIndex], ...override }
+    const currentNode = nodes.value[nodeIndex]
+    const updatedNode = { ...currentNode, ...override }
+    nodes.value.splice(nodeIndex, 1, updatedNode)
+    nodes.value = [...nodes.value]
   }
 
   const setNodes = (newNodes: Node[]) => {
