@@ -4,6 +4,8 @@ import type { Node } from '@vue-flow/core'
 import type { INode, IMappedNodes } from '@/interfaces/node'
 
 import { useFlowStore } from '@/stores/flow'
+import { getDefaultNodeTitle, EXCLUDED_NODE_TYPES } from '@/constants/nodeConfig'
+import { nodes } from '@/constants/nodes'
 
 export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const flowStore = useFlowStore()
@@ -44,6 +46,11 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const handleNodeSelect = (node: IMappedNodes) => {
     selectedNode.value = node
     currentStep.value = steps.setupTitle
+
+    const defaultTitle = getDefaultNodeTitle(node.type)
+    if (defaultTitle) {
+      nodeData.title = defaultTitle
+    }
   }
 
   const handleStepNavigation = {
@@ -150,6 +157,9 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
   const hasNodeLabelFilled = computed(() => nodeData.title?.trim().length > 0)
   const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
+  const availableNodeTypes = computed(() => {
+    return Object.values(nodes).filter((node) => !EXCLUDED_NODE_TYPES.includes(node.type))
+  })
   const getDialogHeader = computed<string>(() => {
     switch (currentStep.value) {
       case steps.chooseNode:
@@ -173,6 +183,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     hasNodeLabelFilled,
     shouldShowConfigStep,
     getDialogHeader,
+    availableNodeTypes,
     toggleCreateNodeDialog,
     handleNodeSelect,
     handleStepNavigation,

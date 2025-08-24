@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
-
-import { nodes as mappedNodes } from '@/constants/nodes'
 
 import NodeTypeSelector from '@/components/home/NodeTypeSelector.vue'
 import NodeConfigForm from '@/components/home/NodeConfigForm.vue'
@@ -18,6 +15,7 @@ const props = defineProps<{
 }>()
 
 const {
+  availableNodeTypes,
   steps,
   visible,
   currentStep,
@@ -33,8 +31,6 @@ const {
   handleCreateNode,
   handleConfigData,
 } = useNodeCreation(props.parentId, props.handleId)
-
-const availableNodeTypes = computed(() => Object.values(mappedNodes))
 </script>
 
 <template>
