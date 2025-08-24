@@ -1,39 +1,43 @@
 <script setup lang="ts">
-import { Card } from 'primevue'
+import { Card, ScrollPanel } from 'primevue'
+
 import type { IMappedNodes } from '@/interfaces/node'
 
-defineProps<{
-  availableNodeTypes: IMappedNodes[]
-}>()
+defineProps<{ availableNodeTypes: IMappedNodes[] }>()
 
-const emit = defineEmits<{
-  select: [node: IMappedNodes]
-}>()
+const emit = defineEmits<{ select: [node: IMappedNodes] }>()
 </script>
 
 <template>
-  <div class="grid auto-rows-auto grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-    <Card
-      v-for="node in availableNodeTypes"
-      :key="node.type"
-      class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none h-40 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:border-blue-300 dark:hover:border-emerald-600"
-      @click="emit('select', node)"
-    >
-      <template #content>
-        <div class="h-full flex flex-col justify-between gap-4 text-center">
-          <i
-            v-if="node.icon"
-            :class="[node.icon, node.iconColor]"
-            class="pi p-4 rounded-sm w-full h-20 content-center"
-            style="font-size: 1.5em"
-          />
-          <div class="overflow-auto">
-            <h4 class="text-lg font-semibold">
-              {{ node.name }}
-            </h4>
+  <ScrollPanel style="width: 100%; height: 200px" class="pr-2">
+    <div class="grid md:grid-cols-2 gap-4 sm:grid-cols-1">
+      <Card
+        v-for="node in availableNodeTypes"
+        :key="node.type"
+        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none cursor-pointer hover:shadow-lg transition-shadow duration-200"
+        @click="emit('select', node)"
+      >
+        <template #content>
+          <div class="h-full flex gap-4 items-center">
+            <i
+              v-if="node.icon"
+              :class="[node.icon, node.iconColor]"
+              class="pi rounded-sm content-center"
+              style="font-size: 1.2em"
+            />
+
+            <div class="overflow-auto">
+              <h4 class="text-lg font-semibold">
+                {{ node.name }}
+              </h4>
+
+              <p class="text-sm">
+                {{ node.description }}
+              </p>
+            </div>
           </div>
-        </div>
-      </template>
-    </Card>
-  </div>
+        </template>
+      </Card>
+    </div>
+  </ScrollPanel>
 </template>

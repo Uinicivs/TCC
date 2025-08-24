@@ -12,14 +12,15 @@ export const nodes: Record<string, IMappedNodes> = {
 
   conditional: {
     name: 'Conditional',
+    description: 'Lorem ipsum',
     type: 'conditional',
     icon: 'pi-question-circle',
     iconColor: 'text-amber-500',
     configComponent: ConditionalNodeConfig,
   },
-
   end: {
     name: 'End',
+    description: 'Lorem ipsum',
     type: 'end',
     icon: 'pi-flag',
     iconColor: 'text-red-500',
