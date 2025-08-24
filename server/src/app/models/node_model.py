@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Literal
-from src.app.models.metadata import StartMetadata, ConditionalMetadata, EndMetadata
+from src.app.models.metadata_model import StartMetadata, ConditionalMetadata, EndMetadata
 
 
 class BaseNode(BaseModel):

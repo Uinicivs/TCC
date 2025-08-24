@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from src.app.models.flow import Flow
+from src.app.models.flow_model import Flow
 
 
 class CreateFlowInDTO(BaseModel):
@@ -9,8 +9,8 @@ class CreateFlowInDTO(BaseModel):
 
 
 class UpdateFlowInDTO(BaseModel):
-    flowName: Optional[str]
-    flowDescription: Optional[str]
+    flowName: Optional[str] = None
+    flowDescription: Optional[str] = None
 
 
 class ReadFlowOutDTO(Flow):

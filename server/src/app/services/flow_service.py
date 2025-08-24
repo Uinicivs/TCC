@@ -2,7 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import Any
 from datetime import datetime
 from bson import ObjectId
-from src.app.models.flow import Flow
+from src.app.models.flow_model import Flow
 
 
 async def create_flow(db: AsyncIOMotorDatabase,
@@ -11,15 +11,13 @@ async def create_flow(db: AsyncIOMotorDatabase,
     new_flow = Flow(
         flowName=flow_name,
         flowDescription=flow_description,
-        createdAt=datetime.now(),
-        updatedAt=datetime.now(),
-        nodes=[]
     )
 
     flow_dict = new_flow.model_dump(by_alias=True)
 
-    await db.decision_flows.insert_one(flow_dict)
+    result = await db.decision_flows.insert_one(flow_dict)
 
+    new_flow.flowId = result.inserted_id
     return new_flow
 
 

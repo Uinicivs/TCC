@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from src.app.services import flow as flow_service
+from src.app.services import flow_service
 from src.app.db.connection import get_database
 from src.api.dtos.flow_dtos import (
     CreateFlowInDTO,
@@ -11,7 +11,7 @@ from src.api.dtos.flow_dtos import (
 
 
 router = APIRouter(
-    prefix='/decision-flows',
+    prefix='/decision_flows',
     tags=['Decision Flows']
 )
 
