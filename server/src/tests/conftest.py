@@ -1,10 +1,10 @@
 import pytest
-from mongomock import MongoClient
+from mongomock_motor import AsyncMongoMockClient
 
 
 @pytest.fixture
-def connect_to_db():
-    client = MongoClient()
+def db():
+    client = AsyncMongoMockClient()
     db = client['engine']
 
     yield db
