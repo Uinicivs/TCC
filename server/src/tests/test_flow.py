@@ -1,6 +1,6 @@
 import pytest
 import asyncio
-from src.services import flow
+from src.app.services import flow
 
 
 @pytest.mark.asyncio

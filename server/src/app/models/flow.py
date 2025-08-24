@@ -4,7 +4,7 @@ from pydantic.json_schema import JsonSchemaValue
 from typing import List, Union
 from datetime import datetime
 from bson import ObjectId
-from src.models.node import StartNode, ConditionalNode, EndNode
+from src.app.models.node import StartNode, ConditionalNode, EndNode
 
 
 class PyObjectId(ObjectId):
@@ -26,6 +26,9 @@ class PyObjectId(ObjectId):
 
     @classmethod
     def validate(cls, v):
+        if isinstance(v, ObjectId):
+            return v
+
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
@@ -35,7 +38,7 @@ AnyNode = Union[StartNode, ConditionalNode, EndNode]
 
 
 class Flow(BaseModel):
-    flowId: PyObjectId = Field(default_factory=PyObjectId, alias='_id')
+    flowId: PyObjectId = Field(..., alias='_id')
     flowName: str
     flowDescription: str
     createdAt: datetime
@@ -45,3 +48,4 @@ class Flow(BaseModel):
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
+        populate_by_name = True

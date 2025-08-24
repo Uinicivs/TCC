@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from src.core.config import get_settings
+from src.app.core.config import get_settings
 
 
 settings = get_settings()
@@ -10,13 +11,17 @@ db: AsyncIOMotorDatabase | None = None
 
 
 @asynccontextmanager
-async def connect_to_db():
+async def lifespan(app: FastAPI):
+    global client, db
+
     client = AsyncIOMotorClient(settings.DB_URL)
     db = client[settings.DB_NAME]
 
-    try:
-        yield db
-    except Exception:
-        pass
-    finally:
+    yield
+
+    if client:
         client.close()
+
+
+def get_database() -> AsyncIOMotorDatabase | None:
+    return db

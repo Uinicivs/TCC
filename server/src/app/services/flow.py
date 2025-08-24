@@ -2,7 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import Any
 from datetime import datetime
 from bson import ObjectId
-from src.models.flow import Flow
+from src.app.models.flow import Flow
 
 
 async def create_flow(db: AsyncIOMotorDatabase,
