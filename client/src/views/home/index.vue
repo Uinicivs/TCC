@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed, onMounted, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
@@ -7,10 +7,10 @@ import { Controls } from '@vue-flow/controls'
 
 import { useFlowStore } from '@/stores/flow'
 
-import AddNode from '@/components/home/AddNode.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
 import { nodes as mappedNodes } from '@/constants/nodes'
+import { DEFAULT_NODE_TITLES } from '@/constants/nodeConfig'
 
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
@@ -27,12 +27,24 @@ const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() 
   conditional: Conditional,
   end: End,
 }))
+
+onMounted(() => {
+  const startNode = {
+    id: 'start-node',
+    position: { x: window.innerWidth / 2 - 100, y: 100 },
+    type: 'start',
+    data: {
+      title: DEFAULT_NODE_TITLES.start,
+      parent: null,
+    },
+  }
+
+  flowStore.addNodes(startNode)
+})
 </script>
 
 <template>
   <div class="h-screen">
-    <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
-
     <VueFlow :nodes :edges @nodeDragStop="onNodeDragStop">
       <Background variant="dots" />
       <Controls :showInteractive="false" />
