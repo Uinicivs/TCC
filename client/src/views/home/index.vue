@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
+import { v4 as uuidv4 } from 'uuid'
 
 import { useFlowStore } from '@/stores/flow'
 
@@ -30,7 +31,7 @@ const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() 
 
 onMounted(() => {
   const startNode = {
-    id: 'start-node',
+    id: uuidv4(),
     position: { x: window.innerWidth / 2 - 100, y: 100 },
     type: 'start',
     data: {

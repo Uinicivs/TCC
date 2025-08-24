@@ -1,5 +1,6 @@
 import { ref, reactive, computed } from 'vue'
 import type { Node } from '@vue-flow/core'
+import { v4 as uuidv4 } from 'uuid'
 
 import type { INode, IMappedNodes } from '@/interfaces/node'
 
@@ -127,7 +128,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     formattedNodeData.parent = parentId ?? null
 
     const formatNode: Node = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       position: { x: positionX, y: positionY },
       type: selectedNode.value.type,
       data: formattedNodeData,
