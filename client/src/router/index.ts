@@ -5,8 +5,13 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
+      name: '',
       component: () => import('@/views/home/index.vue'),
+    },
+    {
+      path: '/show/:id',
+      name: 'flow-show',
+      component: () => import('@/views/flows/show/index.vue'),
     },
     {
       path: '/register',
