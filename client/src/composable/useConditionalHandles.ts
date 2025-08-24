@@ -2,10 +2,7 @@ import { computed } from 'vue'
 import type { Edge } from '@vue-flow/core'
 import { useFlowStore } from '@/stores/flow'
 
-const flowStore = useFlowStore()
-
 export const useConditionalHandles = (id?: string) => {
-  const { edges } = flowStore
   const isConditionalNode = computed<boolean>(() => {
     if (!id) return false
 
@@ -16,6 +13,10 @@ export const useConditionalHandles = (id?: string) => {
 
   const checkHandleConnection = (handleId: string) => {
     if (!id || !isConditionalNode.value) return false
+
+    const flowStore = useFlowStore()
+    const { edges } = flowStore
+
     return edges.some((edge: Edge) => edge.source === id && edge.sourceHandle === handleId)
   }
 

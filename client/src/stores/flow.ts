@@ -130,6 +130,15 @@ export const useFlowStore = defineStore('flow', () => {
     const nodeIndex = nodes.value.findIndex(({ id }) => id === node.id)
     if (nodeIndex === -1) return
 
+    if (node.data.children?.length) {
+      node.data.children.forEach((childId: string) => {
+        const childNode = getNodeById(childId)
+        if (childNode) {
+          removeNode(childNode)
+        }
+      })
+    }
+
     const parentNode = getNodeById(node.data.parent)
     if (parentNode && parentNode.data.children) {
       const updatedChildren = parentNode.data.children.filter(
