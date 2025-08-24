@@ -1,8 +1,8 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import Any
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
-from src.app.models.flow_model import Flow
+from src.app.models.flow_model import Flow, AnyNode
 
 
 async def create_flow(db: AsyncIOMotorDatabase,
@@ -52,7 +52,7 @@ async def update_flow_metadata(db: AsyncIOMotorDatabase, id: str,
     if not update_flow:
         return
 
-    update_flow['updatedAt'] = datetime.now()
+    update_flow['updatedAt'] = datetime.now(timezone.utc)
 
     result = await db.decision_flows.update_one(
         {'_id': ObjectId(id)},
@@ -67,4 +67,23 @@ async def delete_flow(db: AsyncIOMotorDatabase, id: str):
     result = await db.decision_flows.delete_one({'_id': ObjectId(id)})
 
     if result.deleted_count == 0:
+        raise Exception()
+
+
+async def update_flow_nodes(db: AsyncIOMotorDatabase, id: str,
+                            nodes: list[AnyNode]):
+
+    nodes_dict = [node.model_dump() for node in nodes]
+
+    update_flow: dict[str, Any] = {
+        'nodes': nodes_dict,
+        'updatedAt': datetime.now(timezone.utc)
+    }
+
+    result = await db.decision_flows.update_one(
+        {'_id': ObjectId(id)},
+        {'$set': update_flow}
+    )
+
+    if result.matched_count == 0:
         raise Exception()

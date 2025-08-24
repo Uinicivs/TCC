@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from src.app.models.flow_model import Flow
+from src.app.models.flow_model import Flow, AnyNode
 
 
 class CreateFlowInDTO(BaseModel):
@@ -15,3 +15,6 @@ class UpdateFlowInDTO(BaseModel):
 
 class ReadFlowOutDTO(Flow):
     pass
+
+
+UpdateNodesInDTO = AnyNode

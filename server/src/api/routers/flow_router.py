@@ -7,6 +7,7 @@ from src.api.dtos.flow_dtos import (
     CreateFlowInDTO,
     ReadFlowOutDTO,
     UpdateFlowInDTO,
+    UpdateNodesInDTO,
 )
 
 
@@ -58,3 +59,15 @@ async def delete_flow(id: str,
                       db: AsyncIOMotorDatabase = Depends(get_database)):
 
     return await flow_service.delete_flow(db, id)
+
+
+@router.put('/{id}/nodes')
+async def update_flow_nodes(id: str,
+                            nodes_in: list[UpdateNodesInDTO],
+                            db: AsyncIOMotorDatabase = Depends(get_database)):
+
+    return await flow_service.update_flow_nodes(
+        db,
+        id,
+        nodes_in
+    )
