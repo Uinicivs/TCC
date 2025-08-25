@@ -1,9 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from src.app.db.connection import lifespan
+from src.app.core.config import get_settings
 from src.api.routers import flow_router
 from src.api.handlers.exception_handler import add_exception_handlers
 
+
+settings = get_settings()
 
 app = FastAPI(
     title='Decision Engine API',
@@ -21,4 +24,7 @@ def read_root():
 
 
 if __name__ == "__main__":
-    uvicorn.run('src.main:app', host='localhost', port=8000, reload=True)
+    uvicorn.run('src.main:app',
+                host='localhost',
+                port=settings.API_PORT,
+                reload=True)

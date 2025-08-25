@@ -34,11 +34,13 @@ WORKDIR /app
 # Isso replica a configuração do seu debugger.
 ENV PYTHONPATH=/app
 
+ARG API_PORT=8000
+
 # Copia o código fonte da sua aplicação para o contêiner.
 COPY src/ ./src/
 
 # Expõe a porta em que o FastAPI/uvicorn irá rodar.
-EXPOSE 8000
+EXPOSE ${API_PORT}
 
 # Comando para iniciar a aplicação quando o contêiner for executado.
 # --host 0.0.0.0 é essencial para que a aplicação seja acessível de fora do contêiner.

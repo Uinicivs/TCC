@@ -5,6 +5,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     DB_URL: str = ''
     DB_NAME: str = ''
+    API_PORT: int = 8000
     API_KEYS: set[str] = {''}
 
     class Config:
