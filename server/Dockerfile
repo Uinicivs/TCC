@@ -8,6 +8,13 @@ FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Instala dependências do sistema para TLS/SSL e build tools
+RUN apt-get update && apt-get install -y \
+    libssl-dev \
+    ca-certificates \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
 # Instala o 'uv', o gerenciador de pacotes que você está usando.
 RUN pip install uv
 
