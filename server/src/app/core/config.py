@@ -3,8 +3,9 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    DB_URL: str
-    DB_NAME: str
+    DB_URL: str = ''
+    DB_NAME: str = ''
+    API_KEYS: set[str] = {''}
 
     class Config:
         env_file = '.env'

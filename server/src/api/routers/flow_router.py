@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from src.app.services import flow_service
 from src.app.db.connection import get_database
+from src.api.dependencies.auth import get_api_key
 from src.api.dtos.flow_dtos import (
     CreateFlowInDTO,
     ReadFlowOutDTO,
@@ -13,7 +14,8 @@ from src.api.dtos.flow_dtos import (
 
 router = APIRouter(
     prefix='/decision_flows',
-    tags=['Decision Flows']
+    tags=['Decision Flows'],
+    dependencies=[Depends(get_api_key)]
 )
 
 
