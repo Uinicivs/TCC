@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from src.app.services import flow_service
@@ -17,7 +17,8 @@ router = APIRouter(
 )
 
 
-@router.post('/', response_model=ReadFlowOutDTO)
+@router.post('/', response_model=ReadFlowOutDTO,
+             status_code=status.HTTP_201_CREATED)
 async def create_flow(flow_in: CreateFlowInDTO,
                       db: AsyncIOMotorDatabase = Depends(get_database)):
 

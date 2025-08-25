@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from src.app.db.connection import lifespan
 from src.api.routers import flow_router
+from src.api.handlers.exception_handler import add_exception_handlers
 
 
 app = FastAPI(
@@ -9,6 +10,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+add_exception_handlers(app)
 
 app.include_router(flow_router.router)
 
