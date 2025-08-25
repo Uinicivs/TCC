@@ -5,8 +5,8 @@ FROM python:3.12-slim AS base
 # Define variáveis de ambiente para otimizar o Python no Docker.
 # PYTHONDONTWRITEBYTECODE: Impede o Python de criar arquivos .pyc.
 # PYTHONUNBUFFERED: Garante que os logs sejam enviados diretamente para o terminal.
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Instala o 'uv', o gerenciador de pacotes que você está usando.
 RUN pip install uv
@@ -43,4 +43,4 @@ EXPOSE 8000
 # Comando para iniciar a aplicação quando o contêiner for executado.
 # --host 0.0.0.0 é essencial para que a aplicação seja acessível de fora do contêiner.
 # O comando é equivalente a 'uv run --host 0.0.0.0 --port 8000 -m src.main'.
-CMD ["uv", "run", "--host", "0.0.0.0", "--port", "8000", "-m", "src.main"]
+CMD ["uv", "run", "-m", "src.main"]
