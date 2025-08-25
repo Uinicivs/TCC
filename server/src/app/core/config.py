@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     DB_URL: str = ''
     DB_NAME: str = ''
     API_PORT: int = 8000
+    API_HOST: str = 'localhost'
     API_KEYS: set[str] = {''}
 
     class Config:
