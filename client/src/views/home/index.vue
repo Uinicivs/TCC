@@ -109,6 +109,12 @@ const createNewFlow = () => {}
             </Popover>
           </template>
         </Column>
+
+        <template #empty>
+          <div class="font-light text-neutral-500 text-center h-full">
+            Você ainda não possui nenhum fluxo.
+          </div>
+        </template>
       </DataTable>
     </div>
   </div>
@@ -117,5 +123,9 @@ const createNewFlow = () => {}
 <style scoped>
 :deep(.p-datatable-table-container) {
   flex: 1;
+}
+
+:deep(.p-datatable-empty-message td) {
+  border: none;
 }
 </style>
