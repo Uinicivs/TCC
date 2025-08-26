@@ -1,0 +1,21 @@
+<script setup lang="ts">
+import type { INode } from '@/interfaces/node'
+
+import NodeTemplate from '@/components/nodes/NodeTemplate.vue'
+
+const { data } = defineProps<{ data: INode; id: string }>()
+</script>
+
+<template>
+  <NodeTemplate class="!w-30" container-class=" h-30 text-center !w-full rotate-45" :id :data />
+</template>
+
+<style scoped>
+:deep(.node-content > div) {
+  transform: rotateZ(-45deg);
+}
+
+:deep(.add-node-button) {
+  bottom: -5em;
+}
+</style>
