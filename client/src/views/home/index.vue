@@ -1,14 +1,30 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, useTemplateRef, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { DataTable, Column, Button, Popover } from 'primevue'
 
 import type { IFlow } from '@/interfaces/flow'
 
+import CreateFlowModal from '@/components/home/CreateFlowModal.vue'
+
+import { createFlow, getFlows, type TCreateFlowPayload } from '@/services/flowService'
+
 const router = useRouter()
 const popoverRef = useTemplateRef('flow-options')
 
 const flows = ref<IFlow[]>([])
+const loading = ref(false)
+const showCreateDialog = ref(false)
+
+onMounted(async () => {
+  await loadFlows()
+})
+
+const loadFlows = async () => {
+  loading.value = true
+  flows.value = await getFlows()
+  loading.value = false
+}
 
 const viewFlow = (flowId: string) => {
   router.push(`/show/${flowId}`)
@@ -26,7 +42,19 @@ const toggleOptions = (event: MouseEvent) => {
   popoverRef.value?.toggle(event)
 }
 
-const createNewFlow = () => {}
+const createNewFlow = () => {
+  showCreateDialog.value = true
+}
+
+const handleCreateFlow = async (payload: TCreateFlowPayload) => {
+  loading.value = true
+
+  const createdFlow = await createFlow(payload)
+
+  flows.value.unshift(createdFlow)
+  showCreateDialog.value = false
+  loading.value = false
+}
 </script>
 
 <template>
@@ -48,6 +76,7 @@ const createNewFlow = () => {}
     <div class="flex flex-col items-center gap-4 h-full">
       <DataTable
         :value="flows"
+        :loading
         paginator
         :rows="12"
         paginator-position="bottom"
@@ -119,6 +148,12 @@ const createNewFlow = () => {}
         </template>
       </DataTable>
     </div>
+
+    <CreateFlowModal
+      v-model:visible="showCreateDialog"
+      @create="handleCreateFlow"
+      @loading="(value) => (loading = value)"
+    />
   </div>
 </template>
 
