@@ -1,7 +1,7 @@
 export interface IFlow {
-  id: string
-  name: string
-  description: string
+  flowId: string
+  flowName: string
+  flowDescription?: string
   createdAt: Date
   updatedAt: Date
 }
