@@ -30,8 +30,10 @@ const createNewFlow = () => {}
 </script>
 
 <template>
-  <div class="bg-white mx-auto h-full flex flex-col items-center lg:max-w-[1280px] gap-8">
-    <div class="grid grid-cols-2 gap-4 mt-[60px] w-full items-center">
+  <div
+    class="bg-white mx-auto h-full flex flex-col items-center lg:max-w-[1280px] pt-[100px] gap-8"
+  >
+    <div class="grid grid-cols-2 gap-4 w-full items-center">
       <div class="col-span-1 flex flex-col gap-1">
         <h2 class="font-semibold text-2xl text-neutral-800">Meus Fluxos</h2>
         <p class="font-light text-neutral-500">
