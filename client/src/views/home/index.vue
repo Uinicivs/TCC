@@ -116,12 +116,12 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
       >
         <Column field="name" header="Nome" class="min-w-[200px]">
           <template #body="{ data }">
-            {{ data.name }}
+            {{ data.flowName }}
           </template>
         </Column>
         <Column field="description" header="Descrição" class="lg:w-[500px] md:max-w-200px">
           <template #body="{ data }">
-            {{ data.description }}
+            {{ data.flowDescription ? data.flowDescription : '-' }}
           </template>
         </Column>
         <Column field="updatedAt" header="Última Atualização" class="min-w-[150px]">
