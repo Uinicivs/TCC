@@ -37,6 +37,8 @@ const resetForm = () => {
     flowName: '',
     flowDescription: '',
   }
+  loading.value = false
+  emit('loading', false)
 }
 
 const handleCreateFlow = async () => {
