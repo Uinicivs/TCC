@@ -147,14 +147,14 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
                   variant="text"
                   label="Ver"
                   size="small"
-                  @click="viewFlow(data.id)"
+                  @click="viewFlow(data.flowId)"
                 />
                 <Button
                   variant="text"
                   severity="secondary"
                   label="Editar"
                   size="small"
-                  @click="viewFlow(data.id)"
+                  @click="viewFlow(data.flowId)"
                 />
                 <Button
                   icon="pi pi-trash"
@@ -162,7 +162,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
                   variant="text"
                   label="Excluir"
                   size="small"
-                  @click="viewFlow(data.id)"
+                  @click="viewFlow(data.flowId)"
                 />
               </div>
             </Popover>
