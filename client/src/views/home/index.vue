@@ -64,7 +64,6 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
   try {
     const createdFlow = await createFlow(payload)
     flows.value.unshift(createdFlow)
-    showCreateDialog.value = false
 
     toast.add({
       severity: 'success',
@@ -81,6 +80,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
     })
   } finally {
     loading.value = false
+    showCreateDialog.value = false
   }
 }
 </script>
