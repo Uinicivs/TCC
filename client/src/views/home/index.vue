@@ -2,6 +2,7 @@
 import { ref, useTemplateRef, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { DataTable, Column, Button, Popover } from 'primevue'
+import { useToast } from 'primevue/usetoast'
 
 import type { IFlow } from '@/interfaces/flow'
 
@@ -16,14 +17,26 @@ const flows = ref<IFlow[]>([])
 const loading = ref(false)
 const showCreateDialog = ref(false)
 
+const toast = useToast()
+
 onMounted(async () => {
   await loadFlows()
 })
 
 const loadFlows = async () => {
   loading.value = true
-  flows.value = await getFlows()
-  loading.value = false
+  try {
+    flows.value = await getFlows()
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      detail: error instanceof Error && error.message,
+      life: 3000,
+      closable: false,
+    })
+  } finally {
+    loading.value = false
+  }
 }
 
 const viewFlow = (flowId: string) => {
@@ -48,12 +61,27 @@ const createNewFlow = () => {
 
 const handleCreateFlow = async (payload: TCreateFlowPayload) => {
   loading.value = true
+  try {
+    const createdFlow = await createFlow(payload)
+    flows.value.unshift(createdFlow)
+    showCreateDialog.value = false
 
-  const createdFlow = await createFlow(payload)
-
-  flows.value.unshift(createdFlow)
-  showCreateDialog.value = false
-  loading.value = false
+    toast.add({
+      severity: 'success',
+      detail: 'Fluxo criado com sucesso!',
+      life: 3000,
+      closable: false,
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      detail: error instanceof Error && error.message,
+      life: 3000,
+      closable: false,
+    })
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
