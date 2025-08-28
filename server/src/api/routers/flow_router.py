@@ -6,6 +6,7 @@ from src.app.db.connection import get_database
 from src.api.dependencies.auth import get_api_key
 from src.api.dtos.flow_dtos import (
     CreateFlowInDTO,
+    ReadFlowsOutDTO,
     ReadFlowOutDTO,
     UpdateFlowInDTO,
     UpdateNodesInDTO,
@@ -31,7 +32,7 @@ async def create_flow(flow_in: CreateFlowInDTO,
     )
 
 
-@router.get('/', response_model=list[ReadFlowOutDTO])
+@router.get('/', response_model=list[ReadFlowsOutDTO])
 async def get_flows(db: AsyncIOMotorDatabase = Depends(get_database)):
 
     return await flow_service.get_flows(db)

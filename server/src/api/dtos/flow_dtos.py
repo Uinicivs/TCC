@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, List
 from src.app.models.flow_model import Flow, AnyNode
 
 
@@ -15,6 +15,10 @@ class UpdateFlowInDTO(BaseModel):
 
 class ReadFlowOutDTO(Flow):
     pass
+
+
+class ReadFlowsOutDTO(Flow):
+    nodes: List[AnyNode] = Field(exclude=True)
 
 
 UpdateNodesInDTO = AnyNode
