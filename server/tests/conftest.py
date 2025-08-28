@@ -4,7 +4,7 @@ from mongomock_motor import AsyncMongoMockClient
 
 @pytest.fixture
 def db():
-    client = AsyncMongoMockClient()
+    client = AsyncMongoMockClient(tz_aware=True)
     db = client['engine']
 
     yield db
