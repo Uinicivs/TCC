@@ -1,6 +1,7 @@
 import pytest
 import asyncio
 from src.app.services import flow_service
+from src.app.core.exceptions import NotFoundException
 
 
 @pytest.mark.asyncio
@@ -66,13 +67,10 @@ async def test_update_flow_success(db):
 
 @pytest.mark.asyncio
 async def test_delete_flow_success(db):
-    # Arrange
     flow_to_delete = await flow_service.create_flow(db, "Fluxo para Deletar", "...")
     flow_id_str = str(flow_to_delete.flowId)
 
-    # Act
     await flow_service.delete_flow(db, flow_id_str)
 
-    flow_from_db = await flow_service.get_flow(db, flow_id_str)
-
-    assert flow_from_db is None
+    with pytest.raises(NotFoundException):
+        await flow_service.get_flow(db, flow_id_str)
