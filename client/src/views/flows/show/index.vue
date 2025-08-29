@@ -34,12 +34,6 @@ const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() 
 }))
 
 onMounted(() => {
-  // Carregar o flow específico baseado no ID da rota
-  console.log('Carregando flow com ID:', flowId)
-
-  // TODO: Implementar lógica para carregar o flow específico
-  // flowStore.loadFlow(flowId)
-
   const startNode = {
     id: uuidv4(),
     position: { x: window.innerWidth / 2 - 100, y: 100 },

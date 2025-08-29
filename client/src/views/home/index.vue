@@ -193,4 +193,8 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
 :deep(.p-datatable-empty-message td) {
   border: none;
 }
+
+:deep(.p-overlay-mask) {
+  background: none;
+}
 </style>
