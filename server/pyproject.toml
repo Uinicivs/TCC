@@ -7,11 +7,15 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.116.1",
     "lark>=1.2.2",
-    "mongomock>=4.3.0",
-    "mongomock-motor>=0.0.36",
     "motor>=3.7.1",
     "pydantic-settings>=2.10.1",
+    "z3-solver>=4.15.3.0",
+]
+
+[dependency-groups]
+dev = [
+    "mongomock>=4.3.0",
+    "mongomock-motor>=0.0.36",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
-    "z3-solver>=4.15.3.0",
 ]

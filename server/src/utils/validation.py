@@ -1,5 +1,6 @@
 from typing import Any, Union
 from pydantic import create_model
+
 from src.app.models.metadata_model import InputType, StartMetadata
 
 
