@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field, ConfigDict, GetCoreSchemaHandler, GetJsonSchemaHandler
-from pydantic_core import core_schema
-from pydantic.json_schema import JsonSchemaValue
 from typing import List
-from datetime import datetime, timezone
 from bson import ObjectId
+from pydantic_core import core_schema
+from datetime import datetime, timezone
+from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field, ConfigDict, GetCoreSchemaHandler, GetJsonSchemaHandler
+
 from src.app.models.node_model import AnyNode
 
 

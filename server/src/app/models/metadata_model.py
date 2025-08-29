@@ -1,6 +1,6 @@
-from pydantic import BaseModel
-from typing import Any
 from enum import Enum
+from typing import Any
+from pydantic import BaseModel
 
 
 class InputType(str, Enum):

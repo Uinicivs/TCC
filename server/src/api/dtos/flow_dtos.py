@@ -1,5 +1,6 @@
-from pydantic import BaseModel, RootModel, Field
 from typing import Optional, List, Dict, Any
+from pydantic import BaseModel, RootModel, Field
+
 from src.app.models.flow_model import Flow, AnyNode
 
 

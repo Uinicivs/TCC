@@ -1,6 +1,7 @@
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
 from src.app.core.config import get_settings
 
 
