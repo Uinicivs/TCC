@@ -2,11 +2,12 @@
 import { reactive } from 'vue'
 import { Position } from '@vue-flow/core'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
-import { Button, type ButtonProps } from 'primevue'
+import { Button, type ButtonProps, useDialog } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
 import EditNode from '@/components/home/EditNode.vue'
+import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
 
 const props = defineProps<{
   position?: Position
@@ -16,6 +17,7 @@ const props = defineProps<{
 }>()
 
 const flowStore = useFlowStore()
+const dialog = useDialog()
 
 const toolbarPosition = props.position ?? Position.Right
 const toolbarOffset = props.offset ?? 35
@@ -43,7 +45,15 @@ const actions = reactive<Array<{ callAction?: VoidFunction } & ButtonProps>>([
       const currentNode = flowStore.getNodeById(props.nodeId)
       if (!currentNode) return
 
-      flowStore.removeNode(currentNode)
+      dialog.open(DeleteFlowDialog, {
+        props: { header: 'Confirmar Exclusão', style: { width: '30rem' }, modal: true },
+        emits: {
+          onCancel: () => {},
+          onConfirm: () => {
+            flowStore.removeNode(currentNode)
+          },
+        },
+      })
     },
   },
 ])
