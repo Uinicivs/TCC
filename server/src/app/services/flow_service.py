@@ -2,11 +2,18 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import Any
 from datetime import datetime, timezone
 from bson import ObjectId
-from src.app.models.flow_model import Flow, AnyNode
+from src.app.transformers import evaluate_transfomer
+from src.app.models.flow_model import Flow
+from src.app.models.node_model import AnyNode, StartNode, ConditionalNode, EndNode
+from src.utils.validation import create_dynamic_model
 from src.app.core.exceptions import (
+    ValidationError,
     NotFoundException,
     UpdateFailedException,
     InvalidObjectIdException,
+    InvalidFlowException,
+    InvalidPayloadException,
+    RuntimeException,
     translate_mongo_error,
 )
 
@@ -120,3 +127,81 @@ async def update_flow_nodes(db: AsyncIOMotorDatabase, id: str,
 
     if result.modified_count == 0:
         raise UpdateFailedException()
+
+
+def _evaluate_flow(nodes: list[AnyNode], start_node_id: str, env: dict) -> Any:
+    current_node = next(
+        (node for node in nodes if node.parentNodeId == start_node_id),
+        None
+    )
+    assert current_node is not None
+
+    while True:
+        nodes.remove(current_node)
+        if len(nodes) == 0:
+            raise InvalidFlowException(
+                'Flow is broken, could not find a response')
+
+        match current_node.nodeType:
+            case 'CONDITIONAL':
+                assert isinstance(
+                    current_node,
+                    ConditionalNode
+                )
+                assert current_node.parentNodeId is not None
+
+                result = evaluate_transfomer.evaluate(
+                    current_node.metadata.expression.replace("'", '"').strip(),
+                    env
+                )
+                next_node = next(
+                    (node for node in nodes if node.parentNodeId == current_node.nodeId
+                     and node.isFalseCase == (not result)),
+                    None
+                )
+
+            case 'END':
+                assert isinstance(
+                    current_node,
+                    EndNode
+                )
+                return current_node.metadata.response
+
+        if next_node is None:
+            raise InvalidFlowException(
+                f'Flow is broken, could not find next node from {current_node.nodeId}')
+
+        current_node = next_node
+
+
+async def evaluate_flow(db: AsyncIOMotorDatabase, id: str,
+                        payload: dict[str, Any]):
+
+    flow = await get_flow(db, id)
+
+    start_node = next(
+        (node for node in flow.nodes if isinstance(node, StartNode)),
+        None
+    )
+
+    if start_node is None:
+        raise InvalidFlowException(
+            'flow is broken, could not find start node')
+
+    try:
+        DynModel = create_dynamic_model(start_node.metadata)
+        val_payload = DynModel(**payload)
+    except ValidationError as e:
+        raise InvalidPayloadException(e.errors())
+
+    try:
+        raw_resp = _evaluate_flow(
+            flow.nodes,
+            start_node.nodeId,
+            val_payload.dict()
+        )
+        return {'response': raw_resp}
+    except Exception as e:
+        re = RuntimeException(f'Error while executing flow {str(e)}')
+        setattr(re, 'originalErrorType', type(e).__name__)
+        raise re from e

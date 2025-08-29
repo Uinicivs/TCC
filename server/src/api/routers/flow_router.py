@@ -10,6 +10,8 @@ from src.api.dtos.flow_dtos import (
     ReadFlowOutDTO,
     UpdateFlowInDTO,
     UpdateNodesInDTO,
+    EvaluateFlowPayloadDTO,
+    EvaluateFlowResponseDTO,
 )
 
 
@@ -74,4 +76,16 @@ async def update_flow_nodes(id: str,
         db,
         id,
         nodes_in
+    )
+
+
+@router.post('/{id}/evaluate', response_model=EvaluateFlowResponseDTO)
+async def evaluate_flow(id: str,
+                        payload: EvaluateFlowPayloadDTO,
+                        db: AsyncIOMotorDatabase = Depends(get_database)):
+
+    return await flow_service.evaluate_flow(
+        db,
+        id,
+        payload.model_dump()
     )

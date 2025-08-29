@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal, Union
 from src.app.models.metadata_model import StartMetadata, ConditionalMetadata, EndMetadata
 
 
@@ -23,3 +23,6 @@ class ConditionalNode(BaseNode):
 class EndNode(BaseNode):
     nodeType: Literal['END']
     metadata: EndMetadata
+
+
+AnyNode = Union[StartNode, ConditionalNode, EndNode]
