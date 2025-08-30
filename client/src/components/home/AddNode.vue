@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
@@ -31,18 +32,30 @@ const {
   handleCreateNode,
   handleConfigData,
 } = useNodeCreation(props.parentId, props.handleId)
+
+const getCreateNodeButtonLabel = computed(() => {
+  const handleId = props.handleId || ''
+  if (handleId.includes('right')) {
+    return 'Verdadeiro'
+  }
+
+  if (handleId.includes('left')) {
+    return 'Falso'
+  }
+
+  return ''
+})
 </script>
 
 <template>
   <div>
-    <Button
-      class="text-4xl"
-      icon="pi pi-plus"
-      severity="secondary"
-      size="small"
-      rounded
-      @click="toggleCreateNodeDialog"
-    />
+    <div class="flex flex-col items-center gap-2 cursor-pointer" @click="toggleCreateNodeDialog">
+      <Button class="text-4xl" icon="pi pi-plus" severity="secondary" size="small" rounded />
+
+      <span>
+        {{ getCreateNodeButtonLabel }}
+      </span>
+    </div>
 
     <Dialog
       v-model:visible="visible"

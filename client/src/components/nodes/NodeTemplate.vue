@@ -52,7 +52,7 @@ const openDeleteDialog = () => {
       modal: true,
     },
     emits: {
-      confirm: () => {
+      onConfirm: () => {
         flowStore.removeNode(currentNode)
       },
     },
@@ -143,14 +143,14 @@ const menuItems = computed(() => [
     <template v-if="isConditionalNode">
       <AddNode
         v-if="canAddToLeftPath"
-        class="absolute -left-20 top-1/3 add-node-button"
+        class="absolute -left-20 top-1/3 add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-left"
       />
 
       <AddNode
         v-if="canAddToRightPath"
-        class="absolute -right-20 top-1/3 add-node-button"
+        class="absolute -right-25 top-1/3 add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-right"
       />
