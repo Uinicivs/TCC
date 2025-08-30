@@ -22,7 +22,7 @@ const dialog = useDialog()
 const toolbarPosition = props.position ?? Position.Right
 const toolbarOffset = props.offset ?? 35
 
-const getButtonPosition = (index: number, total: number) => {
+const getButtonPosition = (index: number) => {
   const angleStep = 180
   const angle = (index * angleStep - 90) * (Math.PI / 180)
   const radius = 40
@@ -71,9 +71,9 @@ const actions = reactive<Array<{ callAction?: VoidFunction } & ButtonProps>>([
         <div
           class="radial-button-wrapper"
           :style="{
-            '--delay': `${getButtonPosition(index, actions.length).delay}ms`,
-            '--x': `${getButtonPosition(index, actions.length).x}px`,
-            '--y': `${getButtonPosition(index, actions.length).y}px`,
+            '--delay': `${getButtonPosition(index).delay}ms`,
+            '--x': `${getButtonPosition(index).x}px`,
+            '--y': `${getButtonPosition(index).y}px`,
           }"
         >
           <Button v-bind="action" class="radial-button" @click="action.callAction" />

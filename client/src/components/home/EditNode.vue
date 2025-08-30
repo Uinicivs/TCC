@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
+import { Button, Card, Stepper, StepList, Step } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
@@ -12,13 +12,10 @@ const props = defineProps<{ nodeId: string }>()
 
 const {
   steps,
-  visible,
   currentStep,
   selectedNode,
   nodeData,
   hasNodeLabelFilled,
-  getDialogHeader,
-  toggleEditNodeDialog,
   handleStepNavigation,
   handleUpdateNode,
   handleConfigData,
@@ -27,26 +24,7 @@ const {
 
 <template>
   <div>
-    <Button
-      class="text-sm"
-      icon="pi pi-pencil"
-      severity="secondary"
-      size="small"
-      rounded
-      @click="toggleEditNodeDialog"
-      title="Editar nó"
-    />
-
-    <Dialog
-      v-model:visible="visible"
-      dismissable-mask
-      modal
-      :draggable="false"
-      :header="getDialogHeader"
-      :style="{ width: '60rem' }"
-      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
-      @hide="selectedNode = null"
-    >
+    <Card>
       <div class="mb-6 sticky top-0 z-10 pb-2 stepper">
         <Stepper :value="currentStep" class="w-full">
           <StepList>
@@ -117,7 +95,7 @@ const {
           </div>
         </div>
       </template>
-    </Dialog>
+    </Card>
   </div>
 </template>
 

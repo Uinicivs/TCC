@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
+import { ContextMenu, useDialog } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
 import { useConditionalHandles } from '@/composable/useConditionalHandles'
 import { useNodeActions } from '@/composable/useNodeActions'
+import { useNodeEditing } from '@/composable/useNodeEditing'
 import { useFlowStore } from '@/stores/flow'
 
 import NodeActions from '@/components/nodes/NodeActions.vue'
 import AddNode from '@/components/home/AddNode.vue'
+import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
+import EditNode from '@/components/home/EditNode.vue'
 
 type NodeTemplateProps = { id?: string; data?: INode } & {
   icon?: string
@@ -18,15 +22,15 @@ type NodeTemplateProps = { id?: string; data?: INode } & {
   handleSourcePosition?: Position
 }
 
-const flowStore = useFlowStore()
-const nodeWrapperRef = useTemplateRef('node-wrapper')
-
 const { data, id } = defineProps<NodeTemplateProps>()
 
+const flowStore = useFlowStore()
+const dialog = useDialog()
+const nodeWrapperRef = useTemplateRef('node-wrapper')
+const contextMenu = useTemplateRef('contextMenu')
 const { canAddNewNode } = useNodeActions(id)
 const { isConditionalNode, canAddToLeftPath, canAddToRightPath } = useConditionalHandles(id)
-
-const isVisibleActions = ref(false)
+const { getDialogHeader } = useNodeEditing(id || '')
 
 const getCurrentNodeWrapperWidth = computed<number>(() => {
   return nodeWrapperRef.value?.clientWidth || 250
@@ -36,10 +40,50 @@ const isFirstNode = computed<boolean>(() => {
   return flowStore.getFirstNode()?.id === id
 })
 
-const handleClick = (): void => {
-  if (isFirstNode.value) return
-  isVisibleActions.value = !isVisibleActions.value
+const handleClick = (event: MouseEvent): void => {
+  contextMenu.value?.show(event)
 }
+
+const openDeleteDialog = () => {
+  const currentNode = flowStore.getNodeById(id || '')
+  if (!currentNode) return
+
+  dialog.open(DeleteFlowDialog, {
+    props: {
+      header: 'Confirmar Exclusão',
+      style: { width: '30rem' },
+      modal: true,
+    },
+    emits: {
+      confirm: () => {
+        flowStore.removeNode(currentNode)
+      },
+    },
+  })
+}
+
+const openEditDialog = () => {
+  dialog.open(DeleteFlowDialog, {
+    props: {
+      header: getDialogHeader.value,
+      style: { width: '60rem' },
+      modal: true,
+    },
+  })
+}
+
+const menuItems = computed(() => [
+  {
+    label: 'Editar',
+    icon: 'pi pi-pencil',
+    command: openEditDialog,
+  },
+  {
+    label: 'Excluir',
+    icon: 'pi pi-trash',
+    command: openDeleteDialog,
+  },
+])
 </script>
 
 <template>
@@ -47,7 +91,7 @@ const handleClick = (): void => {
     ref="node-wrapper"
     class="relative w-[250px]"
     :class="{ 'cursor-pointer': !isFirstNode }"
-    @click="handleClick"
+    @contextmenu="handleClick($event)"
   >
     <Handle type="target" :position="Position.Top" />
 
@@ -116,6 +160,6 @@ const handleClick = (): void => {
       :parentId="id || null"
     />
 
-    <NodeActions v-if="id && !isFirstNode" :is-visible="isVisibleActions" :nodeId="id" />
+    <ContextMenu ref="contextMenu" :model="menuItems" />
   </div>
 </template>
