@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue'
-import type { Node } from '@vue-flow/core'
+import type { Edge, Node } from '@vue-flow/core'
 import { v4 as uuidv4 } from 'uuid'
 
 import type { INode, IMappedNodes } from '@/interfaces/node'
@@ -84,8 +84,9 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const handleCreateNode = () => {
     if (!selectedNode.value || !nodeData.title.trim()) return
 
-    let positionX = window.innerWidth / 2 - 150
-    let positionY = 0
+    let positionX: number = window.innerWidth / 2 - 150
+    let positionY: number = 0
+    let isFalseCase: boolean | undefined = undefined
 
     const parentNode = parentId && flowStore.getNodeById(parentId)
 
@@ -111,10 +112,12 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       if (handleId) {
         if (handleId === 'conditional-left') {
           positionX = parentNode.position.x - 300
+          isFalseCase = false
         }
 
         if (handleId === 'conditional-right') {
           positionX = parentNode.position.x + 300
+          isFalseCase = true
         }
       }
     }
@@ -126,6 +129,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
     const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
     formattedNodeData.parent = parentId ?? null
+
+    if (typeof isFalseCase === 'boolean') {
+      formattedNodeData.isFalseCase = isFalseCase
+    }
 
     const formatNode: Node = {
       id: uuidv4(),
@@ -139,13 +146,19 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     if (handleId && parentId) {
-      flowStore.addNodes({ ...formatNode }, true)
-      flowStore.addEdgeWithHandle({
+      const edgePayload: Edge & { sourceHandle?: string } = {
         id: `${parentId}-${formatNode.id}-${handleId}`,
         source: parentId,
         target: formatNode.id,
         sourceHandle: handleId,
-      })
+      }
+
+      if ('isFalseCase' in formattedNodeData) {
+        edgePayload.label = isFalseCase ? 'Verdadeiro' : 'Falso'
+      }
+
+      flowStore.addNodes({ ...formatNode }, true)
+      flowStore.addEdgeWithHandle(edgePayload)
     }
 
     toggleCreateNodeDialog()

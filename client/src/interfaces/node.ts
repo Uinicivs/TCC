@@ -8,6 +8,7 @@ export interface INode {
   settings?: Record<string, unknown>
   parent: string | null
   children?: Array<string>
+  isFalseCase?: boolean
 }
 
 export interface IMappedNodes {
