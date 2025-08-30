@@ -119,7 +119,11 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
             {{ data.flowName }}
           </template>
         </Column>
-        <Column field="description" header="Descrição" class="lg:w-[500px] md:max-w-200px">
+        <Column
+          field="description"
+          header="Descrição"
+          class="lg:max-w-[500px] md:max-w-200px truncate"
+        >
           <template #body="{ data }">
             {{ data.flowDescription ? data.flowDescription : '-' }}
           </template>
@@ -170,7 +174,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
         </Column>
 
         <template #empty>
-          <div class="font-light text-neutral-500 text-center h-full">
+          <div v-if="!loading" class="font-light text-neutral-500 text-center h-full">
             Você ainda não possui nenhum fluxo.
           </div>
         </template>

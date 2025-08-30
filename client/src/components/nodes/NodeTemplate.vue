@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { Position, Handle } from '@vue-flow/core'
 import { ContextMenu, useDialog } from 'primevue'
 
@@ -7,10 +7,8 @@ import type { INode } from '@/interfaces/node'
 
 import { useConditionalHandles } from '@/composable/useConditionalHandles'
 import { useNodeActions } from '@/composable/useNodeActions'
-import { useNodeEditing } from '@/composable/useNodeEditing'
 import { useFlowStore } from '@/stores/flow'
 
-import NodeActions from '@/components/nodes/NodeActions.vue'
 import AddNode from '@/components/home/AddNode.vue'
 import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
 import EditNode from '@/components/home/EditNode.vue'
@@ -30,7 +28,6 @@ const nodeWrapperRef = useTemplateRef('node-wrapper')
 const contextMenu = useTemplateRef('contextMenu')
 const { canAddNewNode } = useNodeActions(id)
 const { isConditionalNode, canAddToLeftPath, canAddToRightPath } = useConditionalHandles(id)
-const { getDialogHeader } = useNodeEditing(id || '')
 
 const getCurrentNodeWrapperWidth = computed<number>(() => {
   return nodeWrapperRef.value?.clientWidth || 250
@@ -63,13 +60,19 @@ const openDeleteDialog = () => {
 }
 
 const openEditDialog = () => {
-  dialog.open(DeleteFlowDialog, {
-    props: {
-      header: getDialogHeader.value,
-      style: { width: '60rem' },
-      modal: true,
-    },
-  })
+  if (id) {
+    dialog.open(EditNode, {
+      props: {
+        header: 'Editar nó',
+        style: { width: '60rem' },
+        breakpoints: { '1199px': '75vw', '575px': '90vw' },
+        modal: true,
+      },
+      data: {
+        nodeId: id,
+      },
+    })
+  }
 }
 
 const menuItems = computed(() => [
