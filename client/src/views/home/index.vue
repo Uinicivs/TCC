@@ -89,8 +89,8 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
   <div class="mx-auto h-full flex flex-col items-center lg:max-w-[1280px] pt-[100px] gap-8">
     <div class="grid grid-cols-2 gap-4 w-full items-center">
       <div class="col-span-1 flex flex-col gap-1">
-        <h2 class="font-semibold text-2xl text-neutral-800">Meus Fluxos</h2>
-        <p class="font-light text-neutral-500">
+        <h2 class="font-semibold text-2xl text-neutral-800 dark:text-white">Meus Fluxos</h2>
+        <p class="font-light text-neutral-500 dark:text-white">
           Aqui você pode visualizar, editar ou remover qualquer fluxo rapidamente.
         </p>
       </div>
@@ -109,7 +109,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         currentPageReportTemplate="Mostrando {last} de {totalRecords}"
         responsiveLayout="scroll"
-        class="rounded-lg w-7xl h-full flex flex-col"
+        class="rounded-lg w-7xl h-full flex flex-col dark:bg-transparent"
         size="small"
       >
         <Column field="name" header="Nome" class="min-w-[200px]">
@@ -198,5 +198,13 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
 
 :deep(.p-overlay-mask) {
   background: none;
+}
+
+:deep(.p-paginator) {
+  background: transparent;
+}
+
+:deep(.p-datatable-paginator-bottom) {
+  border: none;
 }
 </style>
