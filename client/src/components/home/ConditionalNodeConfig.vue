@@ -7,42 +7,22 @@
     <div ref="editorRef" class="rounded-md" />
 
     <div class="p-3 rounded-lg">
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Variáveis disponíveis:
-      </p>
-      <div class="flex flex-wrap gap-1 mb-3">
-        <Tag
-          v-for="variable in availableVariables"
-          :key="variable.name"
-          :class="getVariableTagClass(variable.type)"
-          @click="insertVariable(variable.name)"
-        >
-          {{ variable.name }} ({{ variable.type }})
-        </Tag>
-      </div>
+      <div v-for="section in tagSections" :key="section.label" class="mb-3">
+        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          {{ section.label }}
+        </p>
 
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Funções:</p>
-      <div class="flex flex-wrap gap-1 mb-3 w-1/2">
-        <Tag
-          v-for="func in MFEELFunctions"
-          :key="func"
-          class="cursor-pointer"
-          @click="insertFunction(func)"
-        >
-          {{ func }}()
-        </Tag>
-      </div>
-
-      <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Operadores:</p>
-      <div class="flex flex-wrap gap-1 w-1/2">
-        <Tag
-          v-for="operator in MFEELOperators"
-          :key="operator"
-          class="cursor-pointer"
-          @click="insertOperator(operator)"
-        >
-          {{ operator }}
-        </Tag>
+        <div class="flex flex-wrap gap-1">
+          <Tag
+            v-for="item in section.items"
+            :key="item.key"
+            class="cursor-pointer"
+            severity="secondary"
+            @click="item.onClick"
+          >
+            {{ item.label }}
+          </Tag>
+        </div>
       </div>
     </div>
   </div>
@@ -59,21 +39,57 @@ import { autocompletion, CompletionContext } from '@codemirror/autocomplete'
 
 import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
 
+interface ITagSectionItem {
+  key: string
+  label: string
+  onClick: () => void
+}
+
+interface TagSection {
+  label: string
+  items: ITagSectionItem[]
+}
+
 interface Variable {
   name: string
   type: 'text' | 'number' | 'bool' | 'list' | 'object'
   required: boolean
 }
 
-const props = defineProps<{
-  variables?: Variable[]
-}>()
-
-const expression = defineModel<string>('expression', { required: true })
-const editorRef = ref<HTMLElement>()
 let editorView: EditorView | null = null
 
+const props = defineProps<{ variables?: Variable[] }>()
+const expression = defineModel<string>('expression', { required: true })
+
+const editorRef = ref<HTMLElement>()
+
 const availableVariables = computed(() => props.variables || [])
+const tagSections = computed<TagSection[]>(() => [
+  {
+    label: 'Variáveis disponíveis:',
+    items: availableVariables.value.map((variable) => ({
+      key: variable.name,
+      label: `${variable.name} (${variable.type})`,
+      onClick: () => insertVariable(variable.name),
+    })),
+  },
+  {
+    label: 'Funções:',
+    items: MFEELFunctions.map((MFEELFunction) => ({
+      key: MFEELFunction,
+      label: `${MFEELFunction}()`,
+      onClick: () => insertFunction(MFEELFunction),
+    })),
+  },
+  {
+    label: 'Operadores:',
+    items: MFEELOperators.map((MFEELOperator) => ({
+      key: MFEELOperator,
+      label: MFEELOperator,
+      onClick: () => insertOperator(MFEELOperator),
+    })),
+  },
+])
 
 function MFEELCompletions(context: CompletionContext) {
   const word = context.matchBefore(/\w*/)
@@ -99,24 +115,6 @@ function MFEELCompletions(context: CompletionContext) {
   return {
     from: word.from,
     options: completions,
-  }
-}
-
-function getVariableTagClass(type: string): string {
-  const baseClass = 'cursor-pointer '
-  switch (type) {
-    case 'text':
-      return baseClass + 'bg-green-100 text-green-800'
-    case 'number':
-      return baseClass + 'bg-blue-100 text-blue-800'
-    case 'bool':
-      return baseClass + 'bg-red-100 text-red-800'
-    case 'list':
-      return baseClass + 'bg-yellow-100 text-yellow-800'
-    case 'object':
-      return baseClass + 'bg-indigo-100 text-indigo-800'
-    default:
-      return baseClass + 'bg-gray-100 text-gray-800'
   }
 }
 
@@ -166,7 +164,10 @@ onMounted(() => {
             fontSize: '14px',
           },
           '.cm-placeholder': {
-            color: '#64748b',
+            color: '#64748b !important',
+            'font-size': '16px',
+            'letter-spacing': '0.03em',
+            'font-family': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji"',
           },
           '.cm-content': {
             padding: '8px',
