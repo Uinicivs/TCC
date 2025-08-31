@@ -67,10 +67,10 @@ const openEditDialog = () => {
         style: { width: '60rem' },
         breakpoints: { '1199px': '75vw', '575px': '90vw' },
         modal: true,
+        dismissableMask: true,
+        draggable: false,
       },
-      data: {
-        nodeId: id,
-      },
+      data: { nodeId: id },
     })
   }
 }

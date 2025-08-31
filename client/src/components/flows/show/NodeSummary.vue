@@ -21,7 +21,7 @@ defineProps<{
         <div
           class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
         >
-          <span class="text-gray-600 dark:text-gray-400">Title:</span>
+          <span class="text-gray-600 dark:text-gray-400">Título:</span>
           <span class="font-medium truncate">{{ nodeData.title }}</span>
         </div>
         <div
