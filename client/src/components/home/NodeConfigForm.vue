@@ -22,14 +22,17 @@ const emit = defineEmits<{ 'updated:settings': [settings: INode['settings']] }>(
         placeholder="Digite um nome para o nó"
         autofocus
         required
-        class="w-full"
+        class="w-full !bg-transparent"
       />
       <Message size="small" severity="secondary" variant="simple">
         Este será o nome exibido no nó.
       </Message>
     </div>
     <div class="space-y-2">
-      <label for="nodeDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label
+        for="nodeDescription"
+        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+      >
         Descrição
       </label>
       <Textarea
@@ -37,7 +40,7 @@ const emit = defineEmits<{ 'updated:settings': [settings: INode['settings']] }>(
         v-model="nodeData.description"
         placeholder="Digite uma descrição para o nó (opcional)"
         rows="3"
-        class="w-full"
+        class="w-full !bg-transparent"
       />
       <Message size="small" severity="secondary" variant="simple">
         Descrição opcional para documentar o propósito do nó.
