@@ -9,9 +9,9 @@ import { useConditionalHandles } from '@/composable/useConditionalHandles'
 import { useNodeActions } from '@/composable/useNodeActions'
 import { useFlowStore } from '@/stores/flow'
 
-import AddNode from '@/components/home/AddNode.vue'
+import AddNode from '@/components/flows/show/AddNode.vue'
 import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
-import EditNode from '@/components/home/EditNode.vue'
+import EditNode from '@/components/flows/show/EditNode.vue'
 
 type NodeTemplateProps = { id?: string; data?: INode } & {
   icon?: string

@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { Dialog, InputText, Textarea, Button } from 'primevue'
 
-import type { TCreateFlowPayload } from '@/services/flowService'
+import type { TCreateFlowPayload } from '@/services/flowService.ts'
 
 interface Props {
   visible: boolean

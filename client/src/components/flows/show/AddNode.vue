@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
-import type { INode } from '@/interfaces/node'
+import type { INode } from '@/interfaces/node.ts'
 
-import NodeTypeSelector from '@/components/home/NodeTypeSelector.vue'
-import NodeConfigForm from '@/components/home/NodeConfigForm.vue'
-import NodeSummary from '@/components/home/NodeSummary.vue'
+import NodeTypeSelector from '@/components/flows/show/NodeTypeSelector.vue'
+import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
+import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
-import { useNodeCreation } from '@/composable/useNodeCreation'
+import { useNodeCreation } from '@/composable/useNodeCreation.ts'
 
 const props = defineProps<{
   parentId: INode['parent']

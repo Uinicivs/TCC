@@ -6,7 +6,7 @@ import { Button, type ButtonProps, useDialog } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
-import EditNode from '@/components/home/EditNode.vue'
+import EditNode from '@/components/flows/show/EditNode.vue'
 import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
 
 const props = defineProps<{

@@ -40,7 +40,7 @@ import { EditorState } from '@codemirror/state'
 import { javascript } from '@codemirror/lang-javascript'
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete'
 
-import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
+import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL.ts'
 
 interface ITagSectionItem {
   key: string

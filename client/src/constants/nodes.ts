@@ -1,4 +1,4 @@
-import ConditionalNodeConfig from '@/components/home/ConditionalNodeConfig.vue'
+import ConditionalNodeConfig from '@/components/flows/show/ConditionalNodeConfig.vue'
 
 import type { IMappedNodes } from '@/interfaces/node'
 
