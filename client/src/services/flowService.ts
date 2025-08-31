@@ -45,7 +45,6 @@ export const getFlowById = async (id: string): Promise<IFlow> => {
   }
 }
 
-// Função para atualizar um fluxo
 export const updateFlow = async (
   id: string,
   payload: Partial<TCreateFlowPayload>,

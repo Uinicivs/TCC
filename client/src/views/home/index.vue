@@ -8,16 +8,15 @@ import type { IFlow } from '@/interfaces/flow'
 
 import CreateFlowModal from '@/components/home/CreateFlowModal.vue'
 
-import { createFlow, getFlows, type TCreateFlowPayload } from '@/services/flowService'
+import { createFlow, getFlows, deleteFlow, type TCreateFlowPayload } from '@/services/flowService'
 
 const router = useRouter()
 const popoverRef = useTemplateRef('flow-options')
+const toast = useToast()
 
 const flows = ref<IFlow[]>([])
 const loading = ref(false)
 const showCreateDialog = ref(false)
-
-const toast = useToast()
 
 onMounted(async () => {
   await loadFlows()
@@ -83,6 +82,30 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
     showCreateDialog.value = false
   }
 }
+
+const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
+  loading.value = true
+  try {
+    await deleteFlow(flowId)
+    flows.value = flows.value.filter((flow) => flow.flowId !== flowId)
+
+    toast.add({
+      severity: 'success',
+      detail: 'Fluxo excluído com sucesso!',
+      life: 3000,
+      closable: false,
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      detail: error instanceof Error && error.message,
+      life: 3000,
+      closable: false,
+    })
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -139,6 +162,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
               variant="text"
               severity="secondary"
               rounded
+              :disabled="loading"
               @click="toggleOptions"
             />
 
@@ -149,6 +173,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
                   variant="text"
                   label="Ver"
                   size="small"
+                  :disabled="loading"
                   @click="viewFlow(data.flowId)"
                 />
                 <Button
@@ -156,6 +181,7 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
                   severity="secondary"
                   label="Editar"
                   size="small"
+                  :disabled="loading"
                   @click="viewFlow(data.flowId)"
                 />
                 <Button
@@ -164,7 +190,8 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
                   variant="text"
                   label="Excluir"
                   size="small"
-                  @click="viewFlow(data.flowId)"
+                  :loading
+                  @click="handleDeleteFlow(data.flowId)"
                 />
               </div>
             </Popover>
