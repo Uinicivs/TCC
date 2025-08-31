@@ -38,6 +38,7 @@ defineProps<{ selectedNode: IMappedNodes | null }>()
         v-model="nodeData.description"
         placeholder="Digite uma descrição para o nó (opcional)"
         rows="3"
+        auto-resize
         class="w-full !bg-transparent"
       />
       <Message size="small" severity="secondary" variant="simple">
