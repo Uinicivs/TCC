@@ -5,6 +5,7 @@ import type { IMappedNodes } from '@/interfaces/node'
 export const nodes: Record<string, IMappedNodes> = {
   start: {
     name: 'Início',
+    description: 'Define o início do fluxo.',
     type: 'start',
     icon: 'pi-circle',
     extraClasses: 'text-emerald-500',
