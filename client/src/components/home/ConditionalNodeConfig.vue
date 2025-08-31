@@ -6,13 +6,16 @@
 
     <div ref="editorRef" class="rounded-md" />
 
-    <div class="p-3 rounded-lg">
+    <div class="rounded-lg">
       <div v-for="section in tagSections" :key="section.label" class="mb-3">
-        <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <p
+          v-if="section.items && section.items.length"
+          class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           {{ section.label }}
         </p>
 
-        <div class="flex flex-wrap gap-1">
+        <div class="flex flex-wrap gap-1 w-lg">
           <Tag
             v-for="item in section.items"
             :key="item.key"
@@ -74,19 +77,19 @@ const tagSections = computed<TagSection[]>(() => [
     })),
   },
   {
-    label: 'Funções:',
-    items: MFEELFunctions.map((MFEELFunction) => ({
-      key: MFEELFunction,
-      label: `${MFEELFunction}()`,
-      onClick: () => insertFunction(MFEELFunction),
-    })),
-  },
-  {
     label: 'Operadores:',
     items: MFEELOperators.map((MFEELOperator) => ({
       key: MFEELOperator,
       label: MFEELOperator,
       onClick: () => insertOperator(MFEELOperator),
+    })),
+  },
+  {
+    label: 'Funções:',
+    items: MFEELFunctions.map((MFEELFunction) => ({
+      key: MFEELFunction,
+      label: `${MFEELFunction}()`,
+      onClick: () => insertFunction(MFEELFunction),
     })),
   },
 ])
@@ -169,6 +172,15 @@ onMounted(() => {
             'letter-spacing': '0.03em',
             'font-family': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji"',
           },
+          '.cm-tooltip-autocomplete': {
+            'font-size': '16px',
+            border: '1px solid #cbd5e1',
+            padding: '0.375em',
+            'box-shadow': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+            'border-radius': '0.375rem',
+            'letter-spacing': '0.03em',
+            'font-family': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji"',
+          },
           '.cm-content': {
             padding: '8px',
             minHeight: '95px',
@@ -178,6 +190,14 @@ onMounted(() => {
           },
           '.cm-focused': {
             outline: '1px solid #3b82f6',
+          },
+          '.cm-tooltip-autocomplete ul li[aria-selected]': {
+            background: '#f1f5f9',
+            'border-radius': '0.2rem',
+            color: '#1e293b',
+          },
+          '.cm-tooltip-autocomplete ul li div:first-child': {
+            display: 'none',
           },
         }),
       ],
@@ -211,11 +231,14 @@ watch(
   border: 1px solid var(--p-textarea-border-color);
   border-radius: 0.375rem;
   outline: none;
-}
 
-:deep(.cm-editor.cm-focused) {
-  border-color: var(--p-textarea-focus-border-color);
-  box-shadow: none;
+  &:focus-within {
+    border-color: var(--p-textarea-focus-border-color) !important;
+  }
+
+  &:hover {
+    border-color: var(--p-textarea-hover-border-color);
+  }
 }
 
 :deep(.p-tag) {
