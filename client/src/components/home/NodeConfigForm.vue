@@ -6,8 +6,6 @@ import type { INode, IMappedNodes } from '@/interfaces/node'
 const nodeData = defineModel<INode>('nodeData', { required: true })
 
 defineProps<{ selectedNode: IMappedNodes | null }>()
-
-const emit = defineEmits<{ 'updated:settings': [settings: INode['settings']] }>()
 </script>
 
 <template>
@@ -50,7 +48,7 @@ const emit = defineEmits<{ 'updated:settings': [settings: INode['settings']] }>(
     <component
       :is="selectedNode?.configComponent"
       v-if="selectedNode?.configComponent"
-      @updated:settings="emit('updated:settings', $event)"
+      v-model="nodeData.settings"
       class="w-full"
     />
   </div>
