@@ -18,12 +18,14 @@ defineProps<{
           <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
           <span class="font-medium truncate">{{ selectedNode?.name }}</span>
         </div>
+
         <div
           class="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-600"
         >
           <span class="text-gray-600 dark:text-gray-400">Título:</span>
           <span class="font-medium truncate">{{ nodeData.title }}</span>
         </div>
+
         <div
           v-if="nodeData.description"
           class="flex items-start justify-between py-2 border-b border-gray-200 dark:border-gray-600"
@@ -31,10 +33,15 @@ defineProps<{
           <span class="text-gray-600 dark:text-gray-400">Descrição:</span>
           <span class="font-medium text-right max-w-xs truncate">{{ nodeData.description }}</span>
         </div>
+
+        <div
+          v-if="nodeData.settings && selectedNode?.type === 'conditional'"
+          class="flex items-start justify-between py-2 border-b border-gray-200 dark:border-gray-600"
+        >
+          <span class="text-gray-600 dark:text-gray-400">Expressão:</span>
+          <span class="font-medium text-right max-w-xs truncate">{{ nodeData.settings }}</span>
+        </div>
       </div>
-    </div>
-    <div v-if="selectedNode?.configComponent" class="px-6">
-      <component :is="selectedNode?.configComponent" :settings="nodeData.settings" class="w-full" />
     </div>
   </div>
 </template>

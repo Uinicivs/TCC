@@ -51,7 +51,7 @@ const getCreateNodeButtonLabel = computed(() => {
     <div class="flex flex-col items-center gap-2 cursor-pointer" @click="toggleCreateNodeDialog">
       <Button class="text-4xl" icon="pi pi-plus" severity="secondary" size="small" rounded />
 
-      <span>
+      <span class="text-sm text-gray-500 dark:text-gray-400 select-none">
         {{ getCreateNodeButtonLabel }}
       </span>
     </div>
