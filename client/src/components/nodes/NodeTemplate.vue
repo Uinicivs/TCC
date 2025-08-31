@@ -10,7 +10,7 @@ import { useNodeActions } from '@/composable/useNodeActions'
 import { useFlowStore } from '@/stores/flow'
 
 import AddNode from '@/components/flows/show/AddNode.vue'
-import DeleteFlowDialog from '@/components/flows/show/DeleteFlowDialog.vue'
+import DeleteNodeDialog from '@/components/flows/show/DeleteNodeDialog.vue'
 import EditNode from '@/components/flows/show/EditNode.vue'
 
 type NodeTemplateProps = { id?: string; data?: INode } & {
@@ -45,7 +45,7 @@ const openDeleteDialog = () => {
   const currentNode = flowStore.getNodeById(id || '')
   if (!currentNode) return
 
-  dialog.open(DeleteFlowDialog, {
+  dialog.open(DeleteNodeDialog, {
     props: {
       header: 'Confirmar Exclusão',
       style: { width: '30rem' },
