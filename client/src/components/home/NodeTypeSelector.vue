@@ -21,7 +21,7 @@ const emit = defineEmits<{ select: [node: IMappedNodes] }>()
           <div class="h-full flex gap-4 items-center">
             <i
               v-if="node.icon"
-              :class="[node.icon, node.iconColor]"
+              :class="[node.icon, node.extraClasses]"
               class="pi rounded-sm content-center"
               style="font-size: 1.2em"
             />
@@ -31,7 +31,7 @@ const emit = defineEmits<{ select: [node: IMappedNodes] }>()
                 {{ node.name }}
               </h4>
 
-              <p class="text-sm">
+              <p class="text-sm text-nowrap truncate">
                 {{ node.description }}
               </p>
             </div>

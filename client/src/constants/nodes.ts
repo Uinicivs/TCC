@@ -4,25 +4,25 @@ import type { IMappedNodes } from '@/interfaces/node'
 
 export const nodes: Record<string, IMappedNodes> = {
   start: {
-    name: 'Start',
+    name: 'Início',
     type: 'start',
-    icon: 'pi-bolt',
-    iconColor: 'text-emerald-500',
+    icon: 'pi-circle',
+    extraClasses: 'text-emerald-500',
   },
 
   conditional: {
-    name: 'Conditional',
-    description: 'Lorem ipsum',
+    name: 'Condicional',
+    description: 'Define o próximo caminho conforme a regra avaliada.',
     type: 'conditional',
-    icon: 'pi-question-circle',
-    iconColor: 'text-amber-500',
+    icon: 'pi-stop',
+    extraClasses: 'text-amber-500 rotate-45',
     configComponent: ConditionalNodeConfig,
   },
   end: {
-    name: 'End',
-    description: 'Lorem ipsum',
+    name: 'Fim',
+    description: 'Finaliza o fluxo neste ponto.',
     type: 'end',
-    icon: 'pi-flag',
-    iconColor: 'text-red-500',
+    icon: 'pi-circle',
+    extraClasses: 'text-red-500',
   },
 }

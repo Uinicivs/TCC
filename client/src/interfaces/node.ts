@@ -12,10 +12,10 @@ export interface INode {
 }
 
 export interface IMappedNodes {
-  name: Capitalize<INodeTypes>
+  name: string
   type: INodeTypes
   description?: string
   icon: string
-  iconColor: string
+  extraClasses: string
   configComponent?: Component
 }
