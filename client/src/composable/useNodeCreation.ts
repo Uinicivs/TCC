@@ -164,10 +164,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     toggleCreateNodeDialog()
   }
 
-  const handleConfigData = (settingsData: INode['settings']) => {
-    nodeData.settings = settingsData
-  }
-
   const hasNodeTypeSelected = computed(() => selectedNode.value !== null)
   const hasNodeLabelFilled = computed(() => nodeData.title?.trim().length > 0)
   const shouldShowConfigStep = computed(() => !!selectedNode.value?.configComponent)
@@ -202,7 +198,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     handleNodeSelect,
     handleStepNavigation,
     handleCreateNode,
-    handleConfigData,
     reset,
   }
 }

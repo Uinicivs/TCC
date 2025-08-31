@@ -62,7 +62,7 @@ interface Variable {
 let editorView: EditorView | null = null
 
 const props = defineProps<{ variables?: Variable[] }>()
-const expression = defineModel<string>('expression', { required: true })
+const expression = defineModel<string>({ required: true })
 
 const editorRef = ref<HTMLElement>()
 

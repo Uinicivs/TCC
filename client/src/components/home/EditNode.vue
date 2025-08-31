@@ -81,10 +81,6 @@ const handleUpdateNode = () => {
   dialogRef?.value?.close()
 }
 
-const handleConfigData = (settingsData: INode['settings']) => {
-  nodeData.settings = settingsData
-}
-
 const hasNodeLabelFilled = computed(() => nodeData.title?.trim().length > 0)
 onMounted(() => {
   nodeId.value = dialogRef?.value?.data?.nodeId || ''
@@ -123,7 +119,6 @@ onMounted(() => {
       v-if="currentStep === steps.setupTitle"
       v-model:nodeData="nodeData"
       :selected-node="selectedNode"
-      @updated:settings="handleConfigData"
     />
 
     <NodeSummary

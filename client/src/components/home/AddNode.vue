@@ -30,7 +30,6 @@ const {
   handleNodeSelect,
   handleStepNavigation,
   handleCreateNode,
-  handleConfigData,
 } = useNodeCreation(props.parentId, props.handleId)
 
 const getCreateNodeButtonLabel = computed(() => {
@@ -113,7 +112,6 @@ const getCreateNodeButtonLabel = computed(() => {
         v-if="currentStep === steps.setupTitle"
         v-model:nodeData="nodeData"
         :selected-node="selectedNode"
-        @updated:settings="handleConfigData"
       />
 
       <NodeSummary
