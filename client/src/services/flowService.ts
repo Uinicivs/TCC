@@ -45,18 +45,9 @@ export const getFlowById = async (id: string): Promise<IFlow> => {
   }
 }
 
-export const updateFlow = async (
-  id: string,
-  payload: Partial<TCreateFlowPayload>,
-): Promise<IFlow> => {
+export const updateFlow = async (id: string, payload: Partial<TCreateFlowPayload>) => {
   try {
-    const response = await api.put<IFlow>(`/decision_flows/${id}`, payload)
-
-    return {
-      ...response.data,
-      createdAt: new Date(response.data.createdAt),
-      updatedAt: new Date(response.data.updatedAt),
-    }
+    await api.patch<IFlow>(`/decision_flows/${id}`, payload)
   } catch {
     throw new Error('Falha ao atualizar o fluxo. Tente novamente.')
   }

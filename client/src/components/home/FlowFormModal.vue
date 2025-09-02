@@ -3,14 +3,18 @@ import { ref, watch } from 'vue'
 import { Dialog, InputText, Textarea, Button } from 'primevue'
 
 import type { TCreateFlowPayload } from '@/services/flowService.ts'
+import type { IFlow } from '@/interfaces/flow'
 
 interface Props {
   visible: boolean
+  flow?: IFlow | null
+  mode?: 'create' | 'edit'
 }
 
 interface Emits {
   (event: 'update:visible', value: boolean): void
   (event: 'create', payload: TCreateFlowPayload): void
+  (event: 'update', id: string, payload: Partial<TCreateFlowPayload>): void
   (event: 'loading', value: boolean): void
 }
 
@@ -23,15 +27,6 @@ const newFlow = ref<TCreateFlowPayload>({
   flowDescription: '',
 })
 
-watch(
-  () => props.visible,
-  (newValue) => {
-    if (!newValue) {
-      resetForm()
-    }
-  },
-)
-
 const resetForm = () => {
   newFlow.value = {
     flowName: '',
@@ -41,17 +36,38 @@ const resetForm = () => {
   emit('loading', false)
 }
 
-const handleCreateFlow = async () => {
+const handleAction = async () => {
   if (!newFlow.value.flowName.trim()) {
     return
   }
 
   loading.value = true
   emit('loading', true)
+
+  if (props.mode === 'edit' && props.flow) {
+    const changedFields: Partial<TCreateFlowPayload> = {}
+
+    if (newFlow.value.flowName !== props.flow.flowName) {
+      changedFields.flowName = newFlow.value.flowName
+    }
+
+    if (newFlow.value.flowDescription !== props.flow.flowDescription) {
+      changedFields.flowDescription = newFlow.value.flowDescription
+    }
+
+    if (Object.keys(changedFields).length > 0) {
+      emit('update', props.flow.flowId, changedFields)
+      return
+    }
+
+    cancelAction()
+    return
+  }
+
   emit('create', { ...newFlow.value })
 }
 
-const cancelCreateFlow = () => {
+const cancelAction = () => {
   resetForm()
   emit('update:visible', false)
 }
@@ -59,6 +75,23 @@ const cancelCreateFlow = () => {
 const closeModal = () => {
   emit('update:visible', false)
 }
+
+watch(
+  () => props.visible,
+  (newValue) => {
+    if (newValue && props.mode === 'edit') {
+      newFlow.value = {
+        flowName: props.flow?.flowName || '',
+        flowDescription: props.flow?.flowDescription || '',
+      }
+    }
+
+    if (!newValue) {
+      resetForm()
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -68,7 +101,7 @@ const closeModal = () => {
     :closable="false"
     :style="{ width: '40rem' }"
     modal
-    header="Criar Novo Fluxo"
+    :header="props.mode === 'edit' ? 'Editar Fluxo' : 'Criar Novo Fluxo'"
     @update:visible="closeModal"
   >
     <div class="flex flex-col gap-4">
@@ -110,10 +143,15 @@ const closeModal = () => {
           variant="outlined"
           size="small"
           :disabled="loading"
-          @click="cancelCreateFlow"
+          @click="cancelAction"
         />
 
-        <Button label="Criar Fluxo" size="small" :loading @click="handleCreateFlow" />
+        <Button
+          :label="props.mode === 'edit' ? 'Salvar Alterações' : 'Criar Fluxo'"
+          size="small"
+          :loading
+          @click="handleAction"
+        />
       </div>
     </template>
   </Dialog>

@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, onMounted } from 'vue'
+import { ref, useTemplateRef, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { DataTable, Column, Button, Popover } from 'primevue'
 import { useToast } from 'primevue/usetoast'
 
 import type { IFlow } from '@/interfaces/flow'
 
-import CreateFlowModal from '@/components/home/CreateFlowModal.vue'
+import FlowFormModal from '@/components/home/FlowFormModal.vue'
 
-import { createFlow, getFlows, deleteFlow, type TCreateFlowPayload } from '@/services/flowService'
+import {
+  createFlow,
+  getFlows,
+  deleteFlow,
+  updateFlow,
+  type TCreateFlowPayload,
+} from '@/services/flowService'
 
 const router = useRouter()
 const popoverRef = useTemplateRef('flow-options')
@@ -16,7 +22,9 @@ const toast = useToast()
 
 const flows = ref<IFlow[]>([])
 const loading = ref(false)
-const showCreateDialog = ref(false)
+const showFlowFormModal = ref(false)
+const selectedFlow = ref<IFlow | null>(null)
+const modalMode = ref<'create' | 'edit'>('create')
 
 onMounted(async () => {
   await loadFlows()
@@ -38,8 +46,8 @@ const loadFlows = async () => {
   }
 }
 
-const viewFlow = (flowId: string) => {
-  router.push(`/show/${flowId}`)
+const viewFlow = () => {
+  router.push(`/show/${selectedFlow.value?.flowId}`)
 }
 
 const formatDate = (date: Date) => {
@@ -50,12 +58,21 @@ const formatDate = (date: Date) => {
   }).format(date)
 }
 
-const toggleOptions = (event: MouseEvent) => {
+const toggleOptions = (event: MouseEvent, flow: IFlow) => {
+  selectedFlow.value = flow
   popoverRef.value?.toggle(event)
 }
 
 const createNewFlow = () => {
-  showCreateDialog.value = true
+  selectedFlow.value = null
+  modalMode.value = 'create'
+  showFlowFormModal.value = true
+}
+
+const editFlow = () => {
+  modalMode.value = 'edit'
+  showFlowFormModal.value = true
+  popoverRef.value?.hide()
 }
 
 const handleCreateFlow = async (payload: TCreateFlowPayload) => {
@@ -79,15 +96,49 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
     })
   } finally {
     loading.value = false
-    showCreateDialog.value = false
+    showFlowFormModal.value = false
   }
 }
 
-const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
+const handleUpdateFlow = async (flowId: string, payload: Partial<TCreateFlowPayload>) => {
   loading.value = true
   try {
-    await deleteFlow(flowId)
-    flows.value = flows.value.filter((flow) => flow.flowId !== flowId)
+    await updateFlow(flowId, payload)
+    const index = flows.value.findIndex((flow) => flow.flowId === flowId)
+
+    if (index !== -1) {
+      flows.value[index] = {
+        ...flows.value[index],
+        ...payload,
+      }
+    }
+
+    toast.add({
+      severity: 'success',
+      detail: 'Fluxo atualizado com sucesso!',
+      life: 3000,
+      closable: false,
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'error',
+      detail: error instanceof Error && error.message,
+      life: 3000,
+      closable: false,
+    })
+  } finally {
+    loading.value = false
+    showFlowFormModal.value = false
+    selectedFlow.value = null
+  }
+}
+
+const handleDeleteFlow = async () => {
+  loading.value = true
+  try {
+    if (!selectedFlow.value?.flowId) return
+    await deleteFlow(selectedFlow.value?.flowId)
+    flows.value = flows.value.filter((flow) => flow.flowId !== selectedFlow.value?.flowId)
 
     toast.add({
       severity: 'success',
@@ -106,6 +157,15 @@ const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
     loading.value = false
   }
 }
+
+watch(
+  () => showFlowFormModal.value,
+  (newValue) => {
+    if (!newValue) {
+      selectedFlow.value = null
+    }
+  },
+)
 </script>
 
 <template>
@@ -163,7 +223,7 @@ const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
               severity="secondary"
               rounded
               :disabled="loading"
-              @click="toggleOptions"
+              @click="toggleOptions($event, data)"
             />
 
             <Popover ref="flow-options">
@@ -174,7 +234,7 @@ const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
                   label="Ver"
                   size="small"
                   :disabled="loading"
-                  @click="viewFlow(data.flowId)"
+                  @click="viewFlow"
                 />
                 <Button
                   variant="text"
@@ -182,16 +242,15 @@ const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
                   label="Editar"
                   size="small"
                   :disabled="loading"
-                  @click="viewFlow(data.flowId)"
+                  @click="editFlow"
                 />
                 <Button
-                  icon="pi pi-trash"
                   severity="danger"
                   variant="text"
                   label="Excluir"
                   size="small"
                   :loading
-                  @click="handleDeleteFlow(data.flowId)"
+                  @click="handleDeleteFlow"
                 />
               </div>
             </Popover>
@@ -206,9 +265,12 @@ const handleDeleteFlow = async (flowId: IFlow['flowId']) => {
       </DataTable>
     </div>
 
-    <CreateFlowModal
-      v-model:visible="showCreateDialog"
+    <FlowFormModal
+      v-model:visible="showFlowFormModal"
+      :mode="modalMode"
+      :flow="selectedFlow"
       @create="handleCreateFlow"
+      @update="handleUpdateFlow"
       @loading="(value) => (loading = value)"
     />
   </div>
