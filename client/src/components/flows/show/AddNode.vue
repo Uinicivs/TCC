@@ -2,13 +2,13 @@
 import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
-import type { INode } from '@/interfaces/node.ts'
+import type { INode } from '@/interfaces/node'
 
 import NodeTypeSelector from '@/components/flows/show/NodeTypeSelector.vue'
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
-import { useNodeCreation } from '@/composable/useNodeCreation.ts'
+import { useNodeCreation } from '@/composable/useNodeCreation'
 
 const props = defineProps<{
   parentId: INode['parent']
@@ -121,7 +121,7 @@ const getCreateNodeButtonLabel = computed(() => {
       />
 
       <template #footer>
-        <div class="flex justify-between items-center w-full pt-5">
+        <div class="flex justify-between items-center w-full">
           <Button
             v-if="currentStep > steps.chooseNode"
             label="Anterior"

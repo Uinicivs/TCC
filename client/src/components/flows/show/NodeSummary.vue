@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { INode, IMappedNodes } from '@/interfaces/node.ts'
+import type { INode, IMappedNodes } from '@/interfaces/node'
 
 defineProps<{
   nodeData: INode

@@ -40,7 +40,9 @@ import { EditorState } from '@codemirror/state'
 import { javascript } from '@codemirror/lang-javascript'
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete'
 
-import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL.ts'
+import type { Variable } from '@/interfaces/variables'
+
+import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
 
 interface ITagSectionItem {
   key: string
@@ -51,12 +53,6 @@ interface ITagSectionItem {
 interface TagSection {
   label: string
   items: ITagSectionItem[]
-}
-
-interface Variable {
-  name: string
-  type: 'text' | 'number' | 'bool' | 'list' | 'object'
-  required: boolean
 }
 
 let editorView: EditorView | null = null
@@ -71,9 +67,9 @@ const tagSections = computed<TagSection[]>(() => [
   {
     label: 'Variáveis disponíveis:',
     items: availableVariables.value.map((variable) => ({
-      key: variable.name,
-      label: `${variable.name} (${variable.type})`,
-      onClick: () => insertVariable(variable.name),
+      key: variable.displayName,
+      label: `${variable.displayName} (${variable.type})`,
+      onClick: () => insertVariable(variable.displayName),
     })),
   },
   {
@@ -103,7 +99,7 @@ function MFEELCompletions(context: CompletionContext) {
     (operator) => ({ label: operator, type: 'keyword' }),
   )
   const formattedAvailableVariables = availableVariables.value.map((variable) => ({
-    label: variable.name,
+    label: variable.displayName,
     type: 'variable',
   }))
 

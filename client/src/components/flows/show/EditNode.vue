@@ -5,9 +5,11 @@ import { ref, reactive, computed, inject, onMounted } from 'vue'
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
-import type { INode, IMappedNodes } from '@/interfaces/node.ts'
-import { useFlowStore } from '@/stores/flow.ts'
-import { nodes } from '@/constants/nodes.ts'
+import type { INode, IMappedNodes } from '@/interfaces/node'
+
+import { useFlowStore } from '@/stores/flow'
+
+import { nodes } from '@/constants/nodes'
 
 const dialogRef = inject<typeof DynamicDialog>('dialogRef')
 const nodeId = ref('')

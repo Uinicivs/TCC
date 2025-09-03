@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Card, ScrollPanel } from 'primevue'
 
-import type { IMappedNodes } from '@/interfaces/node.ts'
+import type { IMappedNodes } from '@/interfaces/node'
 
 defineProps<{ availableNodeTypes: IMappedNodes[] }>()
 

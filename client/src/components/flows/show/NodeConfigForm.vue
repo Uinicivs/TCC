@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { InputText, Textarea, Message } from 'primevue'
 
-import type { INode, IMappedNodes } from '@/interfaces/node.ts'
+import type { INode, IMappedNodes } from '@/interfaces/node'
 
 const nodeData = defineModel<INode>('nodeData', { required: true })
 

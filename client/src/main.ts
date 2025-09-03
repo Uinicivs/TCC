@@ -16,6 +16,7 @@ app.use(PrimeVue, { theme: { preset: Aura } })
 app.use(router)
 app.use(ToastService)
 app.use(DialogService)
+
 app.component('Toast', Toast)
 
 app.mount('#app')

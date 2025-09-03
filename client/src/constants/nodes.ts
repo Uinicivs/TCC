@@ -1,4 +1,5 @@
 import ConditionalNodeConfig from '@/components/flows/show/ConditionalNodeConfig.vue'
+import StartNodeConfig from '@/components/flows/show/StartNodeConfig.vue'
 
 import type { IMappedNodes } from '@/interfaces/node'
 
@@ -9,6 +10,7 @@ export const nodes: Record<string, IMappedNodes> = {
     type: 'start',
     icon: 'pi-circle',
     extraClasses: 'text-emerald-500',
+    configComponent: StartNodeConfig,
   },
 
   conditional: {
