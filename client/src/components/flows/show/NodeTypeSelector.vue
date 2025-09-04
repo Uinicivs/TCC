@@ -1,11 +1,22 @@
 <script setup lang="ts">
 import { Card, ScrollPanel } from 'primevue'
 
+import { useFlowStore } from '@/stores/flow'
+
 import type { IMappedNodes } from '@/interfaces/node'
 
 defineProps<{ availableNodeTypes: IMappedNodes[] }>()
-
 const emit = defineEmits<{ select: [node: IMappedNodes] }>()
+
+const { getFirstNode } = useFlowStore()
+
+const shouldDisableNode = (node: IMappedNodes) => {
+  return !getFirstNode && node.type !== 'start'
+}
+const handleClick = (node: IMappedNodes) => {
+  if (shouldDisableNode(node)) return
+  emit('select', node)
+}
 </script>
 
 <template>
@@ -14,8 +25,12 @@ const emit = defineEmits<{ select: [node: IMappedNodes] }>()
       <Card
         v-for="node in availableNodeTypes"
         :key="node.type"
-        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none cursor-pointer hover:shadow-lg transition-shadow duration-200"
-        @click="emit('select', node)"
+        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none hover:shadow-lg transition-shadow duration-200"
+        :class="{
+          disabled: shouldDisableNode(node),
+          'cursor-pointer ': !shouldDisableNode(node),
+        }"
+        @click="handleClick(node)"
       >
         <template #content>
           <div class="h-full flex gap-4 items-center">
@@ -41,3 +56,9 @@ const emit = defineEmits<{ select: [node: IMappedNodes] }>()
     </div>
   </ScrollPanel>
 </template>
+
+<style scoped>
+.disabled {
+  opacity: 0.6;
+}
+</style>
