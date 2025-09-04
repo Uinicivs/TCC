@@ -3,12 +3,14 @@ import { computed } from 'vue'
 import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
+import type { Variable } from '@/interfaces/variables'
 
 import NodeTypeSelector from '@/components/flows/show/NodeTypeSelector.vue'
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
 import { useNodeCreation } from '@/composable/useNodeCreation'
+import { useFlowStore } from '@/stores/flow'
 
 const props = defineProps<{
   parentId: INode['parent']
@@ -31,6 +33,7 @@ const {
   handleStepNavigation,
   handleCreateNode,
 } = useNodeCreation(props.parentId, props.handleId)
+const { getStartNodeVariables } = useFlowStore()
 
 const getCreateNodeButtonLabel = computed(() => {
   const handleId = props.handleId || ''
@@ -43,6 +46,32 @@ const getCreateNodeButtonLabel = computed(() => {
   }
 
   return ''
+})
+
+const shouldDisableNextButton = computed(() => {
+  if (selectedNode.value?.type === 'start') {
+    const inputs = (nodeData.settings as Record<string, unknown>)?.inputs as Array<Variable>
+    return !inputs?.length || !inputs?.every(({ displayName }: Variable) => Boolean(displayName))
+  }
+
+  if (selectedNode.value?.type === 'conditional') {
+    const expression = nodeData.settings as string
+
+    if (!expression || !expression.trim()) return true
+    if (!getStartNodeVariables.length) return false
+
+    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+
+    if (requiredVariables.length > 0) {
+      return !requiredVariables.every(({ displayName }: Variable) =>
+        expression.includes(displayName),
+      )
+    }
+  }
+  return (
+    (currentStep.value === 1 && !hasNodeTypeSelected) ||
+    (currentStep.value === 2 && !hasNodeLabelFilled)
+  )
 })
 </script>
 
@@ -140,10 +169,7 @@ const getCreateNodeButtonLabel = computed(() => {
               size="small"
               icon-pos="right"
               label="Próximo"
-              :disabled="
-                (currentStep === 1 && !hasNodeTypeSelected) ||
-                (currentStep === 2 && !hasNodeLabelFilled)
-              "
+              :disabled="shouldDisableNextButton"
               @click="handleStepNavigation.next"
             />
             <Button

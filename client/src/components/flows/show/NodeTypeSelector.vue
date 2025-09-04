@@ -1,18 +1,26 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Card, ScrollPanel } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
 import type { IMappedNodes } from '@/interfaces/node'
 
-defineProps<{ availableNodeTypes: IMappedNodes[] }>()
+const { availableNodeTypes } = defineProps<{ availableNodeTypes: IMappedNodes[] }>()
 const emit = defineEmits<{ select: [node: IMappedNodes] }>()
 
 const { getFirstNode } = useFlowStore()
 
+const availableNodes = computed(() => {
+  return getFirstNode
+    ? availableNodeTypes.filter((node) => node.type !== 'start')
+    : availableNodeTypes
+})
+
 const shouldDisableNode = (node: IMappedNodes) => {
   return !getFirstNode && node.type !== 'start'
 }
+
 const handleClick = (node: IMappedNodes) => {
   if (shouldDisableNode(node)) return
   emit('select', node)
@@ -23,7 +31,7 @@ const handleClick = (node: IMappedNodes) => {
   <ScrollPanel style="width: 100%; height: 200px" class="pr-2">
     <div class="grid md:grid-cols-2 gap-4 sm:grid-cols-1">
       <Card
-        v-for="node in availableNodeTypes"
+        v-for="node in availableNodes"
         :key="node.type"
         class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none hover:shadow-lg transition-shadow duration-200"
         :class="{

@@ -5,7 +5,7 @@ type INodeTypes = 'start' | 'conditional' | 'end'
 export interface INode {
   title: string
   description?: string
-  settings?: Record<string, unknown>
+  settings?: Record<string, unknown> | string
   parent: string | null
   children?: Array<string>
   isFalseCase?: boolean
