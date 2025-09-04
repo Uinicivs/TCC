@@ -1,6 +1,7 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
+import type { Variable } from '@/interfaces/variables'
 
 export const useFlowStore = defineStore('flow', () => {
   const nodes = ref<Node[]>([])
@@ -75,9 +76,14 @@ export const useFlowStore = defineStore('flow', () => {
     return nodes.value.filter(({ data }) => !data.children?.length)
   }
 
-  const getFirstNode = (): Node | undefined => {
+  const getFirstNode = computed((): Node | undefined => {
     return nodes.value.find(({ data }) => data.parent === null)
-  }
+  })
+
+  const getStartNodeVariables = computed((): Variable[] => {
+    const startNode = getFirstNode.value
+    return startNode?.data.settings.inputs || []
+  })
 
   const buildEdgeId = (node: Node): string => {
     return `${node.data.parent}-${node.id}`
@@ -164,6 +170,7 @@ export const useFlowStore = defineStore('flow', () => {
     getNodeById,
     getLastNodes,
     getFirstNode,
+    getStartNodeVariables,
     addNodes,
     removeNode,
     updateNode,

@@ -34,7 +34,7 @@ const getCurrentNodeWrapperWidth = computed<number>(() => {
 })
 
 const isFirstNode = computed<boolean>(() => {
-  return flowStore.getFirstNode()?.id === id
+  return flowStore.getFirstNode?.id === id
 })
 
 const handleClick = (event: MouseEvent): void => {
