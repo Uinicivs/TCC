@@ -10,11 +10,12 @@ import type { INode, IMappedNodes } from '@/interfaces/node'
 import { useFlowStore } from '@/stores/flow'
 
 import { nodes } from '@/constants/nodes'
+import type { Variable } from '@/interfaces/variables'
 
 const dialogRef = inject<typeof DynamicDialog>('dialogRef')
 const nodeId = ref('')
 
-const flowStore = useFlowStore()
+const { getStartNodeVariables, getNodeById, updateNode } = useFlowStore()
 
 const steps = {
   setupTitle: 1,
@@ -31,10 +32,33 @@ const nodeData = reactive<INode>({
   children: [],
 })
 
+const shouldDisableNextButton = computed(() => {
+  if (selectedNode.value?.type === 'start') {
+    const inputs = (nodeData.settings as Record<string, unknown>)?.inputs as Array<Variable>
+    return !inputs?.length || !inputs?.every(({ displayName }: Variable) => Boolean(displayName))
+  }
+
+  if (selectedNode.value?.type === 'conditional') {
+    const expression = nodeData.settings as string
+
+    if (!expression || !expression.trim()) return true
+    if (!getStartNodeVariables.length) return false
+
+    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+
+    if (requiredVariables.length > 0) {
+      return !requiredVariables.every(({ displayName }: Variable) =>
+        expression.includes(displayName),
+      )
+    }
+  }
+  return currentStep.value === 1 && !hasNodeLabelFilled
+})
+
 const reset = () => {
   currentStep.value = steps.setupTitle
 
-  const currentNode = flowStore.getNodeById(nodeId.value)
+  const currentNode = getNodeById(nodeId.value)
 
   if (currentNode) {
     const node = currentNode
@@ -79,7 +103,7 @@ const handleUpdateNode = () => {
   if (!selectedNode.value || !nodeData.title.trim()) return
 
   const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
-  flowStore.updateNode(nodeId.value, { data: formattedNodeData })
+  updateNode(nodeId.value, { data: formattedNodeData })
   dialogRef?.value?.close()
 }
 
@@ -148,7 +172,7 @@ onMounted(() => {
           size="small"
           icon-pos="right"
           label="Próximo"
-          :disabled="!hasNodeLabelFilled"
+          :disabled="shouldDisableNextButton"
           @click="handleStepNavigation.next"
         />
         <Button
