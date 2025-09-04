@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Button, Stepper, StepList, Step, DynamicDialog } from 'primevue'
+import { Button, Stepper, StepList, Step, DynamicDialog, Message } from 'primevue'
 import { ref, reactive, computed, inject, onMounted } from 'vue'
 
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
@@ -53,6 +53,42 @@ const shouldDisableNextButton = computed(() => {
     }
   }
   return currentStep.value === 1 && !hasNodeLabelFilled
+})
+
+const getDisabledMessage = computed(() => {
+  if (currentStep.value === 2 && !hasNodeLabelFilled) {
+    return 'Preencha o nome do nó para continuar'
+  }
+
+  if (selectedNode.value?.type === 'start') {
+    const inputs = (nodeData.settings as Record<string, unknown>)?.inputs as Array<Variable>
+    if (!inputs?.length) {
+      return 'Adicione pelo menos uma variável de entrada'
+    }
+    if (!inputs?.every(({ displayName }: Variable) => Boolean(displayName))) {
+      return 'Preencha o nome de todas as variáveis'
+    }
+  }
+
+  if (selectedNode.value?.type === 'conditional') {
+    const expression = nodeData.settings as string
+    if (!expression || !expression.trim()) {
+      return 'Digite uma expressão para continuar'
+    }
+
+    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    if (requiredVariables.length > 0) {
+      const missingVariables = requiredVariables.filter(
+        ({ displayName }: Variable) => !expression.includes(displayName),
+      )
+      if (missingVariables.length > 0) {
+        const variableNames = missingVariables
+          .map(({ displayName }: Variable) => displayName)
+          .join(', ')
+        return `Inclua as variáveis obrigatórias na expressão: ${variableNames}`
+      }
+    }
+  }
 })
 
 const reset = () => {
@@ -152,6 +188,30 @@ onMounted(() => {
       :node-data="nodeData"
       :selected-node="selectedNode"
     />
+
+    <transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 transform -translate-y-2"
+      enter-to-class="opacity-100 transform translate-y-0"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 transform translate-y-0"
+      leave-to-class="opacity-0 transform -translate-y-2"
+    >
+      <Message
+        v-if="shouldDisableNextButton && getDisabledMessage"
+        severity="warn"
+        :closable="false"
+        size="small"
+        class="mt-5"
+      >
+        <div class="flex gap-2 items-center">
+          <i class="pi pi-exclamation-triangle text-amber-500" />
+          <span>
+            {{ getDisabledMessage }}
+          </span>
+        </div>
+      </Message>
+    </transition>
 
     <div class="flex justify-between items-center w-full pt-5">
       <Button

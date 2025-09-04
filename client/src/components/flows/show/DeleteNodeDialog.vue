@@ -3,7 +3,7 @@
     <template #header>
       <div class="flex items-center gap-3">
         <div class="flex-shrink-0">
-          <i class="pi pi-exclamation-triangle text-amber-500 text-2xl"></i>
+          <i class="pi pi-exclamation-triangle text-amber-500 text-2xl" />
         </div>
         <div class="flex flex-col gap-1">
           <p class="text-neutral-600 text-sm">
@@ -16,7 +16,7 @@
     <template #content>
       <div class="bg-red-50 border border-red-200 rounded-lg p-3">
         <div class="flex items-center gap-2">
-          <i class="pi pi-info-circle text-red-600"></i>
+          <i class="pi pi-info-circle text-red-600" />
           <span class="text-red-700 text-sm font-medium">
             Atenção: Todos os nós e configurações serão perdidos permanentemente.
           </span>

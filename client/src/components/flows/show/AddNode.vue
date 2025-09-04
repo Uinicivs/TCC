@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, Dialog, Stepper, StepList, Step } from 'primevue'
+import { Button, Dialog, Stepper, StepList, Step, Message } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 import type { Variable } from '@/interfaces/variables'
@@ -72,6 +72,43 @@ const shouldDisableNextButton = computed(() => {
     (currentStep.value === 1 && !hasNodeTypeSelected) ||
     (currentStep.value === 2 && !hasNodeLabelFilled)
   )
+})
+
+const getDisabledMessage = computed(() => {
+  if (currentStep.value === 1) return
+  if (currentStep.value === 2 && !hasNodeLabelFilled) {
+    return 'Preencha o nome do nó para continuar'
+  }
+
+  if (selectedNode.value?.type === 'start') {
+    const inputs = (nodeData.settings as Record<string, unknown>)?.inputs as Array<Variable>
+    if (!inputs?.length) {
+      return 'Adicione pelo menos uma variável de entrada'
+    }
+    if (!inputs?.every(({ displayName }: Variable) => Boolean(displayName))) {
+      return 'Preencha o nome de todas as variáveis'
+    }
+  }
+
+  if (selectedNode.value?.type === 'conditional') {
+    const expression = nodeData.settings as string
+    if (!expression || !expression.trim()) {
+      return 'Digite uma expressão para continuar'
+    }
+
+    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    if (requiredVariables.length > 0) {
+      const missingVariables = requiredVariables.filter(
+        ({ displayName }: Variable) => !expression.includes(displayName),
+      )
+      if (missingVariables.length > 0) {
+        const variableNames = missingVariables
+          .map(({ displayName }: Variable) => displayName)
+          .join(', ')
+        return `Inclua as variáveis obrigatórias na expressão: ${variableNames}`
+      }
+    }
+  }
 })
 </script>
 
@@ -148,6 +185,30 @@ const shouldDisableNextButton = computed(() => {
         :node-data="nodeData"
         :selected-node="selectedNode"
       />
+
+      <transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 transform -translate-y-2"
+        enter-to-class="opacity-100 transform translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 transform translate-y-0"
+        leave-to-class="opacity-0 transform -translate-y-2"
+      >
+        <Message
+          v-if="shouldDisableNextButton && getDisabledMessage"
+          severity="warn"
+          :closable="false"
+          size="small"
+          class="mt-5"
+        >
+          <div class="flex gap-2 items-center">
+            <i class="pi pi-exclamation-triangle text-amber-500" />
+            <span>
+              {{ getDisabledMessage }}
+            </span>
+          </div>
+        </Message>
+      </transition>
 
       <template #footer>
         <div class="flex justify-between items-center w-full">
