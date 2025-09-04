@@ -16,15 +16,14 @@
         </p>
 
         <div class="flex flex-wrap gap-1 w-lg">
-          <Tag
-            v-for="item in section.items"
-            :key="item.key"
-            class="cursor-pointer"
-            severity="secondary"
-            @click="item.onClick"
-          >
-            {{ item.label }}
-          </Tag>
+          <template v-for="item in section.items" :key="item.key">
+            <div class="relative">
+              <Tag class="cursor-pointer" severity="secondary" @click="item.onClick">
+                {{ item.label }}
+              </Tag>
+              <span v-if="item.required" class="text-red-700 absolute -top-1 -right-1">*</span>
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -40,6 +39,8 @@ import { EditorState } from '@codemirror/state'
 import { javascript } from '@codemirror/lang-javascript'
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete'
 
+import { useFlowStore } from '@/stores/flow'
+
 import type { Variable } from '@/interfaces/variables'
 
 import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
@@ -47,6 +48,7 @@ import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
 interface ITagSectionItem {
   key: string
   label: string
+  required?: boolean
   onClick: () => void
 }
 
@@ -57,18 +59,20 @@ interface TagSection {
 
 let editorView: EditorView | null = null
 
-const props = defineProps<{ variables?: Variable[] }>()
 const expression = defineModel<string>({ required: true })
+const flowStore = useFlowStore()
 
 const editorRef = ref<HTMLElement>()
 
-const availableVariables = computed(() => props.variables || [])
+const availableVariables = computed(() => flowStore.getStartNodeVariables)
+
 const tagSections = computed<TagSection[]>(() => [
   {
     label: 'Variáveis disponíveis:',
-    items: availableVariables.value.map((variable) => ({
+    items: availableVariables.value.map((variable: Variable) => ({
       key: variable.displayName,
       label: `${variable.displayName} (${variable.type})`,
+      required: variable.required,
       onClick: () => insertVariable(variable.displayName),
     })),
   },
@@ -98,7 +102,7 @@ function MFEELCompletions(context: CompletionContext) {
   const formattedOperators = MFEELOperators.filter((operator) => /^\w/.test(operator)).map(
     (operator) => ({ label: operator, type: 'keyword' }),
   )
-  const formattedAvailableVariables = availableVariables.value.map((variable) => ({
+  const formattedAvailableVariables = availableVariables.value.map((variable: Variable) => ({
     label: variable.displayName,
     type: 'variable',
   }))
