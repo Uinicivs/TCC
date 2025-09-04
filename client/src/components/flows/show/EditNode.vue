@@ -189,61 +189,63 @@ onMounted(() => {
       :selected-node="selectedNode"
     />
 
-    <transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 transform -translate-y-2"
-      enter-to-class="opacity-100 transform translate-y-0"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100 transform translate-y-0"
-      leave-to-class="opacity-0 transform -translate-y-2"
-    >
-      <Message
-        v-if="shouldDisableNextButton && getDisabledMessage"
-        severity="warn"
-        :closable="false"
-        size="small"
-        class="mt-5"
+    <div class="flex flex-col gap-5 w-full">
+      <transition
+        enter-active-class="transition-all duration-300 ease-out"
+        enter-from-class="opacity-0 transform -translate-y-2"
+        enter-to-class="opacity-100 transform translate-y-0"
+        leave-active-class="transition-all duration-200 ease-in"
+        leave-from-class="opacity-100 transform translate-y-0"
+        leave-to-class="opacity-0 transform -translate-y-2"
       >
-        <div class="flex gap-2 items-center">
-          <i class="pi pi-exclamation-triangle text-amber-500" />
-          <span>
-            {{ getDisabledMessage }}
-          </span>
-        </div>
-      </Message>
-    </transition>
+        <Message
+          v-if="shouldDisableNextButton && getDisabledMessage"
+          severity="warn"
+          :closable="false"
+          size="small"
+          class="mt-5"
+        >
+          <div class="flex gap-2 items-center">
+            <i class="pi pi-exclamation-triangle text-amber-500" />
+            <span>
+              {{ getDisabledMessage }}
+            </span>
+          </div>
+        </Message>
+      </transition>
 
-    <div class="flex justify-between items-center w-full pt-5">
-      <Button
-        v-if="currentStep > steps.setupTitle"
-        label="Anterior"
-        class="self-start"
-        size="small"
-        icon="pi pi-chevron-left"
-        severity="secondary"
-        outlined
-        @click="handleStepNavigation.previous"
-      />
-      <div class="flex gap-2 w-full">
+      <div class="flex justify-between items-center w-full">
         <Button
-          v-if="currentStep < steps.setupNode"
-          class="ml-auto"
-          icon="pi pi-chevron-right"
+          v-if="currentStep > steps.setupTitle"
+          label="Anterior"
+          class="self-start"
           size="small"
-          icon-pos="right"
-          label="Próximo"
-          :disabled="shouldDisableNextButton"
-          @click="handleStepNavigation.next"
+          icon="pi pi-chevron-left"
+          severity="secondary"
+          outlined
+          @click="handleStepNavigation.previous"
         />
-        <Button
-          v-if="currentStep === steps.setupNode"
-          label="Atualizar nó"
-          class="ml-auto"
-          size="small"
-          icon="pi pi-check"
-          :disabled="!hasNodeLabelFilled"
-          @click="handleUpdateNode"
-        />
+        <div class="flex gap-2 w-full">
+          <Button
+            v-if="currentStep < steps.setupNode"
+            class="ml-auto"
+            icon="pi pi-chevron-right"
+            size="small"
+            icon-pos="right"
+            label="Próximo"
+            :disabled="shouldDisableNextButton"
+            @click="handleStepNavigation.next"
+          />
+          <Button
+            v-if="currentStep === steps.setupNode"
+            label="Atualizar nó"
+            class="ml-auto"
+            size="small"
+            icon="pi pi-check"
+            :disabled="!hasNodeLabelFilled"
+            @click="handleUpdateNode"
+          />
+        </div>
       </div>
     </div>
   </div>

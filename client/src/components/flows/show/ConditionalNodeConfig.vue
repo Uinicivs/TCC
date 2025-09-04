@@ -192,7 +192,7 @@ onMounted(() => {
             outline: '1px solid #3b82f6',
           },
           '.cm-tooltip-autocomplete ul li[aria-selected]': {
-            background: '#f1f5f9',
+            background: '#6fd4b3',
             'border-radius': '0.2rem',
             color: '#1e293b',
           },
