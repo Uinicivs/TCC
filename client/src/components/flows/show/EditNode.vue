@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { Button, Stepper, StepList, Step, DynamicDialog, Message } from 'primevue'
-import { ref, reactive, computed, inject, onMounted } from 'vue'
+import { ref, reactive, computed, inject, onMounted, type Ref } from 'vue'
+import { Button, Stepper, StepList, Step, Message } from 'primevue'
+import type { DynamicDialogInstance } from 'primevue/dynamicdialogoptions'
 
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 import NodeSummary from '@/components/flows/show/NodeSummary.vue'
@@ -12,7 +13,7 @@ import { useFlowStore } from '@/stores/flow'
 import { nodes } from '@/constants/nodes'
 import type { Variable } from '@/interfaces/variables'
 
-const dialogRef = inject<typeof DynamicDialog>('dialogRef')
+const dialogRef = inject<Ref<DynamicDialogInstance>>('dialogRef')
 const nodeId = ref('')
 
 const { getStartNodeVariables, getNodeById, updateNode } = useFlowStore()
