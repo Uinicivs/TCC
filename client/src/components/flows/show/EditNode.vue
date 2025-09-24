@@ -53,11 +53,11 @@ const shouldDisableNextButton = computed(() => {
       )
     }
   }
-  return currentStep.value === 1 && !hasNodeLabelFilled
+  return currentStep.value === 1 && !hasNodeLabelFilled.value
 })
 
 const getDisabledMessage = computed(() => {
-  if (currentStep.value === 2 && !hasNodeLabelFilled) {
+  if (currentStep.value === 2 && !hasNodeLabelFilled.value) {
     return 'Preencha o nome do nó para continuar'
   }
 
