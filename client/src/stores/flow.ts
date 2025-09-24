@@ -1,11 +1,24 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
+import { useFlowSync } from '@/composable/useFlowSync'
 
 export const useFlowStore = defineStore('flow', () => {
+  let flowSyncInstance: ReturnType<typeof useFlowSync> | null = null
   const nodes = ref<Node[]>([])
   const edges = ref<Edge[]>([])
+  const currentFlowId = ref<string | null>(null)
+
+  const initializeDebounce = (flowId: string) => {
+    flowSyncInstance = useFlowSync(flowId)
+  }
+
+  watch(nodes, async(newNodes) => {
+    if (currentFlowId.value && flowSyncInstance) {
+      flowSyncInstance.updateNodes(newNodes)
+    }
+  }, { deep: true })
 
   const getNodeById = (nodeId: Node['id']): Node | undefined => {
     return nodes.value.find(({ id }) => id === nodeId)
@@ -24,17 +37,14 @@ export const useFlowStore = defineStore('flow', () => {
 
     if (!parentId) {
       nodes.value.push(newNode)
-      return
-    }
+    } else {
+      const parentIndex = nodes.value.findIndex((node) => node.id === parentId)
 
-    const parentIndex = nodes.value.findIndex((node) => node.id === parentId)
-
-    if (parentIndex !== -1) {
-      nodes.value.splice(parentIndex + 1, 0, newNode)
-    }
-
-    if (parentIndex === -1) {
-      nodes.value.push(newNode)
+      if (parentIndex !== -1) {
+        nodes.value.splice(parentIndex + 1, 0, newNode)
+      } else {
+        nodes.value.push(newNode)
+      }
     }
 
     if (!skipEdgeCreation) {
@@ -58,6 +68,10 @@ export const useFlowStore = defineStore('flow', () => {
   const setNodes = (newNodes: Node[]) => {
     nodes.value = newNodes
     setEdges()
+
+    if (currentFlowId.value && flowSyncInstance) {
+      flowSyncInstance.setInitialNodes(newNodes)
+    }
   }
 
   const setEdges = () => {
@@ -164,9 +178,24 @@ export const useFlowStore = defineStore('flow', () => {
     edges.value = edges.value.filter((edge) => edge.source !== node.id && edge.target !== node.id)
   }
 
+  const setFlowId = (flowId: string | null) => {
+    currentFlowId.value = flowId
+    flowId ? initializeDebounce(flowId) : flowSyncInstance = null
+  }
+
+  const clearFlow = () => {
+    if (flowSyncInstance) {
+      flowSyncInstance.cancelPendingUpdates()
+    }
+    nodes.value = []
+    edges.value = []
+    currentFlowId.value = null
+  }
+
   return {
     nodes,
     edges,
+    currentFlowId,
     getNodeById,
     getLastNodes,
     getFirstNode,
@@ -176,5 +205,7 @@ export const useFlowStore = defineStore('flow', () => {
     updateNode,
     setNodes,
     addEdgeWithHandle,
+    setFlowId,
+    clearFlow,
   }
 })

@@ -1,5 +1,6 @@
 import api from './api'
 import type { IFlow } from '@/interfaces/flow'
+import type { SchemaNode } from '@/utils/flowFormatters'
 
 export type TCreateFlowPayload = Pick<IFlow, 'flowName' | 'flowDescription'>
 
@@ -59,4 +60,15 @@ export const deleteFlow = async (id: string): Promise<void> => {
   } catch {
     throw new Error('Falha ao deletar o fluxo. Tente novamente.')
   }
+}
+
+export const updateFlowNodes = async (id: string, nodes: SchemaNode[]): Promise<void> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+  console.log('✅ Mock: Nós atualizados com sucesso', { id, nodesCount: nodes.length })
+  return Promise.resolve()
+  // try {
+  //   await api.put(`/decision_flows/${id}/nodes`, nodes)
+  // } catch {
+  //   throw new Error('Falha ao atualizar os nós do fluxo. Tente novamente.')
+  // }
 }

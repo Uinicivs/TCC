@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
+import { computed, onMounted, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
@@ -7,6 +7,8 @@ import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 
 import { useFlowStore } from '@/stores/flow'
+import { getFlowById } from '@/services/flowService'
+import { mapSchemaToFlow } from '@/utils/flowFormatters'
 
 import AddNode from '@/components/flows/show/AddNode.vue'
 import { Start, Conditional, End } from '@/components/nodes'
@@ -18,6 +20,17 @@ const flowId = route.params.id as string
 
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
+
+onMounted(async () => {
+  flowStore.setFlowId(flowId)
+
+  const flowData = await getFlowById(flowId)
+
+  if (flowData.nodes && flowData.nodes.length > 0) {
+    const frontendNodes = mapSchemaToFlow(flowData.nodes)
+    flowStore.setNodes(frontendNodes)
+  }
+})
 
 const onNodeDragStop = (event: NodeDragEvent) => {
   const {
