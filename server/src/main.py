@@ -1,8 +1,10 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from src.api.routers import flow_router
 from src.app.db.connection import lifespan
 from src.app.core.config import get_settings
-from src.api.routers import flow_router
 from src.api.handlers.exception_handler import add_exception_handlers
 
 
@@ -14,6 +16,14 @@ app = FastAPI(
 )
 
 add_exception_handlers(app)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
 
 app.include_router(flow_router.router)
 

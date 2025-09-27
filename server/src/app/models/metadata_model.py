@@ -1,12 +1,14 @@
-from pydantic import BaseModel
-from typing import List
 from enum import Enum
+from typing import Any
+from pydantic import BaseModel
 
 
 class InputType(str, Enum):
     NUMBER = 'number'
     TEXT = 'text'
     BOOL = 'bool'
+    OBJECT = 'object'
+    LIST = 'list'
 
 
 class InputMedata(BaseModel):
@@ -16,7 +18,7 @@ class InputMedata(BaseModel):
 
 
 class StartMetadata(BaseModel):
-    inputs: List[InputMedata]
+    inputs: list[InputMedata]
 
 
 class ConditionalOperationType(str, Enum):
@@ -29,10 +31,8 @@ class ConditionalOperationType(str, Enum):
 
 
 class ConditionalMetadata(BaseModel):
-    variable: str
-    operation: ConditionalOperationType
-    value: None | str | float | bool
+    expression: str
 
 
 class EndMetadata(BaseModel):
-    response: None | str | float | bool
+    response: Any

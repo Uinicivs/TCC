@@ -1,7 +1,7 @@
-from fastapi import HTTPException, status
-from pymongo.errors import DuplicateKeyError, OperationFailure, ExecutionTimeout, ConfigurationError
 from bson.errors import InvalidId
 from pydantic import ValidationError
+from fastapi import HTTPException, status
+from pymongo.errors import DuplicateKeyError, OperationFailure, ExecutionTimeout, ConfigurationError
 
 
 class AppException(HTTPException):
@@ -49,6 +49,21 @@ class UpdateFailedException(AppException):
 class BusinessRuleViolation(AppException):
     def __init__(self, detail: str = "Business rule violation"):
         super().__init__(status.HTTP_400_BAD_REQUEST, detail)
+
+
+class InvalidFlowException(AppException):
+    def __init__(self, detail: str = "Flow is broken"):
+        super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail)
+
+
+class InvalidPayloadException(AppException):
+    def __init__(self, detail):
+        super().__init__(status.HTTP_422_UNPROCESSABLE_ENTITY, detail)
+
+
+class RuntimeException(AppException):
+    def __init__(self, detail):
+        super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail)
 
 
 def translate_mongo_error(exc: Exception) -> AppException:

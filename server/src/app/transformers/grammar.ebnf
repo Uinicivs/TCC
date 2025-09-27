@@ -1,0 +1,70 @@
+?start: expr
+
+?expr: if_expr
+     | or_expr
+
+?if_expr: "if" expr "then" expr "else" expr   -> if_expr
+
+?or_expr: and_expr
+        | or_expr "or" and_expr               -> or_op
+
+?and_expr: not_expr
+         | and_expr "and" not_expr            -> and_op
+
+?not_expr: "not" not_expr                     -> not_op
+         | comp_expr
+
+?comp_expr: add_expr
+          | add_expr comparator add_expr      -> compare
+
+?comparator: "="   -> eq
+           | "!="  -> ne
+           | "<"   -> lt
+           | "<="  -> le
+           | ">"   -> gt
+           | ">="  -> ge
+           | "in"  -> in_op
+
+?add_expr: add_expr "+" mul_expr              -> add
+         | add_expr "-" mul_expr              -> sub
+         | mul_expr
+
+?mul_expr: mul_expr "*" unary_expr            -> mul
+         | mul_expr "/" unary_expr            -> div
+         | unary_expr
+
+?unary_expr: "-" unary_expr                   -> neg
+           | atom
+
+?atom: literal
+     | name_access
+     | func_call
+     | list
+     | context
+     | "(" expr ")"
+     | index_access                              -> index_access
+
+?literal: NUMBER           -> number
+        | STRING           -> string
+        | "true"           -> true
+        | "false"          -> false
+        | "null"           -> null
+
+list: "[" [expr ("," expr)*] "]"               -> list_literal
+
+context: "{" [pair ("," pair)*] "}"             -> context_literal
+pair: (NAME | STRING) ":" expr
+
+name_access: NAME ("." NAME)*                  -> name_access
+
+index_access: (NAME ("." NAME)*) "[" expr "]"  -> name_index
+            | list "[" expr "]"                -> list_index
+            | "(" expr ")" "[" expr "]"        -> expr_index
+
+func_call: NAME "(" [expr ("," expr)*] ")"     -> func_call
+
+%import common.CNAME -> NAME
+%import common.SIGNED_NUMBER -> NUMBER
+%import common.ESCAPED_STRING -> STRING
+%import common.WS
+%ignore WS

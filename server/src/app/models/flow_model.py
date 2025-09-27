@@ -1,10 +1,11 @@
-from pydantic import BaseModel, Field, ConfigDict, GetCoreSchemaHandler, GetJsonSchemaHandler
-from pydantic_core import core_schema
-from pydantic.json_schema import JsonSchemaValue
-from typing import List, Union
-from datetime import datetime, timezone
+from typing import List
 from bson import ObjectId
-from src.app.models.node_model import StartNode, ConditionalNode, EndNode
+from pydantic_core import core_schema
+from datetime import datetime, timezone
+from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field, ConfigDict, GetCoreSchemaHandler, GetJsonSchemaHandler
+
+from src.app.models.node_model import AnyNode
 
 
 class PyObjectId(ObjectId):
@@ -45,9 +46,6 @@ class PyObjectId(ObjectId):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)
-
-
-AnyNode = Union[StartNode, ConditionalNode, EndNode]
 
 
 class Flow(BaseModel):
