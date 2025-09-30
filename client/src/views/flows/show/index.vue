@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import { ProgressSpinner, Button, Card, Menubar } from 'primevue'
+import { ProgressSpinner, Button, Card, Toolbar } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
@@ -101,11 +101,20 @@ const goBack = () => {
         </div>
 
         <template v-else>
-          <Menubar :model="[{ label: flowName }]" class="w-full z-10">
+          <Toolbar class="w-full z-10 fixed !rounded-t-none !border-0">
             <template #start>
-              <Button icon="pi pi-arrow-left" class="mr-2" seve@click="goBack" />
+              <Button
+                icon="pi pi-arrow-left"
+                size="small"
+                severity="secondary"
+                variant="text"
+                class="mr-2"
+                @click="goBack"
+              />
+
+              {{ flowName }}
             </template>
-          </Menubar>
+          </Toolbar>
 
           <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
         </template>
@@ -114,8 +123,12 @@ const goBack = () => {
           <Background variant="dots" />
           <Controls :showInteractive="false" />
 
-          <template v-for="(node, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
-            <component :is="node" v-bind="props" />
+          <template
+            v-for="(nodeComponent, type) in nodeComponents"
+            :key="type"
+            #[`node-${type}`]="props"
+          >
+            <component :is="nodeComponent" v-bind="props" />
           </template>
         </VueFlow>
       </div>
