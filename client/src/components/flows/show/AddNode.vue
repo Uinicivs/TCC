@@ -7,7 +7,6 @@ import type { Variable } from '@/interfaces/variables'
 
 import NodeTypeSelector from '@/components/flows/show/NodeTypeSelector.vue'
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
-import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
 import { useNodeCreation } from '@/composable/useNodeCreation'
 import { useFlowStore } from '@/stores/flow'
@@ -152,18 +151,6 @@ const getDisabledMessage = computed(() => {
                 {{ shouldShowConfigStep ? 'Configurar nó' : 'Configurar nó' }}
               </span>
             </Step>
-            <Step
-              :value="steps.setupNode"
-              :disabled="!hasNodeTypeSelected || !hasNodeLabelFilled"
-              :class="{ 'cursor-pointer': hasNodeTypeSelected && hasNodeLabelFilled }"
-              @click="
-                hasNodeTypeSelected && hasNodeLabelFilled
-                  ? handleStepNavigation.goTo(steps.setupNode)
-                  : null
-              "
-            >
-              <span class="hidden sm:inline">Revisar</span>
-            </Step>
           </StepList>
         </Stepper>
       </div>
@@ -177,12 +164,6 @@ const getDisabledMessage = computed(() => {
       <NodeConfigForm
         v-if="currentStep === steps.setupTitle"
         v-model:nodeData="nodeData"
-        :selected-node="selectedNode"
-      />
-
-      <NodeSummary
-        v-if="currentStep === steps.setupNode"
-        :node-data="nodeData"
         :selected-node="selectedNode"
       />
 
@@ -224,7 +205,7 @@ const getDisabledMessage = computed(() => {
             />
             <div class="flex gap-2 w-full">
               <Button
-                v-if="currentStep < steps.setupNode"
+                v-if="currentStep < steps.setupTitle"
                 class="ml-auto"
                 icon="pi pi-chevron-right"
                 size="small"
@@ -234,7 +215,7 @@ const getDisabledMessage = computed(() => {
                 @click="handleStepNavigation.next"
               />
               <Button
-                v-if="currentStep === steps.setupNode"
+                v-if="currentStep === steps.setupTitle"
                 label="Criar nó"
                 class="ml-auto"
                 size="small"

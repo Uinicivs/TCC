@@ -19,7 +19,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const steps = {
     chooseNode: 1,
     setupTitle: 2,
-    setupNode: 3,
   }
 
   const visible = ref(false)
@@ -56,7 +55,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
   const handleStepNavigation = {
     next: () => {
-      if (currentStep.value >= steps.setupNode) return
+      if (currentStep.value >= steps.setupTitle) return
       currentStep.value++
     },
     previous: () => {
@@ -70,12 +69,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       }
 
       if (stepNumber === steps.setupTitle && !hasNodeTypeSelected.value) return
-      if (
-        stepNumber === steps.setupNode &&
-        (!hasNodeTypeSelected.value || !hasNodeLabelFilled.value)
-      ) {
-        return
-      }
 
       currentStep.value = stepNumber
     },
@@ -175,8 +168,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       case steps.chooseNode:
         return 'Escolha o tipo do nó'
       case steps.setupTitle:
-        return `Configurar ${selectedNode.value?.name}`
-      case steps.setupNode:
         return `Configurar ${selectedNode.value?.name}`
       default:
         return ''

@@ -281,19 +281,15 @@ watch(
   flex: 1;
 }
 
-:deep(.p-datatable-empty-message td) {
-  border: none;
-}
-
-:deep(.p-overlay-mask) {
-  background: none;
-}
-
-:deep(.p-paginator) {
-  background: transparent;
-}
-
+:deep(.p-datatable-empty-message td),
 :deep(.p-datatable-paginator-bottom) {
   border: none;
+}
+
+:deep(.p-overlay-mask),
+:deep(.p-datatable-header-cell),
+:deep(.p-datatable-tbody > tr),
+:deep(.p-paginator) {
+  background: transparent;
 }
 </style>

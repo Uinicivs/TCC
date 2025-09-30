@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, reactive, computed, inject, onMounted, type Ref } from 'vue'
-import { Button, Stepper, StepList, Step, Message } from 'primevue'
+import { Button, Message } from 'primevue'
 import type { DynamicDialogInstance } from 'primevue/dynamicdialogoptions'
 
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
-import NodeSummary from '@/components/flows/show/NodeSummary.vue'
 
 import type { INode, IMappedNodes } from '@/interfaces/node'
 
@@ -18,13 +17,8 @@ const nodeId = ref('')
 
 const { getStartNodeVariables, getNodeById, updateNode } = useFlowStore()
 
-const steps = {
-  setupTitle: 1,
-  setupNode: 2,
-}
-
-const currentStep = ref<number>(steps.setupTitle)
 const selectedNode = ref<IMappedNodes | null>(null)
+
 const nodeData = reactive<INode>({
   title: '',
   description: '',
@@ -53,11 +47,12 @@ const shouldDisableNextButton = computed(() => {
       )
     }
   }
-  return currentStep.value === 1 && !hasNodeLabelFilled.value
+
+  return !hasNodeLabelFilled.value
 })
 
 const getDisabledMessage = computed(() => {
-  if (currentStep.value === 2 && !hasNodeLabelFilled.value) {
+  if (!hasNodeLabelFilled.value) {
     return 'Preencha o nome do nó para continuar'
   }
 
@@ -93,8 +88,6 @@ const getDisabledMessage = computed(() => {
 })
 
 const reset = () => {
-  currentStep.value = steps.setupTitle
-
   const currentNode = getNodeById(nodeId.value)
 
   if (currentNode) {
@@ -111,29 +104,6 @@ const reset = () => {
       children: node.data.children || [],
     })
   }
-}
-
-const handleStepNavigation = {
-  next: () => {
-    if (currentStep.value >= steps.setupNode) return
-    currentStep.value++
-  },
-  previous: () => {
-    if (currentStep.value <= steps.setupTitle) return
-    currentStep.value--
-  },
-  goTo: (stepNumber: number) => {
-    if (stepNumber === steps.setupTitle) {
-      currentStep.value = steps.setupTitle
-      return
-    }
-
-    if (stepNumber === steps.setupNode && !hasNodeLabelFilled.value) {
-      return
-    }
-
-    currentStep.value = stepNumber
-  },
 }
 
 const handleUpdateNode = () => {
@@ -156,39 +126,7 @@ onMounted(() => {
 
 <template>
   <div>
-    <div class="mb-6 sticky top-0 z-10 pb-2 stepper">
-      <Stepper :value="currentStep" class="w-full">
-        <StepList>
-          <Step
-            :value="steps.setupTitle"
-            class="cursor-pointer"
-            @click="handleStepNavigation.goTo(steps.setupTitle)"
-          >
-            <span class="hidden sm:inline">Configurar nó</span>
-          </Step>
-          <Step
-            :value="steps.setupNode"
-            :disabled="!hasNodeLabelFilled"
-            :class="{ 'cursor-pointer': hasNodeLabelFilled }"
-            @click="hasNodeLabelFilled ? handleStepNavigation.goTo(steps.setupNode) : null"
-          >
-            <span class="hidden sm:inline">Revisar</span>
-          </Step>
-        </StepList>
-      </Stepper>
-    </div>
-
-    <NodeConfigForm
-      v-if="currentStep === steps.setupTitle"
-      v-model:nodeData="nodeData"
-      :selected-node="selectedNode"
-    />
-
-    <NodeSummary
-      v-if="currentStep === steps.setupNode"
-      :node-data="nodeData"
-      :selected-node="selectedNode"
-    />
+    <NodeConfigForm v-model:nodeData="nodeData" :selected-node="selectedNode" />
 
     <div class="flex flex-col gap-5 w-full">
       <transition
@@ -200,7 +138,7 @@ onMounted(() => {
         leave-to-class="opacity-0 transform -translate-y-2"
       >
         <Message
-          v-if="shouldDisableNextButton && getDisabledMessage"
+          v-if="shouldDisableNextButton || getDisabledMessage"
           severity="warn"
           :closable="false"
           size="small"
@@ -217,43 +155,14 @@ onMounted(() => {
 
       <div class="flex justify-between items-center w-full">
         <Button
-          v-if="currentStep > steps.setupTitle"
-          label="Anterior"
-          class="self-start"
+          label="Atualizar nó"
+          class="ml-auto"
           size="small"
-          icon="pi pi-chevron-left"
-          severity="secondary"
-          outlined
-          @click="handleStepNavigation.previous"
+          icon="pi pi-check"
+          :disabled="!hasNodeLabelFilled || shouldDisableNextButton"
+          @click="handleUpdateNode"
         />
-        <div class="flex gap-2 w-full">
-          <Button
-            v-if="currentStep < steps.setupNode"
-            class="ml-auto"
-            icon="pi pi-chevron-right"
-            size="small"
-            icon-pos="right"
-            label="Próximo"
-            :disabled="shouldDisableNextButton"
-            @click="handleStepNavigation.next"
-          />
-          <Button
-            v-if="currentStep === steps.setupNode"
-            label="Atualizar nó"
-            class="ml-auto"
-            size="small"
-            icon="pi pi-check"
-            :disabled="!hasNodeLabelFilled"
-            @click="handleUpdateNode"
-          />
-        </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.stepper {
-  background: var(--p-dialog-background);
-}
-</style>
