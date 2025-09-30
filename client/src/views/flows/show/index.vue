@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, type Component } from 'vue'
+import { computed, onMounted, ref, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
+import { ProgressSpinner, Button, Card, Menubar } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
+
 import { getFlowById } from '@/services/flowService'
 import { mapSchemaToFlow } from '@/utils/flowFormatters'
 
@@ -16,19 +18,36 @@ import { Start, Conditional, End } from '@/components/nodes'
 import { nodes as mappedNodes } from '@/constants/nodes'
 
 const route = useRoute()
+const router = useRouter()
 const flowId = route.params.id as string
 
 const flowStore = useFlowStore()
 const { nodes, edges } = storeToRefs(flowStore)
 
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+const flowName = ref<string>('')
+
 onMounted(async () => {
-  flowStore.setFlowId(flowId)
+  try {
+    isLoading.value = true
+    error.value = null
 
-  const flowData = await getFlowById(flowId)
+    flowStore.setFlowId(flowId)
 
-  if (flowData.nodes && flowData.nodes.length > 0) {
-    const frontendNodes = mapSchemaToFlow(flowData.nodes)
-    flowStore.setNodes(frontendNodes)
+    const flowData = await getFlowById(flowId)
+    flowName.value = flowData.flowName
+
+    if (flowData.nodes && flowData.nodes.length > 0) {
+      const frontendNodes = mapSchemaToFlow(flowData.nodes)
+      flowStore.setNodes(frontendNodes)
+    }
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Erro inesperado ao carregar o fluxo'
+
+    if (err instanceof Error && err.message.includes('não encontrado')) goBack()
+  } finally {
+    isLoading.value = false
   }
 })
 
@@ -44,19 +63,68 @@ const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() 
   conditional: Conditional,
   end: End,
 }))
+
+const goBack = () => {
+  router.push('/')
+}
 </script>
 
 <template>
   <div class="h-screen">
-    <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
+    <div class="h-full flex flex-col">
+      <div class="flex-1">
+        <div v-if="isLoading" class="fixed z-10 w-full h-full backdrop">
+          <Card class="w-96 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <template #content>
+              <div class="text-center p-4">
+                <ProgressSpinner class="mb-4" />
+                <p class="text-muted-color">Carregando fluxo...</p>
+              </div>
+            </template>
+          </Card>
+        </div>
 
-    <VueFlow :nodes :edges @nodeDragStop="onNodeDragStop">
-      <Background variant="dots" />
-      <Controls :showInteractive="false" />
+        <div v-else-if="error" class="w-full h-full fixed z-10 backdrop">
+          <Card class="w-96 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <template #content>
+              <div class="text-center">
+                <div class="mb-4">
+                  <i class="pi pi-exclamation-triangle !text-xl mr-2 inline text-red-500" />
+                  <h3 class="font-semibold mb-2 text-xl inline">Erro ao carregar fluxo</h3>
+                  <p>{{ error }}</p>
+                </div>
 
-      <template v-for="(node, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
-        <component :is="node" v-bind="props" />
-      </template>
-    </VueFlow>
+                <Button label="Voltar" class="w-full" @click="goBack" size="small" />
+              </div>
+            </template>
+          </Card>
+        </div>
+
+        <template v-else>
+          <Menubar :model="[{ label: flowName }]" class="w-full z-10">
+            <template #start>
+              <Button icon="pi pi-arrow-left" class="mr-2" seve@click="goBack" />
+            </template>
+          </Menubar>
+
+          <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
+        </template>
+
+        <VueFlow :nodes :edges @nodeDragStop="onNodeDragStop">
+          <Background variant="dots" />
+          <Controls :showInteractive="false" />
+
+          <template v-for="(node, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
+            <component :is="node" v-bind="props" />
+          </template>
+        </VueFlow>
+      </div>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+</style>

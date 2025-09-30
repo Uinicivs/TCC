@@ -1,6 +1,7 @@
 import api from './api'
 import type { IFlow } from '@/interfaces/flow'
 import type { SchemaNode } from '@/utils/flowFormatters'
+import { AxiosError } from 'axios'
 
 export type TCreateFlowPayload = Pick<IFlow, 'flowName' | 'flowDescription'>
 
@@ -41,8 +42,16 @@ export const getFlowById = async (id: string): Promise<IFlow> => {
       createdAt: new Date(response.data.createdAt),
       updatedAt: new Date(response.data.updatedAt),
     }
-  } catch {
-    throw new Error('Falha ao buscar o fluxo. Tente novamente.')
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response?.status === 404) {
+        throw new Error('Fluxo de decisão não encontrado.')
+      }
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        throw new Error('Você não tem permissão para acessar este fluxo.')
+      }
+    }
+    throw new Error('Ops! Ocorreu um erro ao buscar o fluxo. Tente novamente.')
   }
 }
 
@@ -63,7 +72,7 @@ export const deleteFlow = async (id: string): Promise<void> => {
 }
 
 export const updateFlowNodes = async (id: string, nodes: SchemaNode[]): Promise<void> => {
-  await new Promise(resolve => setTimeout(resolve, 500))
+  await new Promise((resolve) => setTimeout(resolve, 500))
   console.log('✅ Mock: Nós atualizados com sucesso', { id, nodesCount: nodes.length })
   return Promise.resolve()
   // try {
