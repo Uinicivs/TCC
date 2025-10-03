@@ -6,6 +6,7 @@ export interface SchemaNode {
   parentNodeId: string | null
   isFalseCase: boolean | null
   nodeType: 'START' | 'CONDITIONAL' | 'END'
+  position: { x: number; y: number }
   metadata: {
     inputs?: Array<{
       displayName: string
@@ -22,30 +23,30 @@ export function mapSchemaToFlow(schemaNodes: SchemaNode[]): FlowNode[] {
     const flowNode: FlowNode = {
       id: schemaNode.nodeId,
       type: schemaNode.nodeType.toLowerCase(),
-      position: { x: 0, y: 0 },
+      position: schemaNode.position || { x: window.innerWidth / 2 - 150, y: 200 },
       data: {
         title: schemaNode.nodeName,
         parent: schemaNode.parentNodeId,
         children: [],
         isFalseCase: schemaNode.isFalseCase,
-        settings: {}
-      }
+        settings: {},
+      },
     }
 
     switch (schemaNode.nodeType) {
       case 'START':
         flowNode.data.settings = {
-          inputs: schemaNode.metadata.inputs || []
+          inputs: schemaNode.metadata.inputs || [],
         }
         break
       case 'CONDITIONAL':
         flowNode.data.settings = {
-          expression: schemaNode.metadata.expression || ''
+          expression: schemaNode.metadata.expression || '',
         }
         break
       case 'END':
         flowNode.data.settings = {
-          response: schemaNode.metadata.response
+          response: schemaNode.metadata.response,
         }
         break
     }
@@ -60,25 +61,27 @@ export function mapFlowToSchema(flowNodes: FlowNode[]): SchemaNode[] {
       nodeId: flowNode.id,
       nodeName: flowNode.data.title,
       parentNodeId: flowNode.data.parent,
+      position: flowNode.position || { x: 0, y: 0 },
       isFalseCase: flowNode.data.isFalseCase || null,
       nodeType: flowNode.type?.toUpperCase() as 'START' | 'CONDITIONAL' | 'END',
-      metadata: {}
+      metadata: {},
     }
 
     switch (flowNode.type) {
       case 'start':
         schemaNode.metadata = {
-          inputs: flowNode.data.settings?.inputs || []
+          inputs: flowNode.data.settings?.inputs || [],
         }
         break
       case 'conditional':
+        schemaNode.isFalseCase = flowNode.data.isFalseCase || false
         schemaNode.metadata = {
-          expression: flowNode.data.settings?.expression || ''
+          expression: flowNode.data.settings?.expression || '',
         }
         break
       case 'end':
         schemaNode.metadata = {
-          response: flowNode.data.settings?.response || null
+          response: flowNode.data.settings?.response || null,
         }
         break
     }

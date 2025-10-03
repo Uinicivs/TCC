@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -49,6 +49,10 @@ onMounted(async () => {
   } finally {
     isLoading.value = false
   }
+})
+
+onBeforeRouteLeave(() => {
+  flowStore.clearFlow()
 })
 
 const onNodeDragStop = (event: NodeDragEvent) => {

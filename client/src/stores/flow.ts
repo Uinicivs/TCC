@@ -14,11 +14,15 @@ export const useFlowStore = defineStore('flow', () => {
     flowSyncInstance = useFlowSync(flowId)
   }
 
-  watch(nodes, async(newNodes) => {
-    if (currentFlowId.value && flowSyncInstance) {
-      flowSyncInstance.updateNodes(newNodes)
-    }
-  }, { deep: true })
+  watch(
+    nodes,
+    async (newNodes) => {
+      if (currentFlowId.value && flowSyncInstance) {
+        await flowSyncInstance.updateNodes(newNodes)
+      }
+    },
+    { deep: true },
+  )
 
   const getNodeById = (nodeId: Node['id']): Node | undefined => {
     return nodes.value.find(({ id }) => id === nodeId)
@@ -180,7 +184,7 @@ export const useFlowStore = defineStore('flow', () => {
 
   const setFlowId = (flowId: string | null) => {
     currentFlowId.value = flowId
-    flowId ? initializeDebounce(flowId) : flowSyncInstance = null
+    flowId ? initializeDebounce(flowId) : (flowSyncInstance = null)
   }
 
   const clearFlow = () => {

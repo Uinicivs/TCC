@@ -220,7 +220,7 @@ const getDisabledMessage = computed(() => {
                 class="ml-auto"
                 size="small"
                 icon="pi pi-check"
-                :disabled="!hasNodeLabelFilled"
+                :disabled="shouldDisableNextButton"
                 @click="handleCreateNode"
               />
             </div>

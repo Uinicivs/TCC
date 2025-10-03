@@ -72,12 +72,9 @@ export const deleteFlow = async (id: string): Promise<void> => {
 }
 
 export const updateFlowNodes = async (id: string, nodes: SchemaNode[]): Promise<void> => {
-  await new Promise((resolve) => setTimeout(resolve, 500))
-  console.log('✅ Mock: Nós atualizados com sucesso', { id, nodesCount: nodes.length })
-  return Promise.resolve()
-  // try {
-  //   await api.put(`/decision_flows/${id}/nodes`, nodes)
-  // } catch {
-  //   throw new Error('Falha ao atualizar os nós do fluxo. Tente novamente.')
-  // }
+  try {
+    await api.put(`/decision_flows/${id}/nodes`, nodes)
+  } catch {
+    throw new Error('Falha ao atualizar os nós do fluxo. Tente novamente.')
+  }
 }
