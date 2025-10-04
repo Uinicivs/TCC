@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Button, Dialog, Stepper, StepList, Step, Message } from 'primevue'
+import { Button, Drawer, Stepper, StepList, Step, Message } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 import type { Variable } from '@/interfaces/variables'
@@ -67,14 +67,13 @@ const shouldDisableNextButton = computed(() => {
       )
     }
   }
-  return (
-    (currentStep.value === 1 && !hasNodeTypeSelected) ||
-    (currentStep.value === 2 && !hasNodeLabelFilled)
-  )
+  return !hasNodeTypeSelected || (currentStep.value === 2 && !hasNodeLabelFilled)
 })
 
 const getDisabledMessage = computed(() => {
-  if (currentStep.value === 1) return
+  if (!hasNodeTypeSelected) {
+    return 'Selecione um tipo de nó para continuar'
+  }
   if (currentStep.value === 2 && !hasNodeLabelFilled) {
     return 'Preencha o nome do nó para continuar'
   }
@@ -121,13 +120,12 @@ const getDisabledMessage = computed(() => {
       </span>
     </div>
 
-    <Dialog
+    <Drawer
       v-model:visible="visible"
       dismissable-mask
-      modal
-      :draggable="false"
+      position="right"
       :header="getDialogHeader"
-      :style="{ width: '60rem' }"
+      :style="{ width: '30rem' }"
       :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
       @hide="selectedNode = null"
     >
@@ -178,7 +176,9 @@ const getDisabledMessage = computed(() => {
             leave-to-class="opacity-0 transform -translate-y-2"
           >
             <Message
-              v-if="shouldDisableNextButton && getDisabledMessage"
+              v-if="
+                shouldDisableNextButton && getDisabledMessage && currentStep === steps.setupTitle
+              "
               severity="warn"
               :closable="false"
               size="small"
@@ -205,16 +205,6 @@ const getDisabledMessage = computed(() => {
             />
             <div class="flex gap-2 w-full">
               <Button
-                v-if="currentStep < steps.setupTitle"
-                class="ml-auto"
-                icon="pi pi-chevron-right"
-                size="small"
-                icon-pos="right"
-                label="Próximo"
-                :disabled="shouldDisableNextButton"
-                @click="handleStepNavigation.next"
-              />
-              <Button
                 v-if="currentStep === steps.setupTitle"
                 label="Criar nó"
                 class="ml-auto"
@@ -227,7 +217,7 @@ const getDisabledMessage = computed(() => {
           </div>
         </div>
       </template>
-    </Dialog>
+    </Drawer>
   </div>
 </template>
 
