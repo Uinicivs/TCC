@@ -82,7 +82,7 @@ const menuItems = computed(() => {
     },
   ]
 
-  return isFirstNode.value ? options.filter(({ name }) => name === 'delete') : options
+  return isFirstNode.value ? options.filter(({ name }) => name !== 'delete') : options
 })
 </script>
 
