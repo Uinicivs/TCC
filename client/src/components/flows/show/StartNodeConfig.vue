@@ -4,10 +4,10 @@
       <div
         v-for="(variable, index) in variables"
         :key="`variable-${index}`"
-        class="flex items-center gap-4 rounded-lg"
+        class="rounded-lg variables-wrapper p-4 relative"
       >
-        <div class="flex-1 grid grid-cols-3 gap-3">
-          <div>
+        <div class="flex-1 flex flex-col gap-4">
+          <div class="w-full">
             <label
               :for="`name-${index}-${variable.displayName}`"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -18,12 +18,12 @@
               v-model="variable.displayName"
               :id="`name-${index}-${variable.displayName}`"
               placeholder="Ex.: full_name"
-              class="w-full"
+              class="w-full !bg-transparent"
               @input="updateVariables"
             />
           </div>
 
-          <div>
+          <div class="w-full">
             <label
               :for="`type-${index}-${variable.displayName}`"
               class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -37,12 +37,12 @@
               option-label="label"
               option-value="value"
               placeholder="Selecione o tipo"
-              class="w-full"
+              class="w-full !bg-transparent"
               @change="updateVariables"
             />
           </div>
 
-          <div class="flex items-center">
+          <div class="flex items-center w-full">
             <div class="flex items-center gap-2">
               <Checkbox
                 v-model="variable.required"
@@ -61,10 +61,11 @@
         </div>
 
         <Button
-          icon="pi pi-trash"
-          severity="danger"
-          text
+          icon="pi pi-times"
+          class="!absolute top-0 right-0"
+          severity="secondary"
           size="small"
+          text
           rounded
           @click="removeVariable(index)"
         />
@@ -83,7 +84,7 @@
     <div v-if="shouldShowAvailableVariablesLabel" class="mt-4 rounded-lg">
       <p class="text-sm font-medium mb-2">Variáveis Disponíveis:</p>
       <div class="flex flex-wrap gap-1">
-        <template v-for="(variable, index) in variables" :key="`tag-${index}`">
+        <template v-for="(variable, variableIndex) in variables" :key="`tag-${variableIndex}`">
           <div class="relative">
             <Tag v-if="variable.displayName" severity="secondary">
               {{ variable.displayName }} ({{ variable.type }})
@@ -160,6 +161,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.variables-wrapper {
+  border: 1px solid var(--p-textarea-border-color);
+}
+
 :deep(.p-tag) {
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
