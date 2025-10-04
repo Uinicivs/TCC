@@ -123,7 +123,7 @@ const goBack = () => {
           <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
         </template>
 
-        <VueFlow :nodes :edges @nodeDragStop="onNodeDragStop">
+        <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
           <Background variant="dots" />
           <Controls :showInteractive="false" />
 
