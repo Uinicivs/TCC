@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, reactive, computed, inject, onMounted, type Ref } from 'vue'
-import { Button, Message } from 'primevue'
-import type { DynamicDialogInstance } from 'primevue/dynamicdialogoptions'
+import { ref, reactive, computed } from 'vue'
+import { Button, Drawer, Message } from 'primevue'
 
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 
@@ -12,11 +11,17 @@ import { useFlowStore } from '@/stores/flow'
 import { nodes } from '@/constants/nodes'
 import type { Variable } from '@/interfaces/variables'
 
-const dialogRef = inject<Ref<DynamicDialogInstance>>('dialogRef')
-const nodeId = ref('')
+const props = defineProps<{
+  nodeId: string
+}>()
+
+const emit = defineEmits<{
+  close: []
+}>()
 
 const { getStartNodeVariables, getNodeById, updateNode } = useFlowStore()
 
+const visible = ref(false)
 const selectedNode = ref<IMappedNodes | null>(null)
 
 const nodeData = reactive<INode>({
@@ -87,8 +92,14 @@ const getDisabledMessage = computed(() => {
   }
 })
 
-const reset = () => {
-  const currentNode = getNodeById(nodeId.value)
+const getDialogHeader = computed<string>(() => {
+  return `Editar ${selectedNode.value?.name}`
+})
+
+const hasNodeLabelFilled = computed(() => nodeData.title?.trim().length > 0)
+
+const loadNodeData = () => {
+  const currentNode = getNodeById(props.nodeId)
 
   if (currentNode) {
     const node = currentNode
@@ -110,59 +121,78 @@ const handleUpdateNode = () => {
   if (!selectedNode.value || !nodeData.title.trim()) return
 
   const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
-  updateNode(nodeId.value, { data: formattedNodeData })
-  dialogRef?.value?.close()
+  updateNode(props.nodeId, { data: formattedNodeData })
+  visible.value = false
+  emit('close')
 }
 
-const hasNodeLabelFilled = computed(() => nodeData.title?.trim().length > 0)
-onMounted(() => {
-  nodeId.value = dialogRef?.value?.data?.nodeId || ''
+const openDrawer = () => {
+  visible.value = true
+  loadNodeData()
+}
 
-  if (nodeId.value) {
-    reset()
-  }
+const closeDrawer = () => {
+  visible.value = false
+  emit('close')
+}
+
+defineExpose({
+  openDrawer,
+  closeDrawer,
 })
 </script>
 
 <template>
-  <div>
-    <NodeConfigForm v-model:nodeData="nodeData" :selected-node="selectedNode" />
+  <div class="edit-node-wrapper">
+    <Drawer
+      v-model:visible="visible"
+      dismissable-mask
+      position="right"
+      :header="getDialogHeader"
+      :style="{ width: '30rem' }"
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+      @hide="closeDrawer"
+    >
+      <NodeConfigForm v-model:nodeData="nodeData" :selected-node="selectedNode" />
 
-    <div class="flex flex-col gap-5 w-full">
-      <transition
-        enter-active-class="transition-all duration-300 ease-out"
-        enter-from-class="opacity-0 transform -translate-y-2"
-        enter-to-class="opacity-100 transform translate-y-0"
-        leave-active-class="transition-all duration-200 ease-in"
-        leave-from-class="opacity-100 transform translate-y-0"
-        leave-to-class="opacity-0 transform -translate-y-2"
-      >
-        <Message
-          v-if="shouldDisableNextButton || getDisabledMessage"
-          severity="warn"
-          :closable="false"
-          size="small"
-          class="mt-5"
-        >
-          <div class="flex gap-2 items-center">
-            <i class="pi pi-exclamation-triangle text-amber-500" />
-            <span>
-              {{ getDisabledMessage }}
-            </span>
+      <template #footer>
+        <div class="flex flex-col w-full gap-5">
+          <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 transform -translate-y-2"
+            enter-to-class="opacity-100 transform translate-y-0"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 transform translate-y-0"
+            leave-to-class="opacity-0 transform -translate-y-2"
+          >
+            <Message
+              v-if="shouldDisableNextButton && getDisabledMessage"
+              severity="warn"
+              :closable="false"
+              size="small"
+              class="mt-5"
+            >
+              <div class="flex gap-2 items-center">
+                <i class="pi pi-exclamation-triangle text-amber-500" />
+                <span>
+                  {{ getDisabledMessage }}
+                </span>
+              </div>
+            </Message>
+          </transition>
+
+          <div class="flex justify-between items-center w-full">
+            <Button
+              label="Atualizar nó"
+              class="ml-auto"
+              size="small"
+              icon="pi pi-check"
+              :disabled="!hasNodeLabelFilled || shouldDisableNextButton"
+              @click="handleUpdateNode"
+            />
           </div>
-        </Message>
-      </transition>
-
-      <div class="flex justify-between items-center w-full">
-        <Button
-          label="Atualizar nó"
-          class="ml-auto"
-          size="small"
-          icon="pi pi-check"
-          :disabled="!hasNodeLabelFilled || shouldDisableNextButton"
-          @click="handleUpdateNode"
-        />
-      </div>
-    </div>
+        </div>
+      </template>
+    </Drawer>
   </div>
 </template>

@@ -26,6 +26,7 @@ const flowStore = useFlowStore()
 const dialog = useDialog()
 const nodeWrapperRef = useTemplateRef('node-wrapper')
 const contextMenu = useTemplateRef('contextMenu')
+const editNodeRef = useTemplateRef('editNode')
 const { canAddNewNode } = useNodeActions(id)
 const { isConditionalNode, canAddToLeftPath, canAddToRightPath } = useConditionalHandles(id)
 
@@ -60,18 +61,8 @@ const openDeleteDialog = () => {
 }
 
 const openEditDialog = () => {
-  if (id) {
-    dialog.open(EditNode, {
-      props: {
-        header: 'Editar nó',
-        style: { width: '60rem' },
-        breakpoints: { '1199px': '75vw', '575px': '90vw' },
-        modal: true,
-        dismissableMask: true,
-        draggable: false,
-      },
-      data: { nodeId: id },
-    })
+  if (id && editNodeRef.value) {
+    editNodeRef.value.openDrawer()
   }
 }
 
@@ -164,5 +155,7 @@ const menuItems = computed(() => [
     />
 
     <ContextMenu ref="contextMenu" :model="menuItems" />
+
+    <EditNode v-if="id" ref="editNode" :node-id="id" />
   </div>
 </template>
