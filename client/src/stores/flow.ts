@@ -81,10 +81,29 @@ export const useFlowStore = defineStore('flow', () => {
   const setEdges = () => {
     nodes.value.forEach((node) => {
       if (node.data.parent) {
+        const parentNode = getNodeById(node.data.parent)
+        const source = node.data.parent
+        const target = node.id
+        const id = buildEdgeId(node)
+
+        if (parentNode && parentNode.type === 'conditional') {
+          const sourceHandle = node.data.isFalseCase === true
+          ? 'conditional-right'
+          : 'conditional-left'
+
+          addEdgeWithHandle({
+            id,
+            source,
+            target,
+            sourceHandle,
+          })
+          return
+        }
+
         addEdges({
-          id: buildEdgeId(node),
-          source: node.data.parent,
-          target: node.id,
+          id,
+          source,
+          target,
         })
       }
     })
