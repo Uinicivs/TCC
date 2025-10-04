@@ -1,6 +1,7 @@
 <template>
   <div class="space-y-4">
     <div class="space-y-3">
+      <h4 class="font-semibold text-md">Variáveis de entrada</h4>
       <div
         v-for="(variable, index) in variables"
         :key="`variable-${index}`"
