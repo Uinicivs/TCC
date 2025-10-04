@@ -15,7 +15,7 @@
           {{ section.label }}
         </p>
 
-        <div class="flex flex-wrap gap-1 w-lg">
+        <div class="flex flex-wrap gap-1">
           <template v-for="item in section.items" :key="item.key">
             <div class="relative">
               <Tag class="cursor-pointer" severity="secondary" @click="item.onClick">
