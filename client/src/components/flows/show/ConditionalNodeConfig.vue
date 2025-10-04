@@ -124,7 +124,10 @@ function MFEELCompletions(context: CompletionContext) {
 function insertVariable(varName: string) {
   if (editorView) {
     const pos = editorView.state.selection.main.head
-    editorView.dispatch({ changes: { from: pos, insert: varName } })
+    editorView.dispatch({
+      changes: { from: pos, insert: varName },
+      selection: { anchor: pos + varName.length },
+    })
     editorView.focus()
   }
 }
@@ -132,8 +135,10 @@ function insertVariable(varName: string) {
 function insertFunction(funcName: string) {
   if (editorView) {
     const pos = editorView.state.selection.main.head
-    editorView.dispatch({ changes: { from: pos, insert: `${funcName}()` } })
-    editorView.dispatch({ selection: { anchor: pos + funcName.length + 1 } })
+    editorView.dispatch({
+      changes: { from: pos, insert: `${funcName}()` },
+      selection: { anchor: pos + funcName.length + 1 },
+    })
     editorView.focus()
   }
 }
@@ -141,7 +146,11 @@ function insertFunction(funcName: string) {
 function insertOperator(operator: string) {
   if (editorView) {
     const pos = editorView.state.selection.main.head
-    editorView.dispatch({ changes: { from: pos, insert: ` ${operator} ` } })
+    const operatorWithSpaces = ` ${operator} `
+    editorView.dispatch({
+      changes: { from: pos, insert: operatorWithSpaces },
+      selection: { anchor: pos + operatorWithSpaces.length },
+    })
     editorView.focus()
   }
 }
@@ -152,7 +161,7 @@ onMounted(() => {
       doc: expression.value || '',
       extensions: [
         javascript(),
-        placeholder('Digite sua expressão MFEEL... Ex: age >= 18 and contains(skills, "python")'),
+        placeholder('Ex: age >= 18 and contains(skills, "python")'),
         autocompletion({
           override: [MFEELCompletions],
           maxRenderedOptions: 20,
@@ -214,12 +223,20 @@ watch(
   () => expression.value,
   (newValue) => {
     if (editorView && newValue !== editorView.state.doc.toString()) {
+      const currentPos = editorView.state.selection.main.head
+      const currentLength = editorView.state.doc.length
+      const newLength = newValue?.length || 0
+
+      // Preservar a posição do cursor proporcionalmente
+      const newPos = newLength > 0 ? Math.min(currentPos, newLength) : 0
+
       editorView.dispatch({
         changes: {
           from: 0,
-          to: editorView.state.doc.length,
+          to: currentLength,
           insert: newValue || '',
         },
+        selection: { anchor: newPos },
       })
     }
   },

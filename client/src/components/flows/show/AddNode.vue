@@ -129,7 +129,7 @@ const getDisabledMessage = computed(() => {
       :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
       @hide="selectedNode = null"
     >
-      <div class="mb-6 sticky top-0 z-10 pb-2 stepper">
+      <div class="mb-4 sticky top-0 z-10 stepper">
         <Stepper :value="currentStep" class="w-full">
           <StepList>
             <Step
@@ -182,7 +182,6 @@ const getDisabledMessage = computed(() => {
               severity="warn"
               :closable="false"
               size="small"
-              class="mt-5"
             >
               <div class="flex gap-2 items-center">
                 <i class="pi pi-exclamation-triangle text-amber-500" />

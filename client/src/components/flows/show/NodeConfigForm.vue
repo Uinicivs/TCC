@@ -9,7 +9,7 @@ defineProps<{ selectedNode: IMappedNodes | null }>()
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-2">
     <div class="space-y-2">
       <label for="nodeTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Nome <span class="text-red-700">*</span>
