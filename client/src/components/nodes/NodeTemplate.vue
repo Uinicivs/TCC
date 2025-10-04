@@ -66,18 +66,24 @@ const openEditDialog = () => {
   }
 }
 
-const menuItems = computed(() => [
-  {
-    label: 'Editar',
-    icon: 'pi pi-pencil',
-    command: openEditDialog,
-  },
-  {
-    label: 'Excluir',
-    icon: 'pi pi-trash',
-    command: openDeleteDialog,
-  },
-])
+const menuItems = computed(() => {
+  const options = [
+    {
+      name: 'edit',
+      label: 'Editar',
+      icon: 'pi pi-pencil',
+      command: openEditDialog,
+    },
+    {
+      name: 'delete',
+      label: 'Excluir',
+      icon: 'pi pi-trash',
+      command: openDeleteDialog,
+    },
+  ]
+
+  return isFirstNode.value ? options.filter(({ name }) => name === 'delete') : options
+})
 </script>
 
 <template>

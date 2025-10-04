@@ -17,12 +17,7 @@ const availableNodes = computed(() => {
     : availableNodeTypes
 })
 
-const shouldDisableNode = (node: IMappedNodes) => {
-  return !getFirstNode && node.type !== 'start'
-}
-
 const handleClick = (node: IMappedNodes) => {
-  if (shouldDisableNode(node)) return
   emit('select', node)
 }
 </script>
@@ -33,11 +28,7 @@ const handleClick = (node: IMappedNodes) => {
       <Card
         v-for="node in availableNodes"
         :key="node.type"
-        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none hover:shadow-lg transition-shadow duration-200 w-full"
-        :class="{
-          disabled: shouldDisableNode(node),
-          'cursor-pointer ': !shouldDisableNode(node),
-        }"
+        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none hover:shadow-lg transition-shadow duration-200 w-ful cursor-pointer"
         @click="handleClick(node)"
       >
         <template #content>

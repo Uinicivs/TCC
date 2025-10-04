@@ -104,7 +104,7 @@ const goBack = () => {
           </Card>
         </div>
 
-        <template v-else>
+        <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
           <Toolbar class="w-full z-10 fixed !rounded-t-none !border-0">
             <template #start>
               <Button
@@ -121,9 +121,6 @@ const goBack = () => {
           </Toolbar>
 
           <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
-        </template>
-
-        <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
           <Background variant="dots" />
           <Controls :showInteractive="false" />
 
