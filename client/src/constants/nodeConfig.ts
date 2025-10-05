@@ -1,4 +1,4 @@
-export const EXCLUDED_NODE_TYPES: string[] = ['end', 'start']
+export const EXCLUDED_NODE_TYPES: string[] = []
 
 export const DEFAULT_NODE_TITLES: Record<string, string> = {
   start: 'Início',
