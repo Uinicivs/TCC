@@ -87,6 +87,8 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
       life: 3000,
       closable: false,
     })
+
+    router.push({ name: 'flow-show', params: { id: createdFlow.flowId } })
   } catch (error) {
     toast.add({
       severity: 'error',
