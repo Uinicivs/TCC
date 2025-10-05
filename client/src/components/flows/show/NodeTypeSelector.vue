@@ -23,8 +23,8 @@ const handleClick = (node: IMappedNodes) => {
 </script>
 
 <template>
-  <ScrollPanel style="width: 100%; height: 200px" class="pr-2">
-    <div class="space-y-4">
+  <ScrollPanel style="width: 100%; height: 500px">
+    <div class="space-y-4 h-full">
       <Card
         v-for="node in availableNodes"
         :key="node.type"

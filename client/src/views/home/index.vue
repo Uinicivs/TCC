@@ -76,9 +76,10 @@ const editFlow = () => {
 }
 
 const handleCreateFlow = async (payload: TCreateFlowPayload) => {
+  let createdFlow
   loading.value = true
   try {
-    const createdFlow = await createFlow(payload)
+    createdFlow = await createFlow(payload)
     flows.value.unshift(createdFlow)
 
     toast.add({
@@ -87,8 +88,6 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
       life: 3000,
       closable: false,
     })
-
-    router.push({ name: 'flow-show', params: { id: createdFlow.flowId } })
   } catch (error) {
     toast.add({
       severity: 'error',
@@ -99,6 +98,10 @@ const handleCreateFlow = async (payload: TCreateFlowPayload) => {
   } finally {
     loading.value = false
     showFlowFormModal.value = false
+
+    if (createdFlow) {
+      router.push({ name: 'flow-show', params: { id: createdFlow.flowId } })
+    }
   }
 }
 
