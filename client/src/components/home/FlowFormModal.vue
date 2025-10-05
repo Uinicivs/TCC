@@ -117,7 +117,7 @@ watch(
           :disabled="loading"
           autofocus
           required
-          class="w-full"
+          class="w-full !bg-transparent"
         />
       </div>
 
@@ -131,7 +131,7 @@ watch(
           placeholder="Digite uma descrição para o fluxo"
           :disabled="loading"
           :rows="3"
-          class="w-full"
+          class="w-full !bg-transparent"
         />
       </div>
     </div>
