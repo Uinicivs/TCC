@@ -179,8 +179,8 @@ watch(
   <div class="mx-auto h-full w-full flex flex-col items-center lg:max-w-[1280px] pt-[100px] gap-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full items-center">
       <div class="flex flex-col gap-1 text-center md:text-left">
-        <h2 class="font-semibold text-2xl text-neutral-800 dark:text-white">Meus Fluxos</h2>
-        <p class="font-light text-neutral-500 dark:text-white">
+        <h2 class="font-medium text-xl text-neutral-800 dark:text-white">Meus Fluxos</h2>
+        <p class="font-light text-sm text-neutral-500 dark:text-white">
           Aqui você pode visualizar, editar ou remover qualquer fluxo rapidamente.
         </p>
       </div>
@@ -198,7 +198,7 @@ watch(
       <transition name="fade" mode="out-in">
         <div
           v-if="activeMode === 'Cards'"
-          class="flex flex-col items-center gap-4 h-full w-full justify-self-start bg-gray-50 p-4 rounded-lg mb-8"
+          class="flex flex-col items-center gap-4 h-full w-full justify-self-start bg-neutral-50 dark:bg-neutral-950 p-4 rounded-lg mb-8"
         >
           <div v-if="loading" class="flex justify-center items-center h-full">
             <i class="pi pi-spinner pi-spin !text-3xl text-neutral-200" />
@@ -249,6 +249,7 @@ watch(
                   :disabled="loading"
                   @click="viewFlow"
                 />
+
                 <Button
                   variant="text"
                   severity="secondary"
@@ -257,6 +258,7 @@ watch(
                   :disabled="loading"
                   @click="editFlow"
                 />
+
                 <Button
                   severity="danger"
                   variant="text"
@@ -295,15 +297,17 @@ watch(
               {{ data.flowName }}
             </template>
           </Column>
+
           <Column
             field="description"
             header="Descrição"
             class="lg:max-w-[500px] md:max-w-200px truncate"
           >
             <template #body="{ data }">
-              {{ data.flowDescription ? data.flowDescription : '-' }}
+              {{ data.flowDescription || '-' }}
             </template>
           </Column>
+
           <Column field="updatedAt" header="Última Atualização" class="min-w-[150px]">
             <template #body="{ data }">
               {{ formatDate(data.updatedAt) }}
@@ -331,6 +335,7 @@ watch(
                     :disabled="loading"
                     @click="viewFlow"
                   />
+
                   <Button
                     variant="text"
                     severity="secondary"
@@ -339,6 +344,7 @@ watch(
                     :disabled="loading"
                     @click="editFlow"
                   />
+
                   <Button
                     severity="danger"
                     variant="text"
