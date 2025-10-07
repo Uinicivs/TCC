@@ -5,7 +5,6 @@ import { ContextMenu, useDialog } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
-import { useConditionalHandles } from '@/composable/useConditionalHandles'
 import { useNodeActions } from '@/composable/useNodeActions'
 import { useFlowStore } from '@/stores/flow'
 
@@ -28,10 +27,16 @@ const nodeWrapperRef = useTemplateRef('node-wrapper')
 const contextMenu = useTemplateRef('contextMenu')
 const editNodeRef = useTemplateRef('editNode')
 const { canAddNewNode } = useNodeActions(id)
-const { isConditionalNode, canAddToLeftPath, canAddToRightPath } = useConditionalHandles(id)
 
 const getCurrentNodeWrapperWidth = computed<number>(() => {
   return nodeWrapperRef.value?.clientWidth || 250
+})
+
+const isConditionalNode = computed<boolean>(() => {
+  if (!id) return false
+
+  const currentNode = flowStore.getNodeById(id)
+  return currentNode?.type === 'conditional'
 })
 
 const isFirstNode = computed<boolean>(() => {
@@ -139,14 +144,12 @@ const menuItems = computed(() => {
 
     <template v-if="isConditionalNode">
       <AddNode
-        v-if="canAddToLeftPath"
         class="absolute -left-20 top-1/3 add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-left"
       />
 
       <AddNode
-        v-if="canAddToRightPath"
         class="absolute -right-25 top-1/3 add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-right"
@@ -154,7 +157,7 @@ const menuItems = computed(() => {
     </template>
 
     <AddNode
-      v-if="canAddNewNode && !isConditionalNode"
+      v-else-if="canAddNewNode"
       class="absolute -bottom-12 add-node-button"
       :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }"
       :parentId="id || null"
