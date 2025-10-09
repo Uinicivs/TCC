@@ -1,0 +1,2 @@
+export const HORIZONTAL_SPACING = 200
+export const VERTICAL_SPACING = 200
