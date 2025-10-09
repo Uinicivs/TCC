@@ -50,14 +50,6 @@ export const useFlowStore = defineStore('flow', () => {
         nodes.value.push(newNode)
       }
     }
-
-    if (!skipEdgeCreation) {
-      addEdges({
-        id: buildEdgeId(newNode),
-        source: parentId,
-        target: newNode.id,
-      })
-    }
   }
 
   const updateNode = (nodeId: Node['id'], override: Partial<Node>) => {
@@ -79,6 +71,7 @@ export const useFlowStore = defineStore('flow', () => {
   }
 
   const setEdges = () => {
+    edges.value = []
     nodes.value.forEach((node) => {
       if (node.data.parent) {
         const parentNode = getNodeById(node.data.parent)
@@ -86,10 +79,18 @@ export const useFlowStore = defineStore('flow', () => {
         const target = node.id
         const id = buildEdgeId(node)
 
+        if (getEdgeById(id)) {
+          return
+        }
+
+        const existingEdgeWithTarget = edges.value.find((edge) => edge.target === target)
+        if (existingEdgeWithTarget) {
+          return
+        }
+
         if (parentNode && parentNode.type === 'conditional') {
-          const sourceHandle = node.data.isFalseCase === true
-          ? 'conditional-right'
-          : 'conditional-left'
+          const sourceHandle =
+            node.data.isFalseCase === true ? 'conditional-right' : 'conditional-left'
 
           addEdgeWithHandle({
             id,
@@ -227,6 +228,8 @@ export const useFlowStore = defineStore('flow', () => {
     removeNode,
     updateNode,
     setNodes,
+    setEdges,
+    addEdges,
     addEdgeWithHandle,
     setFlowId,
     clearFlow,
