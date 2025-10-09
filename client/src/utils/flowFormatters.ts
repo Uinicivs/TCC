@@ -1,5 +1,7 @@
 import type { Node as FlowNode } from '@vue-flow/core'
 
+import { HORIZONTAL_SPACING, VERTICAL_SPACING } from '@/constants/nodeLayout'
+
 export interface SchemaNode {
   nodeId: string
   nodeName: string
@@ -23,7 +25,10 @@ export function mapSchemaToFlow(schemaNodes: SchemaNode[]): FlowNode[] {
     const flowNode: FlowNode = {
       id: schemaNode.nodeId,
       type: schemaNode.nodeType.toLowerCase(),
-      position: schemaNode.position || { x: window.innerWidth / 2 - 150, y: 200 },
+      position: schemaNode.position || {
+        x: window.innerWidth / 2 - HORIZONTAL_SPACING,
+        y: VERTICAL_SPACING,
+      },
       data: {
         title: schemaNode.nodeName,
         parent: schemaNode.parentNodeId,
