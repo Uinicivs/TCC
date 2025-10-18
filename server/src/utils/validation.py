@@ -8,7 +8,7 @@ type_mapping = {
     InputType.BOOL: bool,
     InputType.NUMBER: float,
     InputType.TEXT: str,
-    InputType.OBJECT: dict[str, Any],
+    InputType.OBJECT: dict[str, Union[str, float, bool]],
     InputType.LIST: list
 }
 

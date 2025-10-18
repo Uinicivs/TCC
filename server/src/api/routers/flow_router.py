@@ -47,36 +47,42 @@ async def get_flow(id: str,
     return await flow_service.get_flow(db, id)
 
 
-@router.patch('/{id}')
+@router.patch('/{id}',
+              status_code=status.HTTP_204_NO_CONTENT)
 async def update_flow_metadata(id: str,
                                flow_in: UpdateFlowInDTO,
                                db: AsyncIOMotorDatabase = Depends(get_database)):
 
-    return await flow_service.update_flow_metadata(
+    await flow_service.update_flow_metadata(
         db,
         id,
         flow_in.flowName,
         flow_in.flowDescription
     )
+    return
 
 
-@router.delete('/{id}')
+@router.delete('/{id}',
+               status_code=status.HTTP_204_NO_CONTENT)
 async def delete_flow(id: str,
                       db: AsyncIOMotorDatabase = Depends(get_database)):
 
-    return await flow_service.delete_flow(db, id)
+    await flow_service.delete_flow(db, id)
+    return
 
 
-@router.put('/{id}/nodes')
+@router.put('/{id}/nodes',
+            status_code=status.HTTP_204_NO_CONTENT)
 async def update_flow_nodes(id: str,
                             nodes_in: list[UpdateNodesInDTO],
                             db: AsyncIOMotorDatabase = Depends(get_database)):
 
-    return await flow_service.update_flow_nodes(
+    await flow_service.update_flow_nodes(
         db,
         id,
         nodes_in
     )
+    return
 
 
 @router.post('/{id}/evaluate', response_model=EvaluateFlowResponseDTO)
@@ -89,3 +95,12 @@ async def evaluate_flow(id: str,
         id,
         payload.model_dump()
     )
+
+
+# @router.get('/{id}/test')
+# async def symbolic_evaluate_flow(id: str,
+#                                  db: AsyncIOMotorDatabase = Depends(get_database)):
+#     return await flow_service.symbolic_evaluate_flow(
+#         db,
+#         id
+#     )
