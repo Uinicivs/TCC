@@ -1,7 +1,7 @@
 from lark import Lark
 
 
-with open('src/app/transformers/grammar.ebnf', 'r') as file:
+with open('src/app/transformers/grammar.lark', 'r') as file:
     grammar = file.read()
 
 parser = Lark(grammar)
