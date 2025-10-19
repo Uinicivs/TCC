@@ -8,7 +8,8 @@ export interface SchemaNode {
   parentNodeId: string | null
   isFalseCase: boolean | null
   nodeType: 'START' | 'CONDITIONAL' | 'END'
-  position: { x: number; y: number }
+  nodePositionX: number
+  nodePositionY: number
   metadata: {
     inputs?: Array<{
       displayName: string
@@ -25,9 +26,9 @@ export function mapSchemaToFlow(schemaNodes: SchemaNode[]): FlowNode[] {
     const flowNode: FlowNode = {
       id: schemaNode.nodeId,
       type: schemaNode.nodeType.toLowerCase(),
-      position: schemaNode.position || {
-        x: window.innerWidth / 2 - HORIZONTAL_SPACING,
-        y: VERTICAL_SPACING,
+      position: {
+        x: schemaNode.nodePositionX,
+        y: schemaNode.nodePositionY,
       },
       data: {
         title: schemaNode.nodeName,
@@ -66,7 +67,8 @@ export function mapFlowToSchema(flowNodes: FlowNode[]): SchemaNode[] {
       nodeId: flowNode.id,
       nodeName: flowNode.data.title,
       parentNodeId: flowNode.data.parent,
-      position: flowNode.position || { x: 0, y: 0 },
+      nodePositionX: flowNode.position.x,
+      nodePositionY: flowNode.position.y,
       isFalseCase: flowNode.data.isFalseCase || null,
       nodeType: flowNode.type?.toUpperCase() as 'START' | 'CONDITIONAL' | 'END',
       metadata: {},
