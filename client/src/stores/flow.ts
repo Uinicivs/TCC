@@ -129,7 +129,7 @@ export const useFlowStore = defineStore('flow', () => {
 
   const addEdges = (newEdge: Edge) => {
     if (!getEdgeById(newEdge.id)) {
-      edges.value.push(newEdge)
+      edges.value.push({ ...newEdge, type: 'smoothstep' })
 
       const parentNode = getNodeById(newEdge.source)
       if (parentNode) {
@@ -154,7 +154,7 @@ export const useFlowStore = defineStore('flow', () => {
     if (existingEdgeWithHandle) return
 
     if (!getEdgeById(newEdge.id)) {
-      edges.value.push(newEdge)
+      edges.value.push({ ...newEdge, type: 'smoothstep' })
 
       const parentNode = getNodeById(newEdge.source)
       if (parentNode) {
