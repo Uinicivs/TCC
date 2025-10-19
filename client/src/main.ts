@@ -4,7 +4,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
-import { ToastService, Toast, DialogService } from 'primevue'
+import { ToastService, Toast, DialogService, Tooltip } from 'primevue'
 
 import App from './App.vue'
 import router from './router'
@@ -16,6 +16,8 @@ app.use(PrimeVue, { theme: { preset: Aura } })
 app.use(router)
 app.use(ToastService)
 app.use(DialogService)
+
+app.directive('tooltip', Tooltip)
 
 app.component('Toast', Toast)
 
