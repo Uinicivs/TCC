@@ -168,7 +168,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           })
         }
 
-        positionX = parentNode.position.x + offsetX
+        positionX =
+          parentNode.type !== 'conditional'
+            ? parentNode.position.x
+            : parentNode.position.x + offsetX
       }
 
       positionY = parentNode.position.y + VERTICAL_SPACING
@@ -216,7 +219,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           const childPositionY = baseY + VERTICAL_SPACING
           let childOffsetX = baseX
 
-          if (childNode.type === 'conditional' && 'isFalseCase' in childNode.data) {
+          if (childNode.type === 'conditional') {
             childOffsetX += !childNode.data.isFalseCase
               ? HORIZONTAL_SPACING * -1
               : HORIZONTAL_SPACING
@@ -243,7 +246,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       })
     }
 
-    if (formattedNodeData.children && formattedNodeData.children.length > 0) {
+    if (formattedNodeData.children.length) {
       updateDescendantPositions(
         formattedNodeData.children,
         formatNode.position.x,
