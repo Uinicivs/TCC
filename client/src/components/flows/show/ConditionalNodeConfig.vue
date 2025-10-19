@@ -59,7 +59,7 @@ interface TagSection {
 
 let editorView: EditorView | null = null
 
-const expression = defineModel<string>({ required: true })
+const model = defineModel<{ expression: string }>({ required: true })
 const flowStore = useFlowStore()
 
 const editorRef = ref<HTMLElement>()
@@ -158,7 +158,7 @@ function insertOperator(operator: string) {
 onMounted(() => {
   if (editorRef.value) {
     const startState = EditorState.create({
-      doc: expression.value || '',
+      doc: model.value.expression || '',
       extensions: [
         javascript(),
         placeholder('Ex: age >= 18 and contains(skills, "python")'),
@@ -168,7 +168,7 @@ onMounted(() => {
         }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
-            expression.value = update.state.doc.toString()
+            model.value.expression = update.state.doc.toString()
           }
         }),
         EditorView.theme({
@@ -220,7 +220,7 @@ onMounted(() => {
 })
 
 watch(
-  () => expression.value,
+  () => model.value.expression,
   (newValue) => {
     if (editorView && newValue !== editorView.state.doc.toString()) {
       const currentPos = editorView.state.selection.main.head

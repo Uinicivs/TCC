@@ -39,7 +39,7 @@ const shouldDisableNextButton = computed(() => {
   }
 
   if (selectedNode.value?.type === 'conditional') {
-    const expression = nodeData.settings as string
+    const expression = nodeData.settings?.expression as string
 
     if (!expression || !expression.trim()) return true
     if (!getStartNodeVariables.length) return false
@@ -72,7 +72,7 @@ const getDisabledMessage = computed(() => {
   }
 
   if (selectedNode.value?.type === 'conditional') {
-    const expression = nodeData.settings as string
+    const expression = nodeData.settings?.expression as string
     if (!expression || !expression.trim()) {
       return 'Digite uma expressão para continuar'
     }
