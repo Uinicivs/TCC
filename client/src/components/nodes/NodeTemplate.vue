@@ -113,11 +113,11 @@ const menuItems = computed(() => {
         />
 
         <div class="overflow-hidden w-full h-full flex flex-col items-center justify-center">
-          <h4 v-if="data?.title" class="font-semibold truncate w-full">
+          <h4 v-if="data?.title" v-tooltip="data.title" class="font-semibold w-full">
             {{ data.title }}
           </h4>
 
-          <p v-if="data?.description" class="truncate w-full">
+          <p v-if="data?.description" v-tooltip="data.description" class="w-full break-all">
             {{ data.description }}
           </p>
         </div>

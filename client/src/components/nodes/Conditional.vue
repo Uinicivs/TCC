@@ -8,8 +8,8 @@ const { data } = defineProps<{ data: INode; id: string }>()
 
 <template>
   <NodeTemplate
-    class="!w-30"
-    container-class=" h-30 text-center outline-4 outline-amber-500 !w-full rotate-45"
+    class="!w-20"
+    container-class="h-20 text-center outline-4 outline-amber-500 !w-full rotate-45"
     :id
     :data
   />

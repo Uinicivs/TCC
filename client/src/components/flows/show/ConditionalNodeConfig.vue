@@ -59,7 +59,8 @@ interface TagSection {
 
 let editorView: EditorView | null = null
 
-const model = defineModel<{ expression: string }>({ required: true })
+const model = defineModel<{ expression: string }>({ default: { expression: '' }, required: true })
+
 const flowStore = useFlowStore()
 
 const editorRef = ref<HTMLElement>()
@@ -227,7 +228,6 @@ watch(
       const currentLength = editorView.state.doc.length
       const newLength = newValue?.length || 0
 
-      // Preservar a posição do cursor proporcionalmente
       const newPos = newLength > 0 ? Math.min(currentPos, newLength) : 0
 
       editorView.dispatch({

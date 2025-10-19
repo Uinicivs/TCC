@@ -15,6 +15,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
   const initialNodeState = {
     title: '',
+    settings: {},
     parent: null,
     children: [],
   }
@@ -53,6 +54,24 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     const defaultTitle = getDefaultNodeTitle(node.type)
     if (defaultTitle) {
       nodeData.title = defaultTitle
+    }
+
+    switch (node.type) {
+      case 'start': {
+        nodeData.settings = { inputs: [] }
+        break
+      }
+      case 'conditional': {
+        nodeData.settings = { expression: '' }
+        break
+      }
+      case 'end': {
+        nodeData.settings = { response: null }
+        break
+      }
+      default: {
+        nodeData.settings = {}
+      }
     }
   }
 
