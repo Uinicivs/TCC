@@ -104,8 +104,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     return {
-      x: preferredX + (Math.random() - 0.5) * 400,
-      y: preferredY + (Math.random() - 0.5) * 400,
+      x: preferredX + HORIZONTAL_SPACING,
+      y: preferredY + VERTICAL_SPACING,
     }
   }
 
@@ -172,7 +172,14 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       ...(typeof isFalseCase === 'boolean' && { isFalseCase }),
     }
 
-    const endNodePosition = findFreePosition(parentPosition.x, parentPosition.y + VERTICAL_SPACING)
+    let positionX = parentPosition.x
+    if (typeof isFalseCase === 'boolean') {
+      positionX = isFalseCase
+        ? parentPosition.x + HORIZONTAL_SPACING
+        : parentPosition.x - HORIZONTAL_SPACING
+    }
+
+    const endNodePosition = findFreePosition(positionX, parentPosition.y + VERTICAL_SPACING)
 
     return {
       id: uuidv4(),
@@ -185,13 +192,13 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const createConditionalEndNodes = (formatNode: Node) => {
     const leftEndNode = createEndNode(
       formatNode.id,
-      { x: formatNode.position.x - HORIZONTAL_SPACING, y: formatNode.position.y },
+      { x: formatNode.position.x, y: formatNode.position.y },
       false
     )
 
     const rightEndNode = createEndNode(
       formatNode.id,
-      { x: formatNode.position.x + HORIZONTAL_SPACING, y: formatNode.position.y },
+      { x: formatNode.position.x, y: formatNode.position.y },
       true
     )
 
@@ -200,11 +207,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
   const createMissingConditionalEndNode = (formatNode: Node, existingChild: Node) => {
     const needsEndNodeIsFalseCase = !existingChild.data.isFalseCase
-    const offsetX = needsEndNodeIsFalseCase ? HORIZONTAL_SPACING : -HORIZONTAL_SPACING
 
     return createEndNode(
       formatNode.id,
-      { x: formatNode.position.x + offsetX, y: formatNode.position.y },
+      { x: formatNode.position.x, y: formatNode.position.y },
       needsEndNodeIsFalseCase
     )
   }
@@ -345,10 +351,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           const childPositionY = baseY + VERTICAL_SPACING
           let childOffsetX = baseX
 
-          if (childNode.type === 'conditional') {
-            childOffsetX += !childNode.data.isFalseCase
-              ? HORIZONTAL_SPACING * -1
-              : HORIZONTAL_SPACING
+          if (typeof childNode.data.isFalseCase === 'boolean') {
+            childOffsetX += childNode.data.isFalseCase
+              ? HORIZONTAL_SPACING
+              : -HORIZONTAL_SPACING
           }
 
           const freePosition = findFreePosition(childOffsetX, childPositionY, childId)
