@@ -159,9 +159,66 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     },
   }
 
+  const createEndNode = (
+    parentNodeId: string,
+    parentPosition: { x: number; y: number },
+    isFalseCase?: boolean
+  ): Node => {
+    const endNodeData: INode = {
+      title: getDefaultNodeTitle('end'),
+      settings: { response: null },
+      parent: parentNodeId,
+      children: [],
+      ...(typeof isFalseCase === 'boolean' && { isFalseCase }),
+    }
+
+    const endNodePosition = findFreePosition(parentPosition.x, parentPosition.y + VERTICAL_SPACING)
+
+    return {
+      id: uuidv4(),
+      position: endNodePosition,
+      type: 'end',
+      data: endNodeData,
+    }
+  }
+
+  const createConditionalEndNodes = (formatNode: Node) => {
+    const leftEndNode = createEndNode(
+      formatNode.id,
+      { x: formatNode.position.x - HORIZONTAL_SPACING, y: formatNode.position.y },
+      false
+    )
+
+    const rightEndNode = createEndNode(
+      formatNode.id,
+      { x: formatNode.position.x + HORIZONTAL_SPACING, y: formatNode.position.y },
+      true
+    )
+
+    return { leftEndNode, rightEndNode }
+  }
+
+  const createMissingConditionalEndNode = (formatNode: Node, existingChild: Node) => {
+    const needsEndNodeIsFalseCase = !existingChild.data.isFalseCase
+    const offsetX = needsEndNodeIsFalseCase ? HORIZONTAL_SPACING : -HORIZONTAL_SPACING
+
+    return createEndNode(
+      formatNode.id,
+      { x: formatNode.position.x + offsetX, y: formatNode.position.y },
+      needsEndNodeIsFalseCase
+    )
+  }
+
+  const addNodesToFlow = (nodes: Node[], parentNode: Node) => {
+    const childrenIds = nodes.map(node => node.id)
+    parentNode.data.children = [...(parentNode.data.children || []), ...childrenIds]
+
+    nodes.forEach(node => flowStore.addNodes(node))
+    flowStore.updateNode(parentNode.id, parentNode)
+  }
+
   const handleCreateNode = () => {
     if (!selectedNode.value || !nodeData.title.trim()) return
-
     let positionX: number = window.innerWidth / 2
     let positionY: number = 0
     let isFalseCase: boolean | undefined = undefined
@@ -325,6 +382,12 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       )
     }
 
+
+    const shouldCreateEndNode = selectedNode.value.type !== 'end' && (
+      formattedNodeData.children.length === 0 ||
+      (selectedNode.value.type === 'conditional' && formattedNodeData.children.length === 1)
+    )
+
     if (!(handleId && parentId)) {
       flowStore.addNodes({ ...formatNode })
     }
@@ -341,8 +404,27 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         edgePayload.label = isFalseCase ? 'Verdadeiro' : 'Falso'
       }
 
-      flowStore.addNodes({ ...formatNode }, true)
+      flowStore.addNodes({ ...formatNode })
       flowStore.addEdgeWithHandle(edgePayload)
+    }
+
+
+    if (shouldCreateEndNode) {
+      if (selectedNode.value.type === 'conditional') {
+        if (formattedNodeData.children.length === 0) {
+          const { leftEndNode, rightEndNode } = createConditionalEndNodes(formatNode)
+          addNodesToFlow([leftEndNode, rightEndNode], formatNode)
+        } else if (formattedNodeData.children.length === 1) {
+          const existingChild = flowStore.getNodeById(formattedNodeData.children[0])
+          if (existingChild) {
+            const endNode = createMissingConditionalEndNode(formatNode, existingChild)
+            addNodesToFlow([endNode], formatNode)
+          }
+        }
+      } else {
+        const endNode = createEndNode(formatNode.id, formatNode.position)
+        addNodesToFlow([endNode], formatNode)
+      }
     }
 
     flowStore.setEdges()
