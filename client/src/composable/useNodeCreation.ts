@@ -86,14 +86,11 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
     for (let radius = stepSize; radius <= stepSize * maxAttempts; radius += stepSize) {
       const positions = [
+        { x: preferredX, y: preferredY + radius },
         { x: preferredX + radius, y: preferredY },
         { x: preferredX - radius, y: preferredY },
-        { x: preferredX, y: preferredY + radius },
-        { x: preferredX, y: preferredY - radius },
         { x: preferredX + radius, y: preferredY + radius },
         { x: preferredX - radius, y: preferredY + radius },
-        { x: preferredX + radius, y: preferredY - radius },
-        { x: preferredX - radius, y: preferredY - radius },
       ]
 
       for (const position of positions) {
@@ -162,7 +159,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const createEndNode = (
     parentNodeId: string,
     parentPosition: { x: number; y: number },
-    isFalseCase?: boolean
+    isFalseCase?: boolean,
   ): Node => {
     const endNodeData: INode = {
       title: getDefaultNodeTitle('end'),
@@ -193,13 +190,13 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     const leftEndNode = createEndNode(
       formatNode.id,
       { x: formatNode.position.x, y: formatNode.position.y },
-      false
+      false,
     )
 
     const rightEndNode = createEndNode(
       formatNode.id,
       { x: formatNode.position.x, y: formatNode.position.y },
-      true
+      true,
     )
 
     return { leftEndNode, rightEndNode }
@@ -211,15 +208,15 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     return createEndNode(
       formatNode.id,
       { x: formatNode.position.x, y: formatNode.position.y },
-      needsEndNodeIsFalseCase
+      needsEndNodeIsFalseCase,
     )
   }
 
   const addNodesToFlow = (nodes: Node[], parentNode: Node) => {
-    const childrenIds = nodes.map(node => node.id)
+    const childrenIds = nodes.map((node) => node.id)
     parentNode.data.children = [...(parentNode.data.children || []), ...childrenIds]
 
-    nodes.forEach(node => flowStore.addNodes(node))
+    nodes.forEach((node) => flowStore.addNodes(node))
     flowStore.updateNode(parentNode.id, parentNode)
   }
 
@@ -352,9 +349,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           let childOffsetX = baseX
 
           if (typeof childNode.data.isFalseCase === 'boolean') {
-            childOffsetX += childNode.data.isFalseCase
-              ? HORIZONTAL_SPACING
-              : -HORIZONTAL_SPACING
+            childOffsetX += childNode.data.isFalseCase ? HORIZONTAL_SPACING : -HORIZONTAL_SPACING
           }
 
           const freePosition = findFreePosition(childOffsetX, childPositionY, childId)
@@ -388,11 +383,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       )
     }
 
-
-    const shouldCreateEndNode = selectedNode.value.type !== 'end' && (
-      formattedNodeData.children.length === 0 ||
-      (selectedNode.value.type === 'conditional' && formattedNodeData.children.length === 1)
-    )
+    const shouldCreateEndNode =
+      selectedNode.value.type !== 'end' &&
+      (formattedNodeData.children.length === 0 ||
+        (selectedNode.value.type === 'conditional' && formattedNodeData.children.length === 1))
 
     if (!(handleId && parentId)) {
       flowStore.addNodes({ ...formatNode })
@@ -413,7 +407,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       flowStore.addNodes({ ...formatNode })
       flowStore.addEdgeWithHandle(edgePayload)
     }
-
 
     if (shouldCreateEndNode) {
       if (selectedNode.value.type === 'conditional') {
