@@ -106,6 +106,8 @@ const getDisabledMessage = computed(() => {
       }
     }
   }
+
+  return ''
 })
 </script>
 
