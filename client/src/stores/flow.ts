@@ -32,7 +32,7 @@ export const useFlowStore = defineStore('flow', () => {
     return edges.value.find(({ id }) => id === edgeId)
   }
 
-  const addNodes = (newNode: Node, skipEdgeCreation = false) => {
+  const addNodes = (newNode: Node) => {
     if (getNodeById(newNode.id)) return
 
     const {
@@ -204,9 +204,13 @@ export const useFlowStore = defineStore('flow', () => {
 
   const setFlowId = (flowId: string | null) => {
     currentFlowId.value = flowId
-    flowId ? initializeDebounce(flowId) : (flowSyncInstance = null)
-  }
+    if (!flowId) {
+      flowSyncInstance = null
+      return
+    }
 
+    initializeDebounce(flowId)
+  }
   const clearFlow = () => {
     if (flowSyncInstance) {
       flowSyncInstance.cancelPendingUpdates()
