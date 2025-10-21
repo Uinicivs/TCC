@@ -8,7 +8,13 @@ import { useFlowStore } from '@/stores/flow'
 
 import { nodes } from '@/constants/nodes'
 import { getDefaultNodeTitle, EXCLUDED_NODE_TYPES } from '@/constants/nodeConfig'
-import { HORIZONTAL_SPACING, VERTICAL_SPACING } from '@/constants/nodeLayout'
+import {
+  HORIZONTAL_SPACING,
+  VERTICAL_SPACING,
+  SAFETY_MARGIN,
+  NODE_WIDTH,
+  NODE_HEIGHT,
+} from '@/constants/nodeLayout'
 
 export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   const flowStore = useFlowStore()
@@ -40,6 +46,67 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     })
 
     Object.assign(nodeData, JSON.parse(JSON.stringify(initialNodeState)))
+  }
+
+  const checkCollision = (x: number, y: number, excludeId?: string): boolean => {
+    const margin = SAFETY_MARGIN
+    const nodeLeft = x - margin
+    const nodeRight = x + NODE_WIDTH + margin
+    const nodeTop = y - margin
+    const nodeBottom = y + NODE_HEIGHT + margin
+
+    return flowStore.nodes.some((node) => {
+      if (excludeId && node.id === excludeId) return false
+
+      const existingLeft = node.position.x
+      const existingRight = node.position.x + NODE_WIDTH
+      const existingTop = node.position.y
+      const existingBottom = node.position.y + NODE_HEIGHT
+
+      return !(
+        nodeLeft >= existingRight ||
+        nodeRight <= existingLeft ||
+        nodeTop >= existingBottom ||
+        nodeBottom <= existingTop
+      )
+    })
+  }
+
+  const findFreePosition = (
+    preferredX: number,
+    preferredY: number,
+    excludeId?: string,
+  ): { x: number; y: number } => {
+    if (!checkCollision(preferredX, preferredY, excludeId)) {
+      return { x: preferredX, y: preferredY }
+    }
+
+    const maxAttempts = 20
+    const stepSize = 50
+
+    for (let radius = stepSize; radius <= stepSize * maxAttempts; radius += stepSize) {
+      const positions = [
+        { x: preferredX + radius, y: preferredY },
+        { x: preferredX - radius, y: preferredY },
+        { x: preferredX, y: preferredY + radius },
+        { x: preferredX, y: preferredY - radius },
+        { x: preferredX + radius, y: preferredY + radius },
+        { x: preferredX - radius, y: preferredY + radius },
+        { x: preferredX + radius, y: preferredY - radius },
+        { x: preferredX - radius, y: preferredY - radius },
+      ]
+
+      for (const position of positions) {
+        if (!checkCollision(position.x, position.y, excludeId)) {
+          return position
+        }
+      }
+    }
+
+    return {
+      x: preferredX + (Math.random() - 0.5) * 400,
+      y: preferredY + (Math.random() - 0.5) * 400,
+    }
   }
 
   const toggleCreateNodeDialog = () => {
@@ -200,9 +267,11 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       formattedNodeData.isFalseCase = isFalseCase
     }
 
+    const finalPosition = findFreePosition(positionX, positionY)
+
     const formatNode: Node = {
       id: uuidv4(),
-      position: { x: positionX, y: positionY },
+      position: finalPosition,
       type: selectedNode.value.type,
       data: formattedNodeData,
     }
@@ -225,9 +294,11 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
               : HORIZONTAL_SPACING
           }
 
+          const freePosition = findFreePosition(childOffsetX, childPositionY, childId)
+
           flowStore.updateNode(childId, {
             ...childNode,
-            position: { x: childOffsetX, y: childPositionY },
+            position: freePosition,
             data: {
               ...childNode.data,
               parent: level === 0 ? formatNode.id : childNode.data.parent,
@@ -237,8 +308,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           if (childNode.data.children?.length > 0) {
             updateDescendantPositions(
               childNode.data.children,
-              childOffsetX,
-              childPositionY,
+              freePosition.x,
+              freePosition.y,
               level + 1,
             )
           }
