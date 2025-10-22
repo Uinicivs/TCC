@@ -224,7 +224,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     if (!selectedNode.value || !nodeData.title.trim()) return
     let positionX: number = window.innerWidth / 2
     let positionY: number = 0
-    let isFalseCase: boolean | undefined = undefined
+    let isFalseCase: boolean | undefined = false
     const formattedNodeData = JSON.parse(JSON.stringify(nodeData))
     const parentNode = parentId && flowStore.getNodeById(parentId)
 

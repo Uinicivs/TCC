@@ -1,12 +1,10 @@
 import type { Node as FlowNode } from '@vue-flow/core'
 
-import { HORIZONTAL_SPACING, VERTICAL_SPACING } from '@/constants/nodeLayout'
-
 export interface SchemaNode {
   nodeId: string
   nodeName: string
   parentNodeId: string | null
-  isFalseCase: boolean | null
+  isFalseCase: boolean
   nodeType: 'START' | 'CONDITIONAL' | 'END'
   nodePositionX: number
   nodePositionY: number
@@ -69,7 +67,7 @@ export function mapFlowToSchema(flowNodes: FlowNode[]): SchemaNode[] {
       parentNodeId: flowNode.data.parent,
       nodePositionX: flowNode.position.x,
       nodePositionY: flowNode.position.y,
-      isFalseCase: flowNode.data.isFalseCase || null,
+      isFalseCase: flowNode.data.isFalseCase || false,
       nodeType: flowNode.type?.toUpperCase() as 'START' | 'CONDITIONAL' | 'END',
       metadata: {},
     }
@@ -88,7 +86,7 @@ export function mapFlowToSchema(flowNodes: FlowNode[]): SchemaNode[] {
         break
       case 'end':
         schemaNode.metadata = {
-          response: flowNode.data.settings?.response || null,
+          response: flowNode.data.settings?.response || false,
         }
         break
     }
