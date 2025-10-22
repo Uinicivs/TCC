@@ -13,6 +13,7 @@ import { getFlowById } from '@/services/flowService'
 import { mapSchemaToFlow } from '@/utils/flowFormatters'
 
 import AddNode from '@/components/flows/show/AddNode.vue'
+import ExecuteFlowDrawer from '@/components/flows/show/ExecuteFlowDrawer.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
 import { nodes as mappedNodes } from '@/constants/nodes'
@@ -22,11 +23,12 @@ const router = useRouter()
 const flowId = route.params.id as string
 
 const flowStore = useFlowStore()
-const { nodes, edges } = storeToRefs(flowStore)
+const { nodes, edges, getStartNodeVariables } = storeToRefs(flowStore)
 
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const flowName = ref<string>('')
+const showExecuteDrawer = ref<boolean>(false)
 
 onMounted(async () => {
   try {
@@ -107,16 +109,17 @@ const goBack = () => {
         <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
           <Toolbar class="w-full z-10 fixed !rounded-t-none">
             <template #start>
-              <Button
-                icon="pi pi-arrow-left"
-                size="small"
-                severity="secondary"
-                variant="text"
-                class="mr-2"
-                @click="goBack"
-              />
+              <Button icon="pi pi-arrow-left" size="small" severity="secondary" variant="text" class="mr-2"
+                @click="goBack" />
 
               {{ flowName }}
+            </template>
+
+            <template #end>
+              <div class="flex space-x-1">
+                <Button label="Testar" size="small" variant="text" severity="contrast" />
+                <Button label="Executar" size="small" @click="showExecuteDrawer = true" />
+              </div>
             </template>
           </Toolbar>
 
@@ -124,16 +127,14 @@ const goBack = () => {
           <Background variant="dots" />
           <Controls :showInteractive="false" />
 
-          <template
-            v-for="(nodeComponent, type) in nodeComponents"
-            :key="type"
-            #[`node-${type}`]="props"
-          >
+          <template v-for="(nodeComponent, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
             <component :is="nodeComponent" v-bind="props" />
           </template>
         </VueFlow>
       </div>
     </div>
+
+    <ExecuteFlowDrawer v-model:visible="showExecuteDrawer" :flow-id="flowId" :start-variables="getStartNodeVariables" />
   </div>
 </template>
 

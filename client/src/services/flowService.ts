@@ -78,3 +78,15 @@ export const updateFlowNodes = async (id: string, nodes: SchemaNode[]): Promise<
     throw new Error('Falha ao atualizar os nós do fluxo. Tente novamente.')
   }
 }
+
+export const evaluateFlow = async (
+  id: string,
+  variables: Record<string, unknown>,
+): Promise<unknown> => {
+  try {
+    const response = await api.post(`/decision_flows/${id}/evaluate`, variables)
+    return response.data
+  } catch {
+    throw new Error('Falha ao executar o fluxo. Tente novamente.')
+  }
+}
