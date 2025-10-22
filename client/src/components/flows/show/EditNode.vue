@@ -110,6 +110,7 @@ const loadNodeData = () => {
     selectedNode.value = nodes[nodeType]
 
     Object.assign(nodeData, {
+      ...node.data,
       title: node.data.title || '',
       description: node.data.description || '',
       settings: node.data.settings || {},

@@ -92,34 +92,22 @@ const menuItems = computed(() => {
 </script>
 
 <template>
-  <div
-    ref="node-wrapper"
-    class="relative w-[250px]"
-    :class="{ 'cursor-pointer': !isFirstNode }"
-    @contextmenu="handleClick($event)"
-  >
+  <div ref="node-wrapper" class="relative w-[250px]" :class="{ 'cursor-pointer': !isFirstNode }"
+    @contextmenu="handleClick($event)">
     <Handle type="target" :position="Position.Top" />
 
     <div
       class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-900 dark:border-neutral-900 max-w-[300px] node-content"
-      :class="containerClass"
-    >
+      :class="containerClass">
       <div class="flex gap-4 h-full">
-        <i
-          v-if="icon"
-          :class="[icon, iconColor]"
+        <i v-if="icon" :class="[icon, iconColor]"
           class="pi bg-neutral-50 p-4 border rounded-sm border-gray-300 dark:bg-neutral-900 dark:border-neutral-800"
-          style="font-size: 1.3em"
-        />
+          style="font-size: 1.3em" />
 
         <div class="overflow-hidden w-full h-full flex flex-col items-center justify-center">
-          <h4 v-if="data?.title" v-tooltip="data.title" class="font-semibold w-full">
+          <h4 v-if="data?.title" v-tooltip="data.description" class="font-semibold w-full">
             {{ data.title }}
           </h4>
-
-          <p v-if="data?.description" v-tooltip="data.description" class="w-full break-all">
-            {{ data.description }}
-          </p>
         </div>
       </div>
     </div>
@@ -127,41 +115,21 @@ const menuItems = computed(() => {
     <Handle v-if="!isConditionalNode" type="source" :position="Position.Bottom" />
 
     <template v-if="isConditionalNode">
-      <Handle
-        type="source"
-        :position="Position.Left"
-        id="conditional-left"
-        class="conditional-handle-left"
-      />
+      <Handle type="source" :position="Position.Left" id="conditional-left" class="conditional-handle-left" />
 
-      <Handle
-        type="source"
-        :position="Position.Right"
-        id="conditional-right"
-        class="conditional-handle-right"
-      />
+      <Handle type="source" :position="Position.Right" id="conditional-right" class="conditional-handle-right" />
     </template>
 
     <template v-if="isConditionalNode">
-      <AddNode
-        class="absolute -left-20 top-1/3 add-node-button cursor-default"
-        :parentId="id || null"
-        handleId="conditional-left"
-      />
+      <AddNode class="absolute -left-20 top-1/3 add-node-button cursor-default" :parentId="id || null"
+        handleId="conditional-left" />
 
-      <AddNode
-        class="absolute -right-25 top-1/3 add-node-button cursor-default"
-        :parentId="id || null"
-        handleId="conditional-right"
-      />
+      <AddNode class="absolute -right-25 top-1/3 add-node-button cursor-default" :parentId="id || null"
+        handleId="conditional-right" />
     </template>
 
-    <AddNode
-      v-else-if="canAddNewNode"
-      class="absolute -bottom-12 add-node-button"
-      :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }"
-      :parentId="id || null"
-    />
+    <AddNode v-else-if="canAddNewNode" class="absolute -bottom-12 add-node-button"
+      :style="{ left: `${getCurrentNodeWrapperWidth / 2 - 16}px` }" :parentId="id || null" />
 
     <ContextMenu ref="contextMenu" :model="menuItems" />
 
