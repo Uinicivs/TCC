@@ -1,4 +1,4 @@
-export type VariableType = 'text' | 'number' | 'bool' | 'list' | 'object'
+export type VariableType = 'text' | 'number' | 'bool' | 'list'
 
 export interface Variable {
   displayName: string
