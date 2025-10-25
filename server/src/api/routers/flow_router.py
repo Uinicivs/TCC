@@ -1,18 +1,8 @@
 from fastapi import APIRouter, Depends, status
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from src.app.services import flow_service
-from src.app.db.connection import get_database
-from src.api.dependencies.auth import get_api_key
-from src.api.dtos.flow_dtos import (
-    CreateFlowInDTO,
-    ReadFlowsOutDTO,
-    ReadFlowOutDTO,
-    UpdateFlowInDTO,
-    UpdateNodesInDTO,
-    EvaluateFlowPayloadDTO,
-    EvaluateFlowResponseDTO,
-)
+from src.api.dtos import flow_dtos
+from src.app.services import FlowService
+from src.api.dependencies import get_api_key, get_flow_service
 
 
 router = APIRouter(
@@ -22,85 +12,64 @@ router = APIRouter(
 )
 
 
-@router.post('/', response_model=ReadFlowOutDTO,
-             status_code=status.HTTP_201_CREATED)
-async def create_flow(flow_in: CreateFlowInDTO,
-                      db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    return await flow_service.create_flow(
-        db,
-        flow_in.flowName,
-        flow_in.flowDescription
+@router.post('/', response_model=flow_dtos.ReadFlowOutDTO, status_code=status.HTTP_201_CREATED)
+async def create_flow(flow_in: flow_dtos.CreateFlowInDTO,
+                      service: FlowService = Depends(get_flow_service)):
+    return await service.create_flow(
+        flow_name=flow_in.flowName,
+        flow_description=flow_in.flowDescription
     )
 
 
-@router.get('/', response_model=list[ReadFlowsOutDTO])
-async def get_flows(db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    return await flow_service.get_flows(db)
-
-
-@router.get('/{id}', response_model=ReadFlowOutDTO)
-async def get_flow(id: str,
-                   db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    return await flow_service.get_flow(db, id)
+@router.get('/', response_model=list[flow_dtos.ReadFlowsOutDTO])
+async def get_flows(service: FlowService = Depends(get_flow_service)):
+    return await service.get_flows()
 
 
-@router.patch('/{id}',
-              status_code=status.HTTP_204_NO_CONTENT)
-async def update_flow_metadata(id: str,
-                               flow_in: UpdateFlowInDTO,
-                               db: AsyncIOMotorDatabase = Depends(get_database)):
+@router.get('/{id}', response_model=flow_dtos.ReadFlowOutDTO)
+async def get_flow(id: str, service: FlowService = Depends(get_flow_service)):
+    return await service.get_flow(id=id)
 
-    await flow_service.update_flow_metadata(
-        db,
-        id,
-        flow_in.flowName,
-        flow_in.flowDescription
+
+@router.patch('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def update_flow_metadata(id: str, flow_in: flow_dtos.UpdateFlowInDTO,
+                               service: FlowService = Depends(get_flow_service)):
+    await service.update_flow_metadata(
+        id=id,
+        flow_name=flow_in.flowName,
+        flow_description=flow_in.flowDescription
     )
     return
 
 
-@router.delete('/{id}',
-               status_code=status.HTTP_204_NO_CONTENT)
-async def delete_flow(id: str,
-                      db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    await flow_service.delete_flow(db, id)
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_flow(id: str, service: FlowService = Depends(get_flow_service)):
+    await service.delete_flow(id=id)
     return
 
 
-@router.put('/{id}/nodes',
-            status_code=status.HTTP_204_NO_CONTENT)
+@router.put('/{id}/nodes', status_code=status.HTTP_204_NO_CONTENT)
 async def update_flow_nodes(id: str,
-                            nodes_in: list[UpdateNodesInDTO],
-                            db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    await flow_service.update_flow_nodes(
-        db,
-        id,
-        nodes_in
+                            nodes_in: list[flow_dtos.UpdateNodesInDTO],
+                            service: FlowService = Depends(get_flow_service)):
+    await service.update_flow_nodes(
+        id=id,
+        nodes=nodes_in
     )
     return
 
 
-@router.post('/{id}/evaluate', response_model=EvaluateFlowResponseDTO)
+@router.post('/{id}/evaluate', response_model=flow_dtos.EvaluateFlowResponseDTO)
 async def evaluate_flow(id: str,
-                        payload: EvaluateFlowPayloadDTO,
-                        db: AsyncIOMotorDatabase = Depends(get_database)):
-
-    return await flow_service.evaluate_flow(
-        db,
-        id,
-        payload.model_dump()
+                        payload: flow_dtos.EvaluateFlowPayloadDTO,
+                        service: FlowService = Depends(get_flow_service)):
+    return await service.evaluate_flow(
+        id=id,
+        payload=payload.model_dump()
     )
 
 
-# @router.get('/{id}/test')
-# async def symbolic_evaluate_flow(id: str,
-#                                  db: AsyncIOMotorDatabase = Depends(get_database)):
-#     return await flow_service.symbolic_evaluate_flow(
-#         db,
-#         id
-#     )
+@router.get('/{id}/test')
+async def symbolic_evaluate_flow(id: str,
+                                 service: FlowService = Depends(get_flow_service)):
+    return await service.symbolic_evaluate_flow(id=id)
