@@ -49,15 +49,6 @@
                   @input="updateResponse"
                 />
               </div>
-              <div
-                v-if="customResponsePreview"
-                class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg response-wrapper"
-              >
-                <p class="text-sm font-medium mb-2">Preview da resposta:</p>
-                <pre class="text-xs text-gray-700 dark:text-gray-300">
-                  {{ customResponsePreview }}
-                </pre>
-              </div>
               <Message v-if="parseError" severity="error" :closable="false" size="small">
                 <div class="flex items-center gap-2">
                   <i class="pi pi-exclamation-triangle" />
@@ -90,17 +81,6 @@ const customResponseText = ref<string>('')
 const parseError = ref<string>('')
 
 const defaultResponseValue = computed(() => nodeData.isFalseCase ?? false)
-const customResponsePreview = computed(() => {
-  if (responseType.value !== 'custom') return null
-
-  try {
-    if (!customResponseText.value.trim()) return null
-    const parsed = JSON.parse(customResponseText.value)
-    return JSON.stringify(parsed, null, 2)
-  } catch {
-    return null
-  }
-})
 
 const validateAndParseCustomResponse = (): TEndNodeResponse => {
   parseError.value = ''
