@@ -105,7 +105,8 @@ const menuItems = computed(() => {
           style="font-size: 1.3em" />
 
         <div class="overflow-hidden w-full h-full flex flex-col items-center justify-center">
-          <h4 v-if="data?.title" v-tooltip="data.description" class="font-semibold w-full">
+          <h4 v-if="data?.title" v-tooltip="data.title"
+            class="font-semibold w-full text-xs text-ellipsis overflow-hidden">
             {{ data.title }}
           </h4>
         </div>

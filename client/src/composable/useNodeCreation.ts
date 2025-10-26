@@ -130,7 +130,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         break
       }
       case 'end': {
-        nodeData.settings = { response: null }
+        nodeData.settings = { response: false }
         break
       }
       default: {
@@ -163,7 +163,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   ): Node => {
     const endNodeData: INode = {
       title: getDefaultNodeTitle('end'),
-      settings: { response: null },
+      settings: { response: isFalseCase },
       parent: parentNodeId,
       children: [],
       ...(typeof isFalseCase === 'boolean' && { isFalseCase }),

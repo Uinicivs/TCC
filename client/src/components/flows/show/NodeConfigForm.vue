@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { InputText, Textarea, Message } from 'primevue'
+import { provide } from 'vue'
+import { InputText, Message } from 'primevue'
 
 import type { INode, IMappedNodes } from '@/interfaces/node'
 
 const nodeData = defineModel<INode>('nodeData', { required: true })
 
 defineProps<{ selectedNode: IMappedNodes | null }>()
+
+provide('nodeData', nodeData)
 </script>
 
 <template>
@@ -14,43 +17,14 @@ defineProps<{ selectedNode: IMappedNodes | null }>()
       <label for="nodeTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Nome <span class="text-red-700">*</span>
       </label>
-      <InputText
-        id="nodeTitle"
-        v-model="nodeData.title"
-        placeholder="Digite um nome para o nó"
-        autofocus
-        required
-        class="w-full !bg-transparent"
-      />
+      <InputText id="nodeTitle" v-model="nodeData.title" placeholder="Digite um nome para o nó" autofocus required
+        class="w-full !bg-transparent" />
       <Message size="small" severity="secondary" variant="simple">
         Este será o nome exibido no nó.
       </Message>
     </div>
-    <div class="space-y-2">
-      <label
-        for="nodeDescription"
-        class="block text-sm font-medium text-gray-700 dark:text-gray-300"
-      >
-        Descrição
-      </label>
-      <Textarea
-        id="nodeDescription"
-        v-model="nodeData.description"
-        placeholder="Digite uma descrição para o nó (opcional)"
-        rows="3"
-        auto-resize
-        class="w-full !bg-transparent"
-      />
-      <Message size="small" severity="secondary" variant="simple">
-        Descrição opcional para documentar o propósito do nó.
-      </Message>
-    </div>
 
-    <component
-      :is="selectedNode?.configComponent"
-      v-if="selectedNode?.configComponent"
-      v-model="nodeData.settings"
-      class="w-full"
-    />
+    <component :is="selectedNode?.configComponent" v-if="selectedNode?.configComponent" v-model="nodeData.settings"
+      class="w-full" />
   </div>
 </template>

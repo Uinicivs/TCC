@@ -1,5 +1,6 @@
 import ConditionalNodeConfig from '@/components/flows/show/ConditionalNodeConfig.vue'
 import StartNodeConfig from '@/components/flows/show/StartNodeConfig.vue'
+import EndNodeConfig from '@/components/flows/show/EndNodeConfig.vue'
 
 import type { IMappedNodes } from '@/interfaces/node'
 
@@ -27,5 +28,6 @@ export const nodes: Record<string, IMappedNodes> = {
     type: 'end',
     icon: 'pi-circle',
     extraClasses: 'text-red-500',
+    configComponent: EndNodeConfig,
   },
 }

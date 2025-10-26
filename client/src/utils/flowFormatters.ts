@@ -15,7 +15,7 @@ export interface SchemaNode {
       required: boolean
     }>
     expression?: string
-    response?: string | number | boolean | null
+    response?: number | boolean | Array<string> | { reason: string; status: string }
   }
 }
 
