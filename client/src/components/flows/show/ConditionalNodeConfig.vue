@@ -245,16 +245,16 @@ watch(
 
 <style scoped>
 :deep(.cm-editor) {
-  border: 1px solid var(--p-textarea-border-color);
+  border: 1px solid var(--p-surface-300);
   border-radius: 0.375rem;
   outline: none;
 
   &:focus-within {
-    border-color: var(--p-textarea-focus-border-color) !important;
+    border-color: var(--p-emerald-500) !important;
   }
 
   &:hover {
-    border-color: var(--p-textarea-hover-border-color);
+    border-color: var(--p-emerald-500);
   }
 }
 
