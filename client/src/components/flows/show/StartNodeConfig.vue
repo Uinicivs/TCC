@@ -161,7 +161,7 @@ onMounted(() => {
 
 <style scoped>
 .variables-wrapper {
-  border: 1px solid var(--p-textarea-border-color);
+  border: 1px solid var(--p-surface-300);
 }
 
 :deep(.p-tag) {
