@@ -2,7 +2,7 @@
   <Dialog
     :visible="visible"
     :draggable="false"
-    :style="{ width: '24rem' }"
+    :style="{ width: '30rem' }"
     :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
     header="Testar Fluxo"
     closable
