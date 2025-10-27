@@ -11,7 +11,7 @@
     @update:visible="visible = false"
   >
     <div class="flex flex-col h-full justify-center">
-      <div v-if="!isLoading" class="flex flex-col items-center justify-center">
+      <div v-if="isLoading" class="flex flex-col items-center justify-center">
         <ProgressSpinner />
         <span class="mt-4">Testando fluxo...</span>
       </div>
