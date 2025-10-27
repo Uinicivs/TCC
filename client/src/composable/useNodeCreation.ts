@@ -81,10 +81,9 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       return { x: preferredX, y: preferredY }
     }
 
-    const maxAttempts = 20
     const stepSize = 50
 
-    for (let radius = stepSize; radius <= stepSize * maxAttempts; radius += stepSize) {
+    for (let radius = stepSize; radius <= stepSize; radius += stepSize) {
       const positions = [
         { x: preferredX + radius, y: preferredY },
         { x: preferredX - radius, y: preferredY },
@@ -100,8 +99,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     return {
-      x: preferredX + HORIZONTAL_SPACING,
-      y: preferredY + VERTICAL_SPACING,
+      x: preferredX + stepSize,
+      y: preferredY + stepSize,
     }
   }
 
