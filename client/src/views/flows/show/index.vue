@@ -109,15 +109,27 @@ const goBack = () => {
         <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
           <Toolbar class="w-full z-10 fixed !rounded-t-none">
             <template #start>
-              <Button icon="pi pi-arrow-left" size="small" severity="secondary" variant="text" class="mr-2"
-                @click="goBack" />
+              <Button
+                icon="pi pi-arrow-left"
+                size="small"
+                severity="secondary"
+                variant="text"
+                class="mr-2"
+                @click="goBack"
+              />
 
               {{ flowName }}
             </template>
 
             <template #end>
               <div class="flex space-x-1">
-                <Button label="Testar" size="small" variant="text" severity="contrast" />
+                <Button
+                  icon="pi pi-sparkles"
+                  label="Testar"
+                  size="small"
+                  variant="text"
+                  severity="contrast"
+                />
                 <Button label="Executar" size="small" @click="showExecuteDrawer = true" />
               </div>
             </template>
@@ -127,14 +139,22 @@ const goBack = () => {
           <Background variant="dots" />
           <Controls :showInteractive="false" />
 
-          <template v-for="(nodeComponent, type) in nodeComponents" :key="type" #[`node-${type}`]="props">
+          <template
+            v-for="(nodeComponent, type) in nodeComponents"
+            :key="type"
+            #[`node-${type}`]="props"
+          >
             <component :is="nodeComponent" v-bind="props" />
           </template>
         </VueFlow>
       </div>
     </div>
 
-    <ExecuteFlowDrawer v-model:visible="showExecuteDrawer" :flow-id="flowId" :start-variables="getStartNodeVariables" />
+    <ExecuteFlowDrawer
+      v-model:visible="showExecuteDrawer"
+      :flow-id="flowId"
+      :start-variables="getStartNodeVariables"
+    />
   </div>
 </template>
 
