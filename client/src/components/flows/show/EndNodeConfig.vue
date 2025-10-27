@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, inject, onMounted } from 'vue'
+import { ref, computed, watch, inject, onMounted, type Ref } from 'vue'
 import { RadioButton, Textarea, Message } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
@@ -74,13 +74,13 @@ type TEndNodeResponse = SchemaNode['metadata']['response']
 
 const settings = defineModel<SchemaNode['metadata']>({ required: true })
 
-const nodeData = inject<Pick<INode, 'isFalseCase'>>('nodeData', {})
+const nodeData = inject<Ref<INode>>('nodeData', {} as Ref<INode>)
 
 const responseType = ref<'default' | 'custom'>('default')
 const customResponseText = ref<string>('')
 const parseError = ref<string>('')
 
-const defaultResponseValue = computed(() => nodeData.isFalseCase ?? false)
+const defaultResponseValue = computed(() => nodeData.value.isFalseCase ?? false)
 
 const validateAndParseCustomResponse = (): TEndNodeResponse => {
   parseError.value = ''
@@ -118,7 +118,7 @@ const updateResponse = () => {
 }
 
 watch(
-  () => nodeData.isFalseCase,
+  () => nodeData.value.isFalseCase,
   () => {
     if (responseType.value === 'default') {
       updateResponse()
