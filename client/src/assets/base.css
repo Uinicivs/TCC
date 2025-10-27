@@ -35,6 +35,8 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --p-datatable-column-title-font-weight: 500 !important;
 }
 
 @media (prefers-color-scheme: dark) {
