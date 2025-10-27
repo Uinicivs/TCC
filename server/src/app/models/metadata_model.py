@@ -11,23 +11,14 @@ class InputType(str, Enum):
     LIST = 'list'
 
 
-class InputMedata(BaseModel):
+class InputMetadata(BaseModel):
     displayName: str
     type: InputType
     required: bool
 
 
 class StartMetadata(BaseModel):
-    inputs: list[InputMedata]
-
-
-class ConditionalOperationType(str, Enum):
-    EQUALS = '=='
-    DIFFS = '!='
-    GTHAN = '>'
-    GETHAN = '>='
-    LTHAN = '<'
-    LETHAN = '<='
+    inputs: list[InputMetadata]
 
 
 class ConditionalMetadata(BaseModel):

@@ -26,7 +26,7 @@ async def create_flow(db: AsyncIOMotorDatabase,
             flowName=flow_name,
             flowDescription=flow_description,
         )
-        flow_dict = new_flow.model_dump(by_alias=True)
+        flow_dict = new_flow.model_dump(by_alias=True, exclude={'flowId'})
         result = await db.decision_flows.insert_one(flow_dict)
         new_flow.flowId = result.inserted_id
 
@@ -155,6 +155,7 @@ def _evaluate_flow(nodes: list[AnyNode], start_node_id: str, env: dict) -> Any:
                     current_node.metadata.expression.replace("'", '"').strip(),
                     env
                 )
+
                 next_node = next(
                     (node for node in nodes if node.parentNodeId == current_node.nodeId
                      and node.isFalseCase == (not result)),

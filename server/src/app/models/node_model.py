@@ -7,6 +7,8 @@ from src.app.models.metadata_model import StartMetadata, ConditionalMetadata, En
 class BaseNode(BaseModel):
     nodeId: str
     nodeName: str
+    nodePositionX: float
+    nodePositionY: float
     parentNodeId: str | None
     isFalseCase: bool | None
 
