@@ -45,6 +45,7 @@ ARG API_PORT=8000
 
 # Copia o código fonte da sua aplicação para o contêiner.
 COPY src/ ./src/
+COPY grammar.lark ./grammar.lark
 
 # Expõe a porta em que o FastAPI/uvicorn irá rodar.
 EXPOSE ${API_PORT}
