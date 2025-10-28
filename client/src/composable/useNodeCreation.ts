@@ -49,19 +49,17 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
   }
 
   const checkCollision = (x: number, y: number, excludeId?: string): boolean => {
-    const margin = SAFETY_MARGIN
-    const nodeLeft = x - margin
-    const nodeRight = x + NODE_WIDTH + margin
-    const nodeTop = y - margin
-    const nodeBottom = y + NODE_HEIGHT + margin
-
     return flowStore.nodes.some((node) => {
       if (excludeId && node.id === excludeId) return false
 
-      const existingLeft = node.position.x
-      const existingRight = node.position.x + NODE_WIDTH
-      const existingTop = node.position.y
-      const existingBottom = node.position.y + NODE_HEIGHT
+      const nodeLeft = x - SAFETY_MARGIN
+      const nodeRight = x + NODE_WIDTH + SAFETY_MARGIN
+      const nodeTop = y - SAFETY_MARGIN
+      const nodeBottom = y + NODE_HEIGHT + SAFETY_MARGIN
+      const existingLeft = node.position.x - SAFETY_MARGIN
+      const existingRight = node.position.x + NODE_WIDTH + SAFETY_MARGIN
+      const existingTop = node.position.y - SAFETY_MARGIN
+      const existingBottom = node.position.y + NODE_HEIGHT + SAFETY_MARGIN
 
       return !(
         nodeLeft >= existingRight ||
@@ -81,14 +79,15 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       return { x: preferredX, y: preferredY }
     }
 
-    const stepSize = 50
+    const stepSize = SAFETY_MARGIN
+    const maxRadius = stepSize * 3
 
-    for (let radius = stepSize; radius <= stepSize; radius += stepSize) {
+    for (let radius = stepSize; radius <= maxRadius; radius += stepSize) {
       const positions = [
-        { x: preferredX + radius, y: preferredY },
-        { x: preferredX - radius, y: preferredY },
         { x: preferredX + radius, y: preferredY + radius },
         { x: preferredX - radius, y: preferredY + radius },
+        { x: preferredX + radius, y: preferredY - radius },
+        { x: preferredX - radius, y: preferredY - radius },
       ]
 
       for (const position of positions) {
