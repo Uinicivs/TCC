@@ -1,9 +1,8 @@
 from lark import Transformer, v_args, Token, Tree
-from src.app.transformers.parser import get_parser
 
 
 @v_args(inline=True)
-class EvaluateTransformer(Transformer):
+class ConcreteTransformer(Transformer):
     def __init__(self, env: dict = {}):
         super().__init__()
 
@@ -472,10 +471,3 @@ class EvaluateTransformer(Transformer):
     # --- START (ENTRYPOINT) ---
     def start(self, v):
         return v
-
-
-def evaluate(rule: str, payload: dict) -> bool:
-    tree = get_parser().parse(rule)
-    transformer = EvaluateTransformer(payload)
-
-    return transformer.transform(tree)
