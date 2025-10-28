@@ -186,7 +186,7 @@ watch(
       </div>
 
       <div class="justify-self-center lg:justify-self-end flex gap-4">
-        <Button label="Cria novo fluxo" size="small" @click="createNewFlow" />
+        <Button label="Criar novo fluxo" size="small" @click="createNewFlow" />
         <SelectButton
           v-model="activeMode"
           :options="modeOptions"
