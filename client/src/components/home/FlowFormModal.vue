@@ -113,10 +113,11 @@ watch(
         <InputText
           id="flowName"
           v-model="newFlow.flowName"
-          placeholder="Digite o nome do fluxo"
           :disabled="loading"
           autofocus
           required
+          size="small"
+          placeholder="Digite o nome do fluxo"
           class="w-full !bg-transparent"
         />
       </div>

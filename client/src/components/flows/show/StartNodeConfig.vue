@@ -20,6 +20,7 @@
               :id="`name-${index}-${variable.displayName}`"
               placeholder="Ex.: full_name"
               class="w-full !bg-transparent"
+              size="small"
               @input="updateVariables"
             />
           </div>
@@ -37,6 +38,7 @@
               :options="variableTypes"
               option-label="label"
               option-value="value"
+              size="small"
               placeholder="Selecione o tipo"
               class="w-full !bg-transparent"
               @change="updateVariables"

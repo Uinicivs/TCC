@@ -37,6 +37,7 @@
             :placeholder="`Digite o valor para ${variable.displayName}`"
             :disabled="loading"
             :required="variable.required"
+            size="small"
             class="w-full"
           />
 
@@ -47,6 +48,7 @@
             :placeholder="`Digite o valor para ${variable.displayName}`"
             :disabled="loading"
             :required="variable.required"
+            size="small"
             class="w-full"
           />
 

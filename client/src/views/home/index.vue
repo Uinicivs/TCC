@@ -321,6 +321,7 @@ watch(
                 variant="text"
                 severity="secondary"
                 rounded
+                size="small"
                 :disabled="loading"
                 @click="toggleOptions($event, data)"
               />
