@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     API_PORT: int = 8000
     API_HOST: str = 'localhost'
     API_KEYS: set[str] = {''}
+    JWT_SECRET_KEY: str = ''
+    JWT_ALGORITHM: str = ''
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 2
 
     class Config:
         env_file = '.env'

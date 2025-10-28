@@ -16,8 +16,8 @@ from src.app.core.exceptions import (
     NotFoundException,
     InvalidFlowException,
     UpdateFailedException,
-    InvalidObjectIdException,
     InvalidPayloadException,
+    InvalidObjectIdException,
 )
 
 
@@ -25,11 +25,12 @@ class FlowService:
     def __init__(self, database: AsyncIOMotorDatabase) -> None:
         self.database = database
 
-    async def create_flow(self, flow_name: str, flow_description: str) -> Flow:
+    async def create_flow(self, flow_name: str, flow_description: str, owner_id: str) -> Flow:
         try:
             new_flow = Flow(
                 flowName=flow_name,
                 flowDescription=flow_description,
+                ownerId=owner_id
             )
             flow_dict = new_flow.model_dump(by_alias=True, exclude={'flowId'})
             result = await self.database.decision_flows.insert_one(flow_dict)
@@ -39,9 +40,10 @@ class FlowService:
         except Exception as e:
             raise translate_mongo_error(e)
 
-    async def get_flows(self) -> list[Flow]:
+    async def get_flows(self, owner_id: str) -> list[Flow]:
         try:
-            flow_cursor = self.database.decision_flows.find({})
+            flow_cursor = self.database.decision_flows.find(
+                {'ownerId': owner_id})
             flows_from_db = await flow_cursor.to_list(length=None)
         except Exception as e:
             raise translate_mongo_error(e)

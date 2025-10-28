@@ -147,9 +147,9 @@ class SymbolicExecutor:
             cases=self.cases,
             coverage=coverage,
             pruned=self.pruned,
-            conflicts=self.conflicts,
+            # conflicts=self.conflicts,
             reductions=self.reductions,
-            duplicates=self.duplicates,
+            # duplicates=self.duplicates,
         )
 
     # -------------------------
@@ -182,7 +182,7 @@ class SymbolicExecutor:
                             nodeId=node.nodeId,
                             original=self._zf_text(cond),
                             simplified=self._zf_text(simplified_cond),
-                            removed_parts=[self._zf_text(
+                            removedParts=[self._zf_text(
                                 r) for r in removed_parts]
                         )
                     )
@@ -330,11 +330,11 @@ class SymbolicExecutor:
                     self._traverse(child, new_constraints)
             elif chk == unknown:
                 self.pruned.append(PrunedBranch(
-                    nodeId=node.nodeId, is_false_case=is_false_case, reason="unknown (solver returned unknown)"))
+                    nodeId=node.nodeId, isFalseCase=is_false_case, reason="unknown (solver returned unknown)"))
             else:  # unsat
                 reason = self._classify_pruned_case(constraints, cond)
                 self.pruned.append(PrunedBranch(
-                    nodeId=node.nodeId, is_false_case=is_false_case, reason=reason))
+                    nodeId=node.nodeId, isFalseCase=is_false_case, reason=reason))
         finally:
             self.solver.pop()
 
@@ -465,4 +465,4 @@ class SymbolicExecutor:
         total_end_nodes = len([n for n in self.nodes if n.nodeType == "END"])
         covered_ends = len(
             {case.endNodeId for case in self.cases if case.concrete is not None})
-        return Coverage(end_count=covered_ends, total_end_nodes=total_end_nodes)
+        return Coverage(endCount=covered_ends, totalEndNodes=total_end_nodes)

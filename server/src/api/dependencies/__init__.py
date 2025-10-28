@@ -1,5 +1,11 @@
-from .auth import get_api_key
-from .service import get_flow_service
+from .service import get_flow_service, get_user_service
+from .auth import is_admin, get_current_user, get_authorized_user
 
 
-__all__ = ['get_api_key', 'get_flow_service']
+__all__ = [
+    'is_admin',
+    'get_flow_service',
+    'get_user_service',
+    'get_current_user',
+    'get_authorized_user',
+]
