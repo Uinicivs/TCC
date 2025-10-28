@@ -54,7 +54,7 @@ class UserService:
             if not ObjectId.is_valid(id):
                 raise InvalidObjectIdException()
 
-            user_from_db = await self.database.users.find_one({'_id': ObjectId})
+            user_from_db = await self.database.users.find_one({'_id': ObjectId(id)})
         except Exception as e:
             raise translate_mongo_error(e)
 
