@@ -4,6 +4,15 @@ import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
 
+type TStrokeColor = 'success' | 'error' | 'warning' | 'info'
+
+const strokeColorMap: Record<TStrokeColor, string> = {
+  success: 'var(--p-emerald-500)',
+  error: 'var(--p-red-500)',
+  warning: 'var(--p-amber-500)',
+  info: 'var(--p-blue-500)',
+}
+
 export const useFlowStore = defineStore('flow', () => {
   let flowSyncInstance: ReturnType<typeof useFlowSync> | null = null
   const nodes = ref<Node[]>([])
@@ -220,6 +229,42 @@ export const useFlowStore = defineStore('flow', () => {
     currentFlowId.value = null
   }
 
+  const highlightPathFromNode = (nodeId: string, strokeType: TStrokeColor = 'success') => {
+    const node = getNodeById(nodeId)
+    if (!node) return
+
+    const pathNodes: string[] = [nodeId]
+    let currentNode = node
+
+    while (currentNode.data.parent !== null) {
+      const parentId = currentNode.data.parent
+      pathNodes.unshift(parentId)
+      const parentNode = getNodeById(parentId)
+
+      if (!parentNode) break
+
+      currentNode = parentNode
+    }
+
+    const strokeColor = strokeColorMap[strokeType] ?? strokeColorMap.success
+
+    for (let index = 0; index < pathNodes.length - 1; index++) {
+      const sourceId = pathNodes[index]
+      const targetId = pathNodes[index + 1]
+      const edge = edges.value.find(
+        ({ target, source }) => source === sourceId && target === targetId,
+      )
+
+      if (edge) {
+        edge.animated = true
+        edge.style = {
+          stroke: strokeColor,
+          strokeWidth: 2,
+        }
+      }
+    }
+  }
+
   return {
     nodes,
     edges,
@@ -237,5 +282,6 @@ export const useFlowStore = defineStore('flow', () => {
     addEdgeWithHandle,
     setFlowId,
     clearFlow,
+    highlightPathFromNode,
   }
 })
