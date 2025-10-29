@@ -1,11 +1,6 @@
 import api from './api'
 import { useAuthStore } from '@/stores/auth'
-import type {
-  ILoginPayload,
-  ILoginResponse,
-  IRegisterPayload,
-  IRegisterResponse,
-} from '@/interfaces/auth'
+import type { ILoginPayload, ILoginResponse } from '@/interfaces/auth'
 
 export const login = async (payload: ILoginPayload): Promise<ILoginResponse> => {
   try {
@@ -19,15 +14,6 @@ export const login = async (payload: ILoginPayload): Promise<ILoginResponse> => 
     return response.data
   } catch {
     throw new Error('Falha ao fazer login. Verifique suas credenciais.')
-  }
-}
-
-export const register = async (payload: IRegisterPayload): Promise<IRegisterResponse> => {
-  try {
-    const response = await api.post<IRegisterResponse>('/users', payload)
-    return response.data
-  } catch {
-    throw new Error('Falha ao criar conta. Tente novamente.')
   }
 }
 

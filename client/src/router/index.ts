@@ -48,12 +48,6 @@ const router = createRouter({
       component: () => import('@/views/login/index.vue'),
       beforeEnter: isGuest(),
     },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/register/index.vue'),
-      beforeEnter: isGuest(),
-    },
   ],
 })
 
