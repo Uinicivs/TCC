@@ -76,15 +76,15 @@ api.interceptors.response.use(
     }
 
     try {
-      const refreshResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
-        params: {
-          refresh_token: refresh,
+      const refreshResponse = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/refresh?refresh_token=${refresh}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': import.meta.env.VITE_API_KEY,
+          },
         },
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': import.meta.env.VITE_API_KEY,
-        },
-      })
+      )
 
       const { accessToken } = refreshResponse.data
 
