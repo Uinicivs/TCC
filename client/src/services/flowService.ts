@@ -93,7 +93,7 @@ export const evaluateFlow = async (
 
 export const testFlow = async (id: string): Promise<void> => {
   try {
-    await api.post(`/decision_flows/${id}/test`)
+    await api.get(`/decision_flows/${id}/test`)
   } catch {
     throw new Error('Falha ao testar o fluxo. Tente novamente.')
   }
