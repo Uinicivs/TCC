@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
+import type { TestFlowReduction } from '@/interfaces/testFlow'
 
 type TStrokeColor = 'success' | 'error' | 'warning' | 'info'
 
@@ -18,6 +19,7 @@ export const useFlowStore = defineStore('flow', () => {
   const nodes = ref<Node[]>([])
   const edges = ref<Edge[]>([])
   const currentFlowId = ref<string | null>(null)
+  const reductionWarningsByNodeId = ref<Record<string, string>>({})
 
   const initializeDebounce = (flowId: string) => {
     flowSyncInstance = useFlowSync(flowId)
@@ -227,6 +229,7 @@ export const useFlowStore = defineStore('flow', () => {
     nodes.value = []
     edges.value = []
     currentFlowId.value = null
+    reductionWarningsByNodeId.value = {}
   }
 
   const highlightPathFromNode = (nodeId: string, strokeType: TStrokeColor = 'success') => {
@@ -265,6 +268,31 @@ export const useFlowStore = defineStore('flow', () => {
     }
   }
 
+  const getWarningForNodeId = (nodeId: string): string | null => {
+    return reductionWarningsByNodeId.value[nodeId] ?? null
+  }
+
+  const setReductionWarnings = (reductions: TestFlowReduction[]) => {
+    const messagesByNode: Record<string, string> = {}
+
+    reductions?.forEach((reduction) => {
+      const { nodeId, original, simplified, removedParts } = reduction
+
+      if (!simplified) return
+
+      let message = `O nó pode ser simplificado.\n`
+      message += `Dado que a expressão "${original}" já existe no fluxo.`
+
+      if (removedParts?.length) {
+        message += `\nPartes sugeridas para remoção: ${removedParts.join(', ')}.`
+      }
+
+      messagesByNode[nodeId] = message
+    })
+
+    reductionWarningsByNodeId.value = messagesByNode
+  }
+
   return {
     nodes,
     edges,
@@ -283,5 +311,7 @@ export const useFlowStore = defineStore('flow', () => {
     setFlowId,
     clearFlow,
     highlightPathFromNode,
+    setReductionWarnings,
+    getWarningForNodeId,
   }
 })

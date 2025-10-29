@@ -32,6 +32,8 @@ import { useRoute } from 'vue-router'
 import { Dialog, Button, ProgressSpinner } from 'primevue'
 
 import { testFlow } from '@/services/flowService'
+import { useFlowStore } from '@/stores/flow'
+import type { TestFlowResult } from '@/interfaces/testFlow'
 
 const { params } = useRoute()
 
@@ -44,11 +46,13 @@ const visible = defineModel<boolean>('visible', {
 const emit = defineEmits(['tested'])
 
 const isLoading = ref(false)
+const flowStore = useFlowStore()
 
 const testFlowAction = async () => {
   isLoading.value = true
   try {
-    await testFlow(params.id as string)
+    const response: TestFlowResult = await testFlow(params.id as string)
+    flowStore.setReductionWarnings(response.reductions || [])
     emit('tested')
   } finally {
     isLoading.value = false

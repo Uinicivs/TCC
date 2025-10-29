@@ -2,6 +2,7 @@ import api from './api'
 import type { IFlow } from '@/interfaces/flow'
 import type { SchemaNode } from '@/utils/flowFormatters'
 import { AxiosError } from 'axios'
+import type { TestFlowResult } from '@/interfaces/testFlow'
 
 export type TCreateFlowPayload = Pick<IFlow, 'flowName' | 'flowDescription'>
 
@@ -91,9 +92,10 @@ export const evaluateFlow = async (
   }
 }
 
-export const testFlow = async (id: string): Promise<void> => {
+export const testFlow = async (id: string): Promise<TestFlowResult> => {
   try {
-    await api.get(`/decision_flows/${id}/test`)
+    const response = await api.get(`/decision_flows/${id}/test`)
+    return response.data as TestFlowResult
   } catch {
     throw new Error('Falha ao testar o fluxo. Tente novamente.')
   }
