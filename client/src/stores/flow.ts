@@ -251,21 +251,27 @@ export const useFlowStore = defineStore('flow', () => {
 
     const strokeColor = strokeColorMap[strokeType] ?? strokeColorMap.success
 
-    for (let index = 0; index < pathNodes.length - 1; index++) {
-      const sourceId = pathNodes[index]
-      const targetId = pathNodes[index + 1]
-      const edge = edges.value.find(
-        ({ target, source }) => source === sourceId && target === targetId,
-      )
-
-      if (edge) {
-        edge.animated = true
-        edge.style = {
-          stroke: strokeColor,
-          strokeWidth: 2,
+    const updatedEdges: Edge[] = edges.value.map((currentEdge) => {
+      for (let index = 0; index < pathNodes.length - 1; index++) {
+        const sourceId = pathNodes[index]
+        const targetId = pathNodes[index + 1]
+        const isMatching = currentEdge.source === sourceId && currentEdge.target === targetId
+        if (isMatching) {
+          return {
+            ...currentEdge,
+            animated: true,
+            style: {
+              ...currentEdge.style,
+              stroke: strokeColor,
+              strokeWidth: 2,
+            },
+          }
         }
       }
-    }
+      return currentEdge
+    })
+
+    edges.value = updatedEdges
   }
 
   const getWarningForNodeId = (nodeId: string): string | null => {
