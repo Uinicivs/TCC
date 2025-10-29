@@ -141,30 +141,20 @@ const menuItems = computed(() => {
     <Handle v-if="!isConditionalNode" type="source" :position="Position.Bottom" />
 
     <template v-if="isConditionalNode">
-      <Handle
-        type="source"
-        :position="Position.Left"
-        id="conditional-left"
-        class="conditional-handle-left"
-      />
+      <Handle type="source" :position="Position.Left" id="conditional-left" />
 
-      <Handle
-        type="source"
-        :position="Position.Right"
-        id="conditional-right"
-        class="conditional-handle-right"
-      />
+      <Handle type="source" :position="Position.Right" id="conditional-right" />
     </template>
 
     <template v-if="isConditionalNode">
       <AddNode
-        class="absolute -left-20 top-1/3 add-node-button cursor-default"
+        class="absolute -left-25 top-[30%] add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-left"
       />
 
       <AddNode
-        class="absolute -right-25 top-1/3 add-node-button cursor-default"
+        class="absolute -right-20 top-[30%] add-node-button cursor-default"
         :parentId="id || null"
         handleId="conditional-right"
       />

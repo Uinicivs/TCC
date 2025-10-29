@@ -37,11 +37,11 @@ const { getStartNodeVariables } = useFlowStore()
 const getCreateNodeButtonLabel = computed(() => {
   const handleId = props.handleId || ''
   if (handleId.includes('right')) {
-    return 'Verdadeiro'
+    return 'Falso'
   }
 
   if (handleId.includes('left')) {
-    return 'Falso'
+    return 'Verdadeiro'
   }
 
   return ''
