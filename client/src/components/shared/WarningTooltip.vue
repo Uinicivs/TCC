@@ -8,7 +8,7 @@ defineProps<{ message: string }>()
     v-tooltip="{
       value: message,
       pt: {
-        root: { style: { maxWidth: '350px' } },
+        root: { style: { maxWidth: '30rem' } },
         arrow: { style: { borderRightColor: 'var(--p-amber-500)' } },
         text: '!bg-amber-500 !font-medium',
       },
