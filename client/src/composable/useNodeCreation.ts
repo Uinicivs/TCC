@@ -397,10 +397,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         sourceHandle: handleId,
       }
 
-      if ('isFalseCase' in formattedNodeData) {
-        edgePayload.label = isFalseCase ? 'Verdadeiro' : 'Falso'
-      }
-
       flowStore.addNodes({ ...formatNode })
       flowStore.addEdgeWithHandle(edgePayload)
     }

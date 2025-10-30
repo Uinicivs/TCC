@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type Component } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, type Component } from 'vue'
 import { storeToRefs } from 'pinia'
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import { VueFlow, type NodeDragEvent } from '@vue-flow/core'
@@ -14,7 +14,7 @@ import { mapSchemaToFlow } from '@/utils/flowFormatters'
 
 import AddNode from '@/components/flows/show/AddNode.vue'
 import ExecuteFlowDrawer from '@/components/flows/show/ExecuteFlowDrawer.vue'
-import TestFlowDialog from '@/components/flows/show/TestFlowDialog.vue'
+import TestFlowPopover from '@/components/flows/show/TestFlowPopover.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
 import { nodes as mappedNodes } from '@/constants/nodes'
@@ -30,7 +30,7 @@ const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const flowName = ref<string>('')
 const showExecuteDrawer = ref<boolean>(false)
-const showTestDialog = ref<boolean>(false)
+const testPopoverRef = useTemplateRef('test-flow-popover')
 
 onMounted(async () => {
   try {
@@ -131,7 +131,7 @@ const goBack = () => {
                   size="small"
                   variant="text"
                   severity="contrast"
-                  @click="showTestDialog = true"
+                  @click="(event: Event) => testPopoverRef?.toggle(event)"
                 />
                 <Button label="Executar" size="small" @click="showExecuteDrawer = true" />
               </div>
@@ -159,7 +159,7 @@ const goBack = () => {
       :start-variables="getStartNodeVariables"
     />
 
-    <TestFlowDialog :flow-id="flowId" v-model:visible="showTestDialog" />
+    <TestFlowPopover ref="test-flow-popover" :flow-id="flowId" />
   </div>
 </template>
 
