@@ -15,6 +15,7 @@ class PrunedBranch(BaseModel):
     nodeId: str
     isFalseCase: bool
     reason: str
+    unsatConstraints: Optional[list[str]] = None
 
 
 class ReductionInfo(BaseModel):
