@@ -329,12 +329,44 @@ class SymbolicExecutor:
                 for child in self._get_children(node.nodeId, is_false_case):
                     self._traverse(child, new_constraints)
             elif chk == unknown:
+                child = self._get_children(
+                    node.nodeId,
+                    is_false_case=is_false_case
+                )[0]
+
+                unsat_constraints = [
+                    self._zf_text(c) for c in constraints
+                    if c is not None
+                ]
+                if cond is not None:
+                    unsat_constraints.append(self._zf_text(cond))
+
                 self.pruned.append(PrunedBranch(
-                    nodeId=node.nodeId, isFalseCase=is_false_case, reason="unknown (solver returned unknown)"))
+                    nodeId=child.nodeId,
+                    isFalseCase=is_false_case,
+                    reason="unknown (solver returned unknown)",
+                    unsatConstraints=unsat_constraints
+                ))
             else:  # unsat
+                child = self._get_children(
+                    node.nodeId,
+                    is_false_case=is_false_case
+                )[0]
+
+                unsat_constraints = [
+                    self._zf_text(c) for c in constraints
+                    if c is not None
+                ]
+                if cond is not None:
+                    unsat_constraints.append(self._zf_text(cond))
+
                 reason = self._classify_pruned_case(constraints, cond)
                 self.pruned.append(PrunedBranch(
-                    nodeId=node.nodeId, isFalseCase=is_false_case, reason=reason))
+                    nodeId=child.nodeId,
+                    isFalseCase=is_false_case,
+                    reason=reason,
+                    unsatConstraints=unsat_constraints
+                ))
         finally:
             self.solver.pop()
 
