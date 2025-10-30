@@ -9,7 +9,7 @@ type_mapping = {
     InputType.NUMBER: float,
     InputType.TEXT: str,
     InputType.OBJECT: dict[str, Union[str, float, bool]],
-    InputType.LIST: list
+    InputType.LIST: Union[list[str], list[float], list[bool]]
 }
 
 

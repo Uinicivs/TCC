@@ -2,6 +2,7 @@ from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, RootModel, Field
 
 from src.app.models.flow_model import Flow, AnyNode
+from src.app.models.symbolic_model import SymbolicReport
 
 
 class CreateFlowInDTO(BaseModel):
@@ -37,3 +38,7 @@ class EvaluateFlowPayloadDTO(RootModel):
 
 class EvaluateFlowResponseDTO(BaseModel):
     response: Any
+
+
+class TestFlowResponseDTO(SymbolicReport):
+    pass
