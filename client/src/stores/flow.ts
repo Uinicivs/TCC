@@ -5,9 +5,9 @@ import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
 import type { TestFlowReduction } from '@/interfaces/testFlow'
 
-type TStrokeColor = 'success' | 'error' | 'warning' | 'info'
+type TStrokeColor = 'success' | 'error' | 'warning' | 'info' | 'none'
 
-const strokeColorMap: Record<TStrokeColor, string> = {
+const strokeColorMap: Record<Exclude<TStrokeColor, 'none'>, string> = {
   success: 'var(--p-emerald-500)',
   error: 'var(--p-red-500)',
   warning: 'var(--p-amber-500)',
@@ -20,6 +20,7 @@ export const useFlowStore = defineStore('flow', () => {
   const edges = ref<Edge[]>([])
   const currentFlowId = ref<string | null>(null)
   const reductionWarningsByNodeId = ref<Record<string, string>>({})
+  const edgeHighlightFlags = ref<Record<string, { reachable?: boolean; unreachable?: boolean }>>({})
 
   const initializeDebounce = (flowId: string) => {
     flowSyncInstance = useFlowSync(flowId)
@@ -232,7 +233,11 @@ export const useFlowStore = defineStore('flow', () => {
     reductionWarningsByNodeId.value = {}
   }
 
-  const highlightPathFromNode = (nodeId: string, strokeType: TStrokeColor = 'success') => {
+  const highlightPathFromNode = (
+    nodeId: string,
+    strokeType: TStrokeColor = 'success',
+    source?: 'reachable' | 'unreachable',
+  ) => {
     const node = getNodeById(nodeId)
     if (!node) return
 
@@ -249,7 +254,8 @@ export const useFlowStore = defineStore('flow', () => {
       currentNode = parentNode
     }
 
-    const strokeColor = strokeColorMap[strokeType] ?? strokeColorMap.success
+    const strokeColor =
+      strokeType === 'none' ? undefined : (strokeColorMap[strokeType] ?? strokeColorMap.success)
 
     const updatedEdges: Edge[] = edges.value.map((currentEdge) => {
       for (let index = 0; index < pathNodes.length - 1; index++) {
@@ -257,12 +263,43 @@ export const useFlowStore = defineStore('flow', () => {
         const targetId = pathNodes[index + 1]
         const isMatching = currentEdge.source === sourceId && currentEdge.target === targetId
         if (isMatching) {
+          const edgeId = currentEdge.id
+          const flags = edgeHighlightFlags.value[edgeId] || {}
+
+          if (strokeType === 'none' && source) {
+            if (source === 'reachable') flags.reachable = false
+            if (source === 'unreachable') flags.unreachable = false
+          } else {
+            const inferredSource: 'reachable' | 'unreachable' | undefined = source
+              ? source
+              : strokeType === 'error'
+                ? 'unreachable'
+                : 'reachable'
+            if (inferredSource === 'reachable') flags.reachable = true
+            if (inferredSource === 'unreachable') flags.unreachable = true
+          }
+
+          edgeHighlightFlags.value[edgeId] = flags
+
+          const hasUnreachable = flags.unreachable === true
+          const hasReachable = flags.reachable === true
+
+          if (!hasUnreachable && !hasReachable) {
+            return {
+              ...currentEdge,
+              animated: false,
+              style: undefined,
+            }
+          }
+
+          const finalStroke = hasUnreachable ? strokeColorMap.error : strokeColorMap.success
+
           return {
             ...currentEdge,
             animated: true,
             style: {
               ...currentEdge.style,
-              stroke: strokeColor,
+              stroke: finalStroke,
               strokeWidth: 2,
             },
           }

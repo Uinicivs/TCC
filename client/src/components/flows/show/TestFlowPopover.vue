@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { Popover, Button, ToggleSwitch } from 'primevue'
 
 import { testFlow } from '@/services/flowService'
@@ -51,20 +51,60 @@ const settings = ref({
   showReachable: false,
 })
 
+const unreachableNodeIds = ref<Set<string>>(new Set())
+const reachableNodeIds = ref<Set<string>>(new Set())
+
+watch(
+  () => settings.value.showUnreachable,
+  (isEnabled) => {
+    if (!isEnabled) {
+      unreachableNodeIds.value.forEach((nodeId) => {
+        flowStore.highlightPathFromNode(nodeId, 'none', 'unreachable')
+      })
+    } else if (unreachableNodeIds.value.size > 0) {
+      unreachableNodeIds.value.forEach((nodeId) => {
+        flowStore.highlightPathFromNode(nodeId, 'error', 'unreachable')
+      })
+    }
+  },
+)
+
+watch(
+  () => settings.value.showReachable,
+  (isEnabled) => {
+    if (!isEnabled) {
+      reachableNodeIds.value.forEach((nodeId) => {
+        flowStore.highlightPathFromNode(nodeId, 'none', 'reachable')
+      })
+    } else if (reachableNodeIds.value.size > 0) {
+      reachableNodeIds.value.forEach((nodeId) => {
+        flowStore.highlightPathFromNode(nodeId, 'success', 'reachable')
+      })
+    }
+  },
+)
+
 const highlightPrunedPaths = (prunedItems: TestFlowPruned[] = []) => {
+  unreachableNodeIds.value.clear()
+
   prunedItems.forEach((item) => {
-    if (item.reason === 'unreachable' && settings.value.showUnreachable) {
-      flowStore.highlightPathFromNode(item.nodeId, 'error')
+    if (item.reason === 'unreachable') {
+      unreachableNodeIds.value.add(item.nodeId)
+      if (settings.value.showUnreachable) {
+        flowStore.highlightPathFromNode(item.nodeId, 'error', 'unreachable')
+      }
     }
   })
 }
 
-// const highlightReachableEnds = (cases: TestFlowResult['cases'] = []) => {
-//   if (settings.value.showReachable) {
-//     const uniqueEndIds = Array.from(new Set((cases || []).map(({ endNodeId }) => endNodeId)))
-//     uniqueEndIds.forEach((endId) => flowStore.highlightPathFromNode(endId))
-//   }
-// }
+const highlightReachableEnds = (cases: TestFlowResult['cases'] = []) => {
+  const uniqueEndIds = Array.from(new Set((cases || []).map(({ endNodeId }) => endNodeId)))
+  reachableNodeIds.value = new Set(uniqueEndIds)
+
+  if (settings.value.showReachable) {
+    uniqueEndIds.forEach((endId) => flowStore.highlightPathFromNode(endId, 'success', 'reachable'))
+  }
+}
 
 const testFlowAction = async () => {
   isLoading.value = true
@@ -73,7 +113,7 @@ const testFlowAction = async () => {
     flowStore.setReductionWarnings(response.reductions || [])
 
     highlightPrunedPaths(response.pruned || [])
-    // highlightReachableEnds(response.cases || [])
+    highlightReachableEnds(response.cases || [])
     emit('tested')
   } finally {
     isLoading.value = false
