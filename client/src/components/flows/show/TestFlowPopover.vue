@@ -1,9 +1,9 @@
 <template>
-  <Popover ref="test-flow-popover">
+  <Popover ref="test-flow-popover" class="!rounded-xl !shadow-lg">
     <div class="flex flex-col gap-3 min-w-64">
       <p>Você está prestes a testar o fluxo.</p>
 
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-3 my-2">
         <label class="text-sm flex items-center justify-between gap-3">
           Mostrar caminhos nunca alcançados
           <ToggleSwitch v-model="settings.showUnreachable" />

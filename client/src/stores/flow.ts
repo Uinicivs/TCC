@@ -254,9 +254,6 @@ export const useFlowStore = defineStore('flow', () => {
       currentNode = parentNode
     }
 
-    const strokeColor =
-      strokeType === 'none' ? undefined : (strokeColorMap[strokeType] ?? strokeColorMap.success)
-
     const updatedEdges: Edge[] = edges.value.map((currentEdge) => {
       for (let index = 0; index < pathNodes.length - 1; index++) {
         const sourceId = pathNodes[index]
@@ -321,10 +318,15 @@ export const useFlowStore = defineStore('flow', () => {
     reductions?.forEach((reduction) => {
       const { nodeId, original, simplified, removedParts } = reduction
 
-      if (!simplified) return
+      let message = ''
 
-      let message = `O nó pode ser simplificado.\n`
-      message += `Dado que a expressão "${original}" já existe no fluxo.`
+      if ((simplified === 'true' || simplified === 'false') && removedParts?.length) {
+        message = `A expressão "${removedParts.join(', ')}" está duplicada.`
+      }
+
+      if (simplified && simplified.length && simplified !== 'true' && simplified !== 'false') {
+        message = `A expressão "${original}" pode ser simplificada apenas por "${simplified}".`
+      }
 
       if (removedParts?.length) {
         message += `\nPartes sugeridas para remoção: ${removedParts.join(', ')}.`
