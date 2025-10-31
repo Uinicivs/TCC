@@ -66,6 +66,11 @@ class RuntimeException(AppException):
         super().__init__(status.HTTP_500_INTERNAL_SERVER_ERROR, detail)
 
 
+class TokenExpiredException(AppException):
+    def __init__(self, detail='token has expired'):
+        super().__init__(status.HTTP_401_UNAUTHORIZED, detail)
+
+
 def translate_mongo_error(exc: Exception) -> AppException:
     if isinstance(exc, DuplicateKeyError):
         return DuplicateKeyException(str(exc))
