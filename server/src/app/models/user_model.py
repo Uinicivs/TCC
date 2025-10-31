@@ -38,10 +38,12 @@ class AuthUser(BaseModel):
     accessToken: str
     refreshToken: str
     tokenType: str
-    tokenExpires: datetime
+    accessTokenExpires: datetime
+    refreshTokenExpires: datetime
 
 
 class RefreshUser(BaseModel):
     accessToken: str
     tokenType: str
-    tokenExpires: datetime
+    accessTokenExpires: datetime
+    refreshTokenExpires: datetime

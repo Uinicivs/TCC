@@ -10,6 +10,7 @@ from src.app.core.exceptions import (
     translate_mongo_error,
 
     NotFoundException,
+    TokenExpiredException,
     UpdateFailedException,
     InvalidObjectIdException,
 )
@@ -116,17 +117,22 @@ class UserService:
 
         payload = {'sub': user.email, 'role': user.role}
         access_token, access_exp = create_access_token(payload, 'access')
-        refresh_token, _ = create_access_token(payload, 'refresh')
+        refresh_token, refresh_exp = create_access_token(payload, 'refresh')
 
         return AuthUser(
             accessToken=access_token,
             refreshToken=refresh_token,
             tokenType='bearer',
-            tokenExpires=access_exp
+            accessTokenExpires=access_exp,
+            refreshTokenExpires=refresh_exp
         )
 
     async def refresh(self, refresh_token: str) -> RefreshUser:
-        payload = decode_access_token(refresh_token, expected_type='refresh')
+        try:
+            payload = decode_access_token(
+                refresh_token, expected_type='refresh')
+        except Exception:
+            raise TokenExpiredException()
 
         email = payload.get('sub')
         role = payload.get('role')
@@ -135,8 +141,13 @@ class UserService:
             {'sub': email, 'role': role},
             'access'
         )
+
         return RefreshUser(
             accessToken=new_access,
             tokenType='bearer',
-            tokenExpires=access_exp
+            accessTokenExpires=access_exp,
+            refreshTokenExpires=datetime.fromtimestamp(
+                payload.get('exp'),
+                timezone.utc
+            )
         )
