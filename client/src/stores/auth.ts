@@ -1,5 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { jwtDecode } from 'jwt-decode'
+
+interface DecodedToken {
+  email?: string
+  sub?: string
+  exp?: number
+  [key: string]: unknown
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref<string | null>(localStorage.getItem('access_token'))
@@ -7,6 +15,23 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => {
     return !!accessToken.value
+  })
+
+  const userEmail = computed(() => {
+    if (!accessToken.value) return null
+    try {
+      const decoded = jwtDecode<DecodedToken>(accessToken.value)
+      return decoded?.email || decoded?.sub || null
+    } catch {
+      return null
+    }
+  })
+
+  const userInitials = computed(() => {
+    if (!userEmail.value) return '?'
+    const email = userEmail.value
+    const firstChar = email.charAt(0).toUpperCase()
+    return firstChar
   })
 
   const setTokens = (access: string, refresh: string) => {
@@ -34,6 +59,8 @@ export const useAuthStore = defineStore('auth', () => {
     accessToken,
     refreshToken,
     isAuthenticated,
+    userEmail,
+    userInitials,
     setTokens,
     clearTokens,
     updateAccessToken,
