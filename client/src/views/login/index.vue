@@ -23,11 +23,6 @@
             :disabled="isLoading.value"
           />
           <Button label="Entrar" type="submit" size="small" :loading="isLoading.value" />
-          <div class="text-center mt-2">
-            <a href="/register" class="text-sm text-blue-600 hover:text-blue-800">
-              Não tem uma conta? Criar conta
-            </a>
-          </div>
         </form>
       </div>
     </DottedBackground>
