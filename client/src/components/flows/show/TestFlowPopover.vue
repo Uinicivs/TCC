@@ -111,6 +111,7 @@ const testFlowAction = async () => {
   try {
     const response: TestFlowResult = await testFlow(props.flowId)
     flowStore.setReductionWarnings(response.reductions || [])
+    flowStore.setTestCases(response.cases || [])
 
     highlightPrunedPaths(response.pruned || [])
     highlightReachableEnds(response.cases || [])

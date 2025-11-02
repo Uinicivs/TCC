@@ -98,12 +98,7 @@ const menuItems = computed(() => {
 </script>
 
 <template>
-  <div
-    ref="node-wrapper"
-    class="relative w-[250px]"
-    :class="{ 'cursor-pointer': !isFirstNode }"
-    @contextmenu="handleClick($event)"
-  >
+  <div ref="node-wrapper" class="relative w-[250px]" @contextmenu="handleClick($event)">
     <Handle type="target" :position="Position.Top" />
 
     <WarningTooltip v-if="warningMessage" :message="warningMessage" />

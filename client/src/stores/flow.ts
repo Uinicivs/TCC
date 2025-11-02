@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
-import type { TestFlowReduction } from '@/interfaces/testFlow'
+import type { TestFlowReduction, TestFlowCase } from '@/interfaces/testFlow'
 
 type TStrokeColor = 'success' | 'error' | 'warning' | 'info' | 'none'
 
@@ -21,6 +21,7 @@ export const useFlowStore = defineStore('flow', () => {
   const currentFlowId = ref<string | null>(null)
   const reductionWarningsByNodeId = ref<Record<string, string>>({})
   const edgeHighlightFlags = ref<Record<string, { reachable?: boolean; unreachable?: boolean }>>({})
+  const testCases = ref<TestFlowCase[]>([])
 
   const initializeDebounce = (flowId: string) => {
     flowSyncInstance = useFlowSync(flowId)
@@ -135,6 +136,19 @@ export const useFlowStore = defineStore('flow', () => {
     return startNode?.data.settings.inputs || []
   })
 
+  const getCaseCountByNodeId = computed((): Record<string, number> => {
+    const counts: Record<string, number> = {}
+    testCases.value.forEach((testCase) => {
+      const nodeId = testCase.endNodeId
+      counts[nodeId] = (counts[nodeId] || 0) + 1
+    })
+    return counts
+  })
+
+  const getCasesByNodeId = (nodeId: string): TestFlowCase[] => {
+    return testCases.value.filter((testCase) => testCase.endNodeId === nodeId)
+  }
+
   const buildEdgeId = (node: Node): string => {
     return `${node.data.parent}-${node.id}`
   }
@@ -231,6 +245,7 @@ export const useFlowStore = defineStore('flow', () => {
     edges.value = []
     currentFlowId.value = null
     reductionWarningsByNodeId.value = {}
+    testCases.value = []
   }
 
   const highlightPathFromNode = (
@@ -338,6 +353,10 @@ export const useFlowStore = defineStore('flow', () => {
     reductionWarningsByNodeId.value = messagesByNode
   }
 
+  const setTestCases = (cases: TestFlowCase[]) => {
+    testCases.value = cases || []
+  }
+
   return {
     nodes,
     edges,
@@ -346,6 +365,8 @@ export const useFlowStore = defineStore('flow', () => {
     getLastNodes,
     getFirstNode,
     getStartNodeVariables,
+    getCaseCountByNodeId,
+    getCasesByNodeId,
     addNodes,
     removeNode,
     updateNode,
@@ -357,6 +378,7 @@ export const useFlowStore = defineStore('flow', () => {
     clearFlow,
     highlightPathFromNode,
     setReductionWarnings,
+    setTestCases,
     getWarningForNodeId,
   }
 })
