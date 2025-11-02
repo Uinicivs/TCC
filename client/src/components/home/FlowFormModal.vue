@@ -102,6 +102,7 @@ watch(
     :closable="false"
     :style="{ width: '40rem' }"
     modal
+    dismissable-mask
     :header="props.mode === 'edit' ? 'Editar Fluxo' : 'Criar Novo Fluxo'"
     @update:visible="closeModal"
   >

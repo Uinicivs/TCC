@@ -2,9 +2,9 @@
   <Dialog
     v-model:visible="isVisible"
     modal
+    dismissable-mask
     :header="`Casos de Teste - ${nodeName}`"
     :style="{ width: '50rem' }"
-    :dismissable-mask="true"
     :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
   >
     <TestedCasesTable :cases="cases" />
