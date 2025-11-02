@@ -18,11 +18,21 @@
             <InputText
               v-model="variable.displayName"
               :id="`name-${index}-${variable.displayName}`"
+              :invalid="!!errors[index]?.displayName"
               placeholder="Ex.: full_name"
               class="w-full !bg-transparent"
               size="small"
               @input="updateVariables"
+              @blur="validateVariable(index)"
             />
+            <Message
+              v-if="errors[index]?.displayName"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
+              {{ errors[index].displayName }}
+            </Message>
           </div>
 
           <div class="w-full">
@@ -102,7 +112,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { InputText, Select, Checkbox, Button, Tag } from 'primevue'
+import { InputText, Select, Checkbox, Button, Tag, Message } from 'primevue'
+import { z } from 'zod'
 
 import type { Variable, VariableType } from '@/interfaces/variables'
 
@@ -112,6 +123,12 @@ interface StartNodeSettings {
 
 const settings = defineModel<StartNodeSettings>({ required: true })
 
+const variableSchema = z.object({
+  displayName: z.string().min(1, 'O nome da variável é obrigatório'),
+  type: z.enum(['text', 'number', 'bool']),
+  required: z.boolean(),
+})
+
 const variableTypes: Array<{ label: string; value: VariableType }> = [
   { label: 'Texto', value: 'text' },
   { label: 'Número', value: 'number' },
@@ -119,10 +136,41 @@ const variableTypes: Array<{ label: string; value: VariableType }> = [
 ]
 
 const variables = ref<Variable[]>([])
+const errors = ref<Record<number, Record<string, string>>>({})
 
 const shouldShowAvailableVariablesLabel = computed(() => {
   return variables.value.some((variable) => variable.displayName)
 })
+
+const validateVariable = (index: number): boolean => {
+  try {
+    variableSchema.parse(variables.value[index])
+    if (errors.value[index]) {
+      delete errors.value[index]
+    }
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const newErrors: Record<string, string> = {}
+      error.issues.forEach((issue) => {
+        const field = issue.path[0] as string
+        newErrors[field] = issue.message
+      })
+      errors.value[index] = newErrors
+    }
+    return false
+  }
+}
+
+const validateAllVariables = (): boolean => {
+  let isValid = true
+  variables.value.forEach((_, index) => {
+    if (!validateVariable(index)) {
+      isValid = false
+    }
+  })
+  return isValid
+}
 
 const updateVariables = () => {
   if (!settings.value) {
@@ -158,6 +206,10 @@ onMounted(() => {
   }
 
   variables.value = []
+})
+
+defineExpose({
+  validateAllVariables,
 })
 </script>
 

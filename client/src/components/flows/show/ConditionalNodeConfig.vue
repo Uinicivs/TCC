@@ -6,6 +6,10 @@
 
     <div ref="editorRef" class="rounded-md" />
 
+    <Message v-if="errors.expression" severity="error" size="small" variant="simple">
+      {{ errors.expression }}
+    </Message>
+
     <div class="rounded-lg">
       <div v-for="section in tagSections" :key="section.label" class="mb-3">
         <p
@@ -32,18 +36,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
-import { Tag } from 'primevue'
+import { Tag, Message } from 'primevue'
 import { EditorView } from 'codemirror'
 import { placeholder } from '@codemirror/view'
 import { EditorState } from '@codemirror/state'
 import { javascript } from '@codemirror/lang-javascript'
 import { autocompletion, CompletionContext } from '@codemirror/autocomplete'
+import { z } from 'zod'
 
 import { useFlowStore } from '@/stores/flow'
 
 import type { Variable } from '@/interfaces/variables'
 
 import { MFEELFunctions, MFEELOperators } from '@/constants/MFEEL'
+
+const expressionSchema = z.object({
+  expression: z.string().min(1, 'A expressão é obrigatória'),
+})
 
 interface ITagSectionItem {
   key: string
@@ -64,8 +73,27 @@ const model = defineModel<{ expression: string }>({ default: { expression: '' },
 const flowStore = useFlowStore()
 
 const editorRef = ref<HTMLElement>()
+const errors = ref<Record<string, string>>({})
 
 const availableVariables = computed(() => flowStore.getStartNodeVariables)
+
+const validateExpression = (): boolean => {
+  try {
+    expressionSchema.parse(model.value)
+    errors.value = {}
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const newErrors: Record<string, string> = {}
+      error.issues.forEach((issue) => {
+        const field = issue.path[0] as string
+        newErrors[field] = issue.message
+      })
+      errors.value = newErrors
+    }
+    return false
+  }
+}
 
 const tagSections = computed<TagSection[]>(() => [
   {
@@ -172,6 +200,11 @@ onMounted(() => {
             model.value.expression = update.state.doc.toString()
           }
         }),
+        EditorView.domEventHandlers({
+          blur: () => {
+            validateExpression()
+          },
+        }),
         EditorView.theme({
           '&': {
             fontSize: '14px',
@@ -241,6 +274,10 @@ watch(
     }
   },
 )
+
+defineExpose({
+  validateExpression,
+})
 </script>
 
 <style scoped>
