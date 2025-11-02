@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { Dialog, InputText, Textarea, Button } from 'primevue'
+import { Dialog, InputText, Textarea, Button, Message } from 'primevue'
+import { z } from 'zod'
 
 import type { TCreateFlowPayload } from '@/services/flowService'
 
 import type { IFlow } from '@/interfaces/flow'
+
+const flowSchema = z.object({
+  flowName: z.string().min(1, 'O nome do fluxo é obrigatório'),
+})
 
 interface Props {
   visible: boolean
@@ -27,18 +32,38 @@ const newFlow = ref<TCreateFlowPayload>({
   flowName: '',
   flowDescription: '',
 })
+const errors = ref<Record<string, string>>({})
 
 const resetForm = () => {
   newFlow.value = {
     flowName: '',
     flowDescription: '',
   }
+  errors.value = {}
   loading.value = false
   emit('loading', false)
 }
 
+const validateForm = (): boolean => {
+  try {
+    flowSchema.parse(newFlow.value)
+    errors.value = {}
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const newErrors: Record<string, string> = {}
+      error.issues.forEach((issue) => {
+        const field = issue.path[0] as string
+        newErrors[field] = issue.message
+      })
+      errors.value = newErrors
+    }
+    return false
+  }
+}
+
 const handleAction = async () => {
-  if (!newFlow.value.flowName.trim()) {
+  if (!validateForm()) {
     return
   }
 
@@ -115,12 +140,16 @@ watch(
           id="flowName"
           v-model="newFlow.flowName"
           :disabled="loading"
+          :invalid="!!errors.flowName"
           autofocus
           required
           size="small"
           placeholder="Digite o nome do fluxo"
           class="w-full !bg-transparent"
         />
+        <Message v-if="errors.flowName" severity="error" size="small" variant="simple">
+          {{ errors.flowName }}
+        </Message>
       </div>
 
       <div class="flex flex-col gap-2">
