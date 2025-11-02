@@ -101,7 +101,9 @@ const menuItems = computed(() => {
   <div ref="node-wrapper" class="relative w-[250px]" @contextmenu="handleClick($event)">
     <Handle type="target" :position="Position.Top" />
 
-    <WarningTooltip v-if="warningMessage" :message="warningMessage" />
+    <transition name="fade">
+      <WarningTooltip v-if="warningMessage" :message="warningMessage" />
+    </transition>
 
     <div
       class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-900 dark:border-neutral-900 max-w-[300px] node-content"
