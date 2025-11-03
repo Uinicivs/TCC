@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, useTemplateRef } from 'vue'
-import { OverlayBadge } from 'primevue'
 
 import type { INode } from '@/interfaces/node'
 
@@ -30,7 +29,20 @@ const handleClick = () => {
 <template>
   <div @click="handleClick" :class="{ 'cursor-pointer': hasCases }">
     <transition name="fade">
-      <OverlayBadge v-if="hasCases" />
+      <div
+        v-if="hasCases"
+        class="absolute -right-6 -top-2 z-10 flex items-center justify-center cursor-default"
+        v-tooltip="{
+          value: 'Clique no nó para visualizar os casos de teste',
+          pt: {
+            root: { style: { maxWidth: '15rem' } },
+            arrow: { style: { borderRightColor: 'var(--p-emerald-500)' } },
+            text: '!bg-emerald-500 !font-medium',
+          },
+        }"
+      >
+        <i class="pi pi-check-circle text-emerald-500" />
+      </div>
     </transition>
 
     <NodeTemplate
