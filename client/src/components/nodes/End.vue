@@ -31,9 +31,9 @@ const handleClick = () => {
     <transition name="fade">
       <div
         v-if="hasCases"
-        class="absolute -right-6 -top-2 z-10 flex items-center justify-center cursor-default"
+        class="absolute -right-6 -top-2 z-10 flex items-center justify-center"
         v-tooltip="{
-          value: 'Clique no nó para visualizar os casos de teste',
+          value: 'Clique para visualizar os casos de teste',
           pt: {
             root: { style: { maxWidth: '15rem' } },
             arrow: { style: { borderRightColor: 'var(--p-emerald-500)' } },
