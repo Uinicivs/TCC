@@ -22,6 +22,7 @@ export const useFlowStore = defineStore('flow', () => {
   const reductionWarningsByNodeId = ref<Record<string, string>>({})
   const edgeHighlightFlags = ref<Record<string, { reachable?: boolean; unreachable?: boolean }>>({})
   const testCases = ref<TestFlowCase[]>([])
+  const isInitialLoad = ref(true)
 
   const initializeDebounce = (flowId: string) => {
     flowSyncInstance = useFlowSync(flowId)
@@ -30,6 +31,11 @@ export const useFlowStore = defineStore('flow', () => {
   watch(
     nodes,
     async (newNodes) => {
+      if (isInitialLoad.value) {
+        isInitialLoad.value = false
+        return
+      }
+
       if (currentFlowId.value && flowSyncInstance) {
         await flowSyncInstance.updateNodes(newNodes)
       }
@@ -237,6 +243,7 @@ export const useFlowStore = defineStore('flow', () => {
 
     initializeDebounce(flowId)
   }
+
   const clearFlow = () => {
     if (flowSyncInstance) {
       flowSyncInstance.cancelPendingUpdates()
@@ -246,6 +253,7 @@ export const useFlowStore = defineStore('flow', () => {
     currentFlowId.value = null
     reductionWarningsByNodeId.value = {}
     testCases.value = []
+    isInitialLoad.value = true
   }
 
   const highlightPathFromNode = (
