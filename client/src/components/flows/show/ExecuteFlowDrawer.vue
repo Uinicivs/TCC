@@ -76,15 +76,7 @@
           </div>
         </div>
 
-        <div v-if="executionResult" class="mt-4 p-3 rounded-lg result-wrapper">
-          <h4 class="font-semibold mb-2 flex items-center gap-2">
-            <i class="pi pi-check-circle text-emerald-600" />
-            Resultado da Execução
-          </h4>
-          <div class="p-3 font-mono text-sm">
-            <pre>{{ JSON.stringify(executionResult, null, 2) }}</pre>
-          </div>
-        </div>
+        <ExecutionResult v-if="executionResult" :result="executionResult" />
       </div>
     </div>
 
@@ -118,6 +110,8 @@ import { useToast } from 'primevue/usetoast'
 
 import type { Variable } from '@/interfaces/variables'
 import { evaluateFlow } from '@/services/flowService'
+
+import ExecutionResult from '@/components/flows/show/ExecutionResult.vue'
 
 interface Props {
   visible: boolean
@@ -258,14 +252,3 @@ watch(
   { immediate: true },
 )
 </script>
-
-<style scoped>
-pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.result-wrapper {
-  border: 1px solid var(--p-focus-ring-color);
-}
-</style>
