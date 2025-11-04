@@ -180,7 +180,7 @@ watch(
   <div class="h-screen">
     <Toolbar class="w-full z-10 fixed !rounded-none">
       <template #start>
-        <h1 class="text-lg font-semibold">RuleFlow</h1>
+        <h1 class="text-lg font-semibold">Rulefy</h1>
       </template>
 
       <template #end>

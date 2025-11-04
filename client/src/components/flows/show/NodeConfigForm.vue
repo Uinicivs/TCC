@@ -11,7 +11,10 @@ const nodeTitleSchema = z.object({
 
 const nodeData = defineModel<INode>('nodeData', { required: true })
 
-defineProps<{ selectedNode: IMappedNodes | null }>()
+const props = defineProps<{
+  selectedNode: IMappedNodes | null
+  nodeId?: string
+}>()
 
 const errors = ref<Record<string, string>>({})
 
@@ -69,6 +72,7 @@ defineExpose({
       :is="selectedNode?.configComponent"
       v-if="selectedNode?.configComponent"
       v-model="nodeData.settings"
+      :node-id="props.nodeId"
       class="w-full"
     />
   </div>

@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4 p-3 rounded-lg result-wrapper">
-    <h4 class="font-semibold mb-2 flex items-center gap-2">
+    <h4 class="font-medium mb-2 flex items-center gap-2">
       <i class="pi pi-check-circle text-emerald-600" />
       Resultado da Execução
     </h4>
@@ -25,6 +25,6 @@ pre {
 }
 
 .result-wrapper {
-  border: 1px solid var(--p-focus-ring-color);
+  border: 1px solid var(--p-surface-200);
 }
 </style>

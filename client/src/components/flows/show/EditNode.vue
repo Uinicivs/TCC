@@ -147,18 +147,34 @@ defineExpose({
 
 <template>
   <div class="edit-node-wrapper">
-    <Drawer v-model:visible="visible" dismissable-mask position="right" :header="getDialogHeader"
-      :style="{ width: '30rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" @hide="closeDrawer">
-      <NodeConfigForm v-model:nodeData="nodeData" :selected-node="selectedNode" />
+    <Drawer
+      v-model:visible="visible"
+      dismissable-mask
+      position="right"
+      :header="getDialogHeader"
+      :style="{ width: '30rem' }"
+      :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+      @hide="closeDrawer"
+    >
+      <NodeConfigForm v-model:nodeData="nodeData" :selected-node="selectedNode" :node-id="nodeId" />
 
       <template #footer>
         <div class="flex flex-col w-full gap-5">
-          <transition enter-active-class="transition-all duration-300 ease-out"
-            enter-from-class="opacity-0 transform -translate-y-2" enter-to-class="opacity-100 transform translate-y-0"
+          <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            enter-from-class="opacity-0 transform -translate-y-2"
+            enter-to-class="opacity-100 transform translate-y-0"
             leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100 transform translate-y-0" leave-to-class="opacity-0 transform -translate-y-2">
-            <Message v-if="shouldDisableNextButton && getDisabledMessage" severity="warn" :closable="false" size="small"
-              class="mt-5">
+            leave-from-class="opacity-100 transform translate-y-0"
+            leave-to-class="opacity-0 transform -translate-y-2"
+          >
+            <Message
+              v-if="shouldDisableNextButton && getDisabledMessage"
+              severity="warn"
+              :closable="false"
+              size="small"
+              class="mt-5"
+            >
               <div class="flex gap-2 items-center">
                 <i class="pi pi-exclamation-triangle text-amber-500" />
                 <span>
@@ -169,8 +185,14 @@ defineExpose({
           </transition>
 
           <div class="flex justify-between items-center w-full">
-            <Button label="Atualizar nó" class="ml-auto" size="small" icon="pi pi-check"
-              :disabled="!hasNodeLabelFilled || shouldDisableNextButton" @click="handleUpdateNode" />
+            <Button
+              label="Atualizar nó"
+              class="ml-auto"
+              size="small"
+              icon="pi pi-check"
+              :disabled="!hasNodeLabelFilled || shouldDisableNextButton"
+              @click="handleUpdateNode"
+            />
           </div>
         </div>
       </template>

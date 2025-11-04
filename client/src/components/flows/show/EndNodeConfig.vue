@@ -64,25 +64,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, inject, onMounted, type Ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RadioButton, Textarea, Message } from 'primevue'
 
-import type { INode } from '@/interfaces/node'
-import type { SchemaNode } from '@/utils/flowFormatters'
+import { useFlowStore } from '@/stores/flow'
 
-type TEndNodeResponse = SchemaNode['metadata']['response']
+interface EndNodeSettings {
+  response?: boolean | Record<string, unknown> | string | number
+}
 
-const settings = defineModel<SchemaNode['metadata']>({ required: true })
+const props = defineProps<{
+  nodeId?: string
+}>()
 
-const nodeData = inject<Ref<INode>>('nodeData', {} as Ref<INode>)
+const settings = defineModel<EndNodeSettings>({ required: true, default: () => ({}) })
+
+const flowStore = useFlowStore()
 
 const responseType = ref<'default' | 'custom'>('default')
 const customResponseText = ref<string>('')
 const parseError = ref<string>('')
 
-const defaultResponseValue = computed(() => nodeData.value.isFalseCase ?? false)
+const currentNode = computed(() => {
+  if (!props.nodeId) return null
+  return flowStore.getNodeById(props.nodeId)
+})
 
-const validateAndParseCustomResponse = (): TEndNodeResponse => {
+const defaultResponseValue = computed(() => {
+  if (!currentNode.value) return true
+  return !currentNode.value.data.isFalseCase
+})
+
+const validateAndParseCustomResponse = (): EndNodeSettings['response'] => {
   parseError.value = ''
 
   if (!customResponseText.value.trim()) {
@@ -99,11 +112,11 @@ const validateAndParseCustomResponse = (): TEndNodeResponse => {
 }
 
 const updateResponse = () => {
-  if (!settings.value) {
+  if (!settings.value || typeof settings.value !== 'object') {
     settings.value = {}
   }
 
-  let responseValue: TEndNodeResponse
+  let responseValue: EndNodeSettings['response']
 
   if (responseType.value === 'default') {
     responseValue = defaultResponseValue.value
@@ -111,25 +124,17 @@ const updateResponse = () => {
     responseValue = validateAndParseCustomResponse()
   }
 
-  settings.value = {
-    ...settings.value,
-    response: responseValue,
-  }
+  settings.value.response = responseValue
 }
 
-watch(
-  () => nodeData.value.isFalseCase,
-  () => {
-    if (responseType.value === 'default') {
-      updateResponse()
-    }
-  },
-  { immediate: true },
-)
-
 const initializeComponent = () => {
-  const currentResponse = settings.value.response
-  if (!settings.value || currentResponse === undefined) {
+  if (!settings.value || typeof settings.value !== 'object') {
+    settings.value = {}
+  }
+
+  const currentResponse = settings.value?.response
+
+  if (currentResponse === undefined || currentResponse === null) {
     responseType.value = 'default'
     updateResponse()
     return
@@ -141,8 +146,13 @@ const initializeComponent = () => {
   }
 
   responseType.value = 'custom'
-  customResponseText.value = JSON.stringify(currentResponse, null, 2)
-  return
+
+  if (typeof currentResponse === 'object') {
+    customResponseText.value = JSON.stringify(currentResponse, null, 2)
+    return
+  }
+
+  customResponseText.value = String(currentResponse)
 }
 
 onMounted(() => {
