@@ -306,7 +306,7 @@ watch(
             class="rounded-lg w-7xl h-full flex flex-col dark:bg-transparent"
             size="small"
           >
-            <Column field="name" header="Nome" class="min-w-[200px]">
+            <Column field="name" header="Nome" class="min-w-[200px] text-sm">
               <template #body="{ data }">
                 {{ data.flowName }}
               </template>
@@ -315,14 +315,14 @@ watch(
             <Column
               field="description"
               header="Descrição"
-              class="lg:max-w-[500px] md:max-w-200px truncate"
+              class="lg:max-w-[500px] md:max-w-200px truncate text-sm"
             >
               <template #body="{ data }">
                 {{ data.flowDescription || '-' }}
               </template>
             </Column>
 
-            <Column field="updatedAt" header="Última Atualização" class="min-w-[150px]">
+            <Column field="updatedAt" header="Última Atualização" class="min-w-[150px] text-sm">
               <template #body="{ data }">
                 {{ formatDate(data.updatedAt) }}
               </template>
