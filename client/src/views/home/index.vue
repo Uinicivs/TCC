@@ -201,11 +201,18 @@ watch(
 
         <div class="justify-self-center lg:justify-self-end flex gap-4">
           <Button
+            v-if="flows.length < 10"
             label="Criar novo fluxo"
             size="small"
-            :disabled="flows.length >= 10"
             :loading="loading"
             @click="createNewFlow"
+          />
+          <Button
+            v-else
+            v-tooltip.top="'Você só pode criar até 10 fluxos.'"
+            label="Limite atingido"
+            size="small"
+            disabled
           />
           <SelectButton
             v-model="activeMode"
