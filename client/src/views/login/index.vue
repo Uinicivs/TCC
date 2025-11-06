@@ -5,7 +5,7 @@
         <div class="text-center mb-7">
           <img src="@/assets/svg/logo.png" class="mx-auto" alt="Rulify Logo" />
           <h2 class="text-3xl mb-4">Bem-vindo!</h2>
-          <p>Faça login para acessar sua conta</p>
+          <p>Faça login para acessar, testar e executar seus fluxos.</p>
         </div>
 
         <form class="flex flex-col gap-2" @submit.prevent="handleSubmit">

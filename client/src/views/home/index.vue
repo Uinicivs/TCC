@@ -303,11 +303,7 @@ watch(
             v-else
             :value="flows"
             :loading
-            paginator
-            :rows="12"
-            paginator-position="bottom"
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Mostrando {last} de {totalRecords}"
+            :rows="10"
             responsiveLayout="scroll"
             class="rounded-lg w-7xl h-full flex flex-col dark:bg-transparent"
             size="small"
