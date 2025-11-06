@@ -15,7 +15,7 @@
         </Column>
       </DataTable>
 
-      <ExecutionResult v-if="testCase.endMetadata" :result="testCase.endMetadata.response" />
+      <ExecutionResult v-if="testCase.endMetadata" :result="testCase.endMetadata" />
     </div>
   </div>
 </template>
