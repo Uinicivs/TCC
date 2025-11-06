@@ -3,7 +3,7 @@
     <DottedBackground class="flex flex-col">
       <div class="w-full max-w-[500px] m-auto p-6 bg-white rounded-2xl shadow-lg">
         <div class="text-center mb-7">
-          <img src="@/assets/svg/almostThere.svg" class="mx-auto mb-8" />
+          <img src="@/assets/svg/logo.png" class="mx-auto" alt="Rulify Logo" />
           <h2 class="text-3xl mb-4">Bem-vindo!</h2>
           <p>Faça login para acessar sua conta</p>
         </div>
@@ -90,3 +90,10 @@ const handleSubmit = async () => {
   }
 }
 </script>
+<style scoped>
+img {
+  object-fit: contain;
+  max-height: 150px;
+  width: 100%;
+}
+</style>

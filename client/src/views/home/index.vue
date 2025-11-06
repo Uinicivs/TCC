@@ -180,7 +180,7 @@ watch(
   <div class="h-screen">
     <Toolbar class="w-full z-10 fixed !rounded-none">
       <template #start>
-        <h1 class="text-lg font-semibold">Rulefy</h1>
+        <img src="@/assets/svg/logo.png" class="mx-auto" alt="Rulify Logo" width="32" height="32" />
       </template>
 
       <template #end>
@@ -200,7 +200,13 @@ watch(
         </div>
 
         <div class="justify-self-center lg:justify-self-end flex gap-4">
-          <Button label="Criar novo fluxo" size="small" @click="createNewFlow" />
+          <Button
+            label="Criar novo fluxo"
+            size="small"
+            :disabled="flows.length >= 10"
+            :loading="loading"
+            @click="createNewFlow"
+          />
           <SelectButton
             v-model="activeMode"
             :options="modeOptions"
