@@ -80,9 +80,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     const stepSize = SAFETY_MARGIN
-    const maxRadius = stepSize * 3
 
-    for (let radius = stepSize; radius <= maxRadius; radius += stepSize) {
+    for (let radius = stepSize; radius <= stepSize; radius += stepSize) {
       const positions = [
         { x: preferredX + radius, y: preferredY + radius },
         { x: preferredX - radius, y: preferredY + radius },
@@ -98,8 +97,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     return {
-      x: preferredX + stepSize,
-      y: preferredY + stepSize,
+      x: preferredX,
+      y: preferredY,
     }
   }
 
@@ -345,9 +344,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           const childPositionY = baseY + VERTICAL_SPACING
           let childOffsetX = baseX
 
-          if (typeof childNode.data.isFalseCase === 'boolean') {
-            childOffsetX += childNode.data.isFalseCase ? HORIZONTAL_SPACING : -HORIZONTAL_SPACING
-          }
+          childOffsetX += !childNode.data.isFalseCase ? HORIZONTAL_SPACING * -1 : HORIZONTAL_SPACING
 
           const freePosition = findFreePosition(childOffsetX, childPositionY, childId)
 
