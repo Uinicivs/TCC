@@ -38,7 +38,7 @@
             :disabled="loading"
             :required="variable.required"
             size="small"
-            class="w-full"
+            class="w-full !bg-transparent"
           />
 
           <InputNumber
@@ -49,7 +49,7 @@
             :disabled="loading"
             :required="variable.required"
             size="small"
-            class="w-full"
+            class="w-full !bg-transparent"
           />
 
           <div v-else-if="variable.type === 'bool'" class="flex items-center gap-2">
@@ -71,7 +71,7 @@
               :disabled="loading"
               :required="variable.required"
               rows="3"
-              class="w-full text-sm"
+              class="w-full text-sm !bg-transparent"
             />
           </div>
         </div>

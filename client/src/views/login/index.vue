@@ -1,7 +1,9 @@
 <template>
   <div class="w-full h-screen">
     <DottedBackground class="flex flex-col">
-      <div class="w-full max-w-[500px] m-auto p-6 bg-white rounded-2xl shadow-lg">
+      <div
+        class="w-full max-w-[500px] m-auto p-6 bg-white dark:bg-neutral-900 rounded-2xl shadow-lg"
+      >
         <div class="text-center mb-7">
           <img src="@/assets/svg/logo.png" class="mx-auto" alt="Rulify Logo" />
           <h2 class="text-3xl mb-4">Bem-vindo!</h2>
@@ -13,6 +15,7 @@
             v-model="user.email"
             placeholder="E-mail"
             size="small"
+            class="w-full !bg-transparent"
             :disabled="isLoading.value"
           />
           <InputText
@@ -20,6 +23,7 @@
             placeholder="Senha"
             type="password"
             size="small"
+            class="w-full !bg-transparent"
             :disabled="isLoading.value"
           />
           <Button label="Entrar" type="submit" size="small" :loading="isLoading.value" />
