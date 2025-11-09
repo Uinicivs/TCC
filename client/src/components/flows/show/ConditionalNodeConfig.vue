@@ -210,14 +210,16 @@ onMounted(() => {
             fontSize: '14px',
           },
           '.cm-placeholder': {
-            color: '#64748b !important',
+            color: 'var(--placeholder-color,#64748b) !important',
             'font-size': '16px',
             'letter-spacing': '0.03em',
             'font-family': 'ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji"',
           },
           '.cm-tooltip-autocomplete': {
             'font-size': '16px',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--p-surface-300)',
+            color: 'var(--p-text-color)',
+            background: 'var(--tooltip-autocomplete-bg)',
             padding: '0.375em',
             'box-shadow': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
             'border-radius': '0.375rem',
@@ -229,15 +231,15 @@ onMounted(() => {
             minHeight: '95px',
           },
           '.cm-line span': {
-            color: '#334155',
+            color: 'var(--cm-line-color,#334155)',
           },
           '.cm-focused': {
             outline: '1px solid #3b82f6',
           },
           '.cm-tooltip-autocomplete ul li[aria-selected]': {
-            background: '#6fd4b3',
+            background: 'var(--cm-ac-selected-bg, #6fd4b3)',
             'border-radius': '0.2rem',
-            color: '#1e293b',
+            color: 'var(--cm-ac-selected-color, #1e293b)',
           },
           '.cm-tooltip-autocomplete ul li div:first-child': {
             display: 'none',
@@ -298,5 +300,30 @@ defineExpose({
 :deep(.p-tag) {
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
+}
+
+:deep(.dark .cm-tooltip-autocomplete) {
+  border: 1px solid var(--p-surface-600);
+  color: var(--p-surface-0);
+  box-shadow:
+    0 4px 6px -1px rgba(0 0 0 / 0.4),
+    0 2px 4px -2px rgba(0 0 0 / 0.4);
+}
+
+:deep(.dark .cm-tooltip-autocomplete ul) {
+  background: var(--p-neutral-800);
+}
+
+:deep(.dark .cm-tooltip-autocomplete ul li[aria-selected]) {
+  background: var(--p-emerald-500);
+  color: var(--p-surface-0);
+}
+
+:deep(.dark .cm-line span) {
+  color: var(--p-surface-100);
+}
+
+:deep(.dark .cm-placeholder) {
+  color: #94a3b8 !important; /* Tailwind slate-400 for better contrast */
 }
 </style>
