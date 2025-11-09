@@ -109,7 +109,7 @@ const goBack = () => {
         </div>
 
         <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
-          <Toolbar class="w-full z-10 fixed !rounded-t-none">
+          <Toolbar class="w-full z-10 fixed dark:!border-none !rounded-t-none">
             <template #start>
               <Button
                 icon="pi pi-arrow-left"

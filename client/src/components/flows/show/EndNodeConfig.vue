@@ -45,7 +45,7 @@
                   v-model="customResponseText"
                   placeholder='{"status": "success", "reason": "Operação concluída"}'
                   rows="4"
-                  class="w-full font-mono text-sm"
+                  class="w-full font-mono text-sm !bg-transparent"
                   @input="updateResponse"
                 />
               </div>

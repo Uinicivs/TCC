@@ -178,7 +178,7 @@ watch(
 
 <template>
   <div class="h-screen">
-    <Toolbar class="w-full z-10 fixed !rounded-none">
+    <Toolbar class="w-full z-10 fixed dark:!border-none !rounded-none">
       <template #start>
         <img src="@/assets/svg/logo.png" class="mx-auto" alt="Rulify Logo" width="32" height="32" />
       </template>
