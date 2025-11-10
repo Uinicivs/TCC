@@ -14,10 +14,6 @@ type_mapping: dict[InputType, Callable[[str], ExprRef]] = {
 
 
 def symbolic_var_factory(spec: StartMetadata) -> dict[str, ExprRef]:
-    """
-    Cria variáveis simbólicas Z3 a partir do metadado do nó START.
-    Cada variável é nomeada pelo displayName e tipada conforme o InputType.
-    """
     return {
         inp.displayName: type_mapping[inp.type](inp.displayName)
         for inp in spec.inputs
@@ -25,16 +21,6 @@ def symbolic_var_factory(spec: StartMetadata) -> dict[str, ExprRef]:
 
 
 def concretize_model(model: ModelRef, vars: dict[str, ExprRef]) -> dict[str, object]:
-    """
-    Converte um z3.ModelRef em valores Python nativos para cada variável simbólica conhecida.
-
-    Args:
-        model: modelo retornado por solver.model()
-        vars: dicionário de variáveis simbólicas criadas via symbolic_var_factory
-
-    Returns:
-        dict[str, object]: mapeamento var_name -> valor concreto
-    """
     def _extract(val):
         if val is None:
             return None

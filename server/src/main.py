@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.app.db.connection import lifespan
 from src.app.core.config import get_settings
@@ -29,6 +30,9 @@ app.add_middleware(
 app.include_router(FlowRouter)
 app.include_router(UserRouter)
 app.include_router(AuthRouter)
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app, endpoint='/metrics')
 
 
 @app.get('/')
