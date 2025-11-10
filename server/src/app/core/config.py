@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = ''
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 2
+    GRAFANA_METRICS_TOKEN: str = ''
 
     class Config:
         env_file = '.env'

@@ -1,8 +1,10 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi.responses import Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Header, HTTPException, status
 from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from src.app.db.connection import lifespan
 from src.app.core.config import get_settings
@@ -32,12 +34,26 @@ app.include_router(UserRouter)
 app.include_router(AuthRouter)
 
 instrumentator = Instrumentator()
-instrumentator.instrument(app).expose(app, endpoint='/metrics')
+instrumentator.instrument(app)
 
 
 @app.get('/')
 def read_root():
     return {'message': 'hello world!'}
+
+
+@app.get('/metrics')
+def metrics(authorization: str = Header(None)):
+    expected = f'Bearer {settings.GRAFANA_METRICS_TOKEN}'
+
+    if authorization != expected:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Unauthorized'
+        )
+
+    payload = generate_latest(instrumentator.registry)
+    return Response(content=payload, media_type=CONTENT_TYPE_LATEST)
 
 
 def custom_openapi():
