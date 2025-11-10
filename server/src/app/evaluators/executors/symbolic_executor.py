@@ -11,7 +11,7 @@ from z3 import (   # type: ignore
     is_or,
     is_and,
     is_not,
-    unknown,
+    # unknown,
     simplify,
 
     Or,
@@ -127,22 +127,64 @@ class SymbolicExecutor:
         if not start_node:
             raise InvalidFlowException("flow is broken, has no start node")
 
-        # reset state
-        self.cases = []
-        self.pruned = []
-        self.conflicts = []
-        self.duplicates = []
-        self.reductions = []
-        self._case_exprs = []
+        self.cases.clear()
+        self.pruned.clear()
+        self.conflicts.clear()
+        self.duplicates.clear()
+        self.reductions.clear()
+        self._case_exprs.clear()
 
-        # traversal
-        self._traverse(start_node, [])
+        stack: list[tuple[AnyNode, list[Optional[ExprRef]], Optional[bool]]] = [
+            (start_node, [], None)
+        ]
 
-        # post-analyses
+        while stack:
+            node, constraints, is_false_case = stack.pop()
+
+            if node.nodeType == "START":
+                for child in self._get_children(node.nodeId):
+                    stack.append((child, list(constraints), None))
+
+            elif node.nodeType == "CONDITIONAL":
+                assert isinstance(node, ConditionalNode)
+                expr_text = getattr(node.metadata, "expression", "").replace(
+                    "'", '"').strip()
+                try:
+                    tree = self.parser.parse(expr_text)
+                    cond = self.transformer.transform(tree)
+                except Exception as e:
+                    raise RuntimeException(
+                        f"expression - {expr_text} - from node {node.nodeId} could not be translated: {e}"
+                    )
+
+                simplified_cond, removed_parts = self._simplify_with_context(
+                    cond, constraints)
+                if removed_parts:
+                    self.reductions.append(
+                        ReductionInfo(
+                            nodeId=node.nodeId,
+                            original=self._zf_text(cond),
+                            simplified=self._zf_text(simplified_cond),
+                            removedParts=[self._zf_text(r)
+                                          for r in removed_parts],
+                        )
+                    )
+
+                # True branch
+                self._process_branch(node, simplified_cond,
+                                     constraints, stack, False)
+                # False branch
+                self._process_branch(
+                    node, Not(simplified_cond), constraints, stack, True)
+
+            elif node.nodeType == "END":
+                self._finalize_case(node, constraints)
+
+        # post-processing
         self._analyze_duplicates()
         self._analyze_conflicts()
-
         coverage = self._calculate_coverage()
+
         return SymbolicReport(
             cases=self.cases,
             coverage=coverage,
@@ -155,62 +197,52 @@ class SymbolicExecutor:
     # -------------------------
     # traversal
     # -------------------------
-    def _traverse(self, node: AnyNode, constraints: List[Optional[ExprRef]]) -> None:
-        match node.nodeType:
-            case 'START':
-                for child in self._get_children(node.nodeId):
-                    self._traverse(child, constraints)
-                return
+    def _process_branch(
+        self,
+        node: AnyNode,
+        cond: Optional[ExprRef],
+        constraints: list[Optional[ExprRef]],
+        stack: list[tuple[AnyNode, list[Optional[ExprRef]], Optional[bool]]],
+        is_false_case: bool,
+    ):
+        self.solver.push()
+        try:
+            for c in constraints:
+                if c is not None:
+                    self.solver.add(c)
+            if cond is not None:
+                self.solver.add(cond)
 
-            case 'CONDITIONAL':
-                assert isinstance(node, ConditionalNode)
-                expr_text = getattr(node.metadata, "expression", "").replace(
-                    "'", '"').strip()
-                try:
-                    tree = self.parser.parse(expr_text)
-                    cond = self.transformer.transform(tree)
-                except Exception as e:
-                    raise RuntimeException(
-                        f"expression - {expr_text} - from node {node.nodeId} could not be translated: {e}")
+            chk = self.solver.check()
+            if chk == sat:
+                new_constraints = list(constraints) + [cond]
+                for child in self._get_children(node.nodeId, is_false_case):
+                    stack.append((child, new_constraints, is_false_case))
+            else:
+                unsat_constraints = [
+                    self._zf_text(c) for c in constraints if c is not None
+                ]
+                if cond is not None:
+                    unsat_constraints.append(self._zf_text(cond))
 
-                # Simplify w/ context
-                simplified_cond, removed_parts = self._simplify_with_context(
-                    cond, constraints)
-                if removed_parts:
-                    self.reductions.append(
-                        ReductionInfo(
-                            nodeId=node.nodeId,
-                            original=self._zf_text(cond),
-                            simplified=self._zf_text(simplified_cond),
-                            removedParts=[self._zf_text(
-                                r) for r in removed_parts]
+                reason = self._classify_pruned_case(constraints, cond)
+                child_nodes = self._get_children(node.nodeId, is_false_case)
+                for child in child_nodes:
+                    self.pruned.append(
+                        PrunedBranch(
+                            nodeId=child.nodeId,
+                            isFalseCase=is_false_case,
+                            reason=reason,
+                            unsatConstraints=unsat_constraints,
                         )
                     )
-
-                # True branch (follow only true-children)
-                true_cond = simplified_cond
-                self._evaluate_branch(
-                    node, true_cond, constraints, is_false_case=False)
-
-                # False branch (safe: if simplified_cond is None, treat not_cond as None)
-                not_cond = None if simplified_cond is None else Not(
-                    simplified_cond)
-                self._evaluate_branch(
-                    node, not_cond, constraints, is_false_case=True)
-                return
-
-            case 'END':
-                self._finalize_case(node, constraints)
-                return
-
-            case _:
-                # Unknown node types: traverse children normally
-                for child in self._get_children(node.nodeId):
-                    self._traverse(child, constraints)
+        finally:
+            self.solver.pop()
 
     # -------------------------
     # simplify w/ context
     # -------------------------
+
     def _simplify_with_context(self, expr: ExprRef,
                                constraints: List[Optional[ExprRef]]) -> Tuple[ExprRef, List[ExprRef]]:
         # quick path: no context
@@ -299,74 +331,6 @@ class SymbolicExecutor:
                 self.transformer.reverse_map[simplified_expr] = pretty
 
             return simplified_expr, removed_parts
-        finally:
-            self.solver.pop()
-
-    # -------------------------
-    # branch evaluation (with improved prune classification)
-    # -------------------------
-
-    def _evaluate_branch(self, node: AnyNode, cond: Optional[ExprRef],
-                         constraints: List[Optional[ExprRef]], is_false_case: bool) -> None:
-        """
-        cond may be None (undecidable). If None, we conservatively don't add it but still explore.
-        """
-        # If cond is None, we should not call Not(cond) earlier; here cond may be None.
-        self.solver.push()
-        try:
-            # add existing constraints
-            for c in constraints:
-                if c is not None:
-                    self.solver.add(c)
-
-            # add the branch condition if present
-            if cond is not None:
-                self.solver.add(cond)
-
-            chk = self.solver.check()
-            if chk == sat:
-                new_constraints = list(constraints) + [cond]
-                for child in self._get_children(node.nodeId, is_false_case):
-                    self._traverse(child, new_constraints)
-            elif chk == unknown:
-                child = self._get_children(
-                    node.nodeId,
-                    is_false_case=is_false_case
-                )[0]
-
-                unsat_constraints = [
-                    self._zf_text(c) for c in constraints
-                    if c is not None
-                ]
-                if cond is not None:
-                    unsat_constraints.append(self._zf_text(cond))
-
-                self.pruned.append(PrunedBranch(
-                    nodeId=child.nodeId,
-                    isFalseCase=is_false_case,
-                    reason="unknown (solver returned unknown)",
-                    unsatConstraints=unsat_constraints
-                ))
-            else:  # unsat
-                child = self._get_children(
-                    node.nodeId,
-                    is_false_case=is_false_case
-                )[0]
-
-                unsat_constraints = [
-                    self._zf_text(c) for c in constraints
-                    if c is not None
-                ]
-                if cond is not None:
-                    unsat_constraints.append(self._zf_text(cond))
-
-                reason = self._classify_pruned_case(constraints, cond)
-                self.pruned.append(PrunedBranch(
-                    nodeId=child.nodeId,
-                    isFalseCase=is_false_case,
-                    reason=reason,
-                    unsatConstraints=unsat_constraints
-                ))
         finally:
             self.solver.pop()
 
