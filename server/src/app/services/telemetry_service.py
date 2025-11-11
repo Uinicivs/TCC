@@ -5,8 +5,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from src.app.models.symbolic_model import SymbolicExecution
 from src.app.core.exceptions import (
     translate_mongo_error,
-
-    NotFoundException,
     InvalidObjectIdException,
 )
 
@@ -26,7 +24,7 @@ class TelemetryService:
             if count > 1:
                 oldest_doc = await self.database.symbolic_events.find_one(
                     {'flowId': execution.flowId},
-                    sort=[('timestamp'), 1]
+                    sort=[('timestamp', 1)]
                 )
                 if oldest_doc:
                     await self.database.symbolic_events.delete_one(
@@ -37,9 +35,9 @@ class TelemetryService:
         except Exception as e:
             raise translate_mongo_error(e)
 
-    async def get_last_symbolic_execution_time(self, flow_id: str) -> datetime:
+    async def get_last_symbolic_execution_time(self, flow_id: str) -> datetime | None:
         try:
-            if not ObjectId.is_valid(id):
+            if not ObjectId.is_valid(flow_id):
                 raise InvalidObjectIdException()
 
             execution_from_db = await self.database.symbolic_events.find_one(
@@ -51,7 +49,7 @@ class TelemetryService:
             raise translate_mongo_error(e)
 
         if not execution_from_db:
-            raise NotFoundException()
+            return None
 
         return SymbolicExecution.model_validate(execution_from_db).timestamp
 
