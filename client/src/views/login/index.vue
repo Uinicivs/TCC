@@ -71,7 +71,7 @@ const handleSubmit = async () => {
   try {
     await login({
       email: user.email,
-      password: user.password,
+      password: user.password.trim(),
     })
 
     toast.add({
