@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, onMounted, watch } from 'vue'
+import { ref, useTemplateRef, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { DataTable, Column, Button, Popover, Card, SelectButton, Toolbar } from 'primevue'
+import { DataTable, Column, Button, ContextMenu, Card, SelectButton, Toolbar } from 'primevue'
 import { useToast } from 'primevue/usetoast'
 
 import type { IFlow } from '@/interfaces/flow'
@@ -18,7 +18,7 @@ import {
 } from '@/services/flowService'
 
 const router = useRouter()
-const popoverRef = useTemplateRef('flow-options')
+const contextMenuRef = useTemplateRef('contextMenu')
 const toast = useToast()
 
 const flows = ref<IFlow[]>([])
@@ -67,9 +67,10 @@ const formatDate = (date: Date) => {
   }).format(date)
 }
 
-const toggleOptions = (event: MouseEvent, flow: IFlow) => {
+const showContextMenu = (event: MouseEvent, flow: IFlow) => {
+  event.preventDefault()
   selectedFlow.value = flow
-  popoverRef.value?.toggle(event)
+  contextMenuRef.value?.show(event)
 }
 
 const createNewFlow = () => {
@@ -81,7 +82,6 @@ const createNewFlow = () => {
 const editFlow = () => {
   modalMode.value = 'edit'
   showFlowFormModal.value = true
-  popoverRef.value?.hide()
 }
 
 const handleCreateFlow = async (payload: TCreateFlowPayload) => {
@@ -172,6 +172,24 @@ const handleDeleteFlow = async () => {
   }
 }
 
+const menuItems = computed(() => [
+  {
+    label: 'Ver',
+    icon: 'pi pi-eye',
+    command: viewFlow,
+  },
+  {
+    label: 'Editar',
+    icon: 'pi pi-pencil',
+    command: editFlow,
+  },
+  {
+    label: 'Excluir',
+    icon: 'pi pi-trash',
+    command: handleDeleteFlow,
+  },
+])
+
 watch(
   () => showFlowFormModal.value,
   (newValue) => {
@@ -242,23 +260,18 @@ watch(
               v-else-if="flows.length"
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
             >
-              <Card v-for="flow in flows" :key="flow.flowId" class="w-full">
+              <Card
+                v-for="flow in flows"
+                :key="flow.flowId"
+                class="w-full cursor-pointer"
+                @click="((selectedFlow = flow), viewFlow())"
+                @contextmenu="showContextMenu($event, flow)"
+              >
                 <template #title>
                   <div class="flex justify-between items-start">
                     <h3 class="text-lg truncate pr-2">
                       {{ flow.flowName }}
                     </h3>
-
-                    <Button
-                      icon="pi pi-ellipsis-h"
-                      variant="text"
-                      severity="secondary"
-                      rounded
-                      size="small"
-                      :disabled="loading"
-                      class="justify-self-start"
-                      @click="toggleOptions($event, flow)"
-                    />
                   </div>
                 </template>
                 <template #content>
@@ -272,37 +285,6 @@ watch(
                   </div>
                 </template>
               </Card>
-
-              <Popover ref="flow-options">
-                <div class="flex flex-col gap-2 min-w-[160px]">
-                  <Button
-                    severity="secondary"
-                    variant="text"
-                    label="Ver"
-                    size="small"
-                    :disabled="loading"
-                    @click="viewFlow"
-                  />
-
-                  <Button
-                    variant="text"
-                    severity="secondary"
-                    label="Editar"
-                    size="small"
-                    :disabled="loading"
-                    @click="editFlow"
-                  />
-
-                  <Button
-                    severity="danger"
-                    variant="text"
-                    label="Excluir"
-                    size="small"
-                    :loading
-                    @click="handleDeleteFlow"
-                  />
-                </div>
-              </Popover>
             </div>
 
             <div
@@ -320,7 +302,16 @@ watch(
             :rows="10"
             responsiveLayout="scroll"
             class="rounded-lg w-7xl h-full flex flex-col dark:bg-transparent"
-            size="small"
+            size="large"
+            @row-click="
+              (event) => {
+                selectedFlow = event.data
+                viewFlow()
+              }
+            "
+            @row-contextmenu="
+              (event) => showContextMenu(event.originalEvent as MouseEvent, event.data)
+            "
           >
             <Column field="name" header="Nome" class="min-w-[200px] text-sm">
               <template #body="{ data }">
@@ -344,51 +335,6 @@ watch(
               </template>
             </Column>
 
-            <Column class="w-[50px]">
-              <template #body="{ data }">
-                <Button
-                  icon="pi pi-ellipsis-h"
-                  variant="text"
-                  severity="secondary"
-                  rounded
-                  size="small"
-                  :disabled="loading"
-                  @click="toggleOptions($event, data)"
-                />
-
-                <Popover ref="flow-options">
-                  <div class="flex flex-col gap-2 min-w-[160px]">
-                    <Button
-                      severity="secondary"
-                      variant="text"
-                      label="Ver"
-                      size="small"
-                      :disabled="loading"
-                      @click="viewFlow"
-                    />
-
-                    <Button
-                      variant="text"
-                      severity="secondary"
-                      label="Editar"
-                      size="small"
-                      :disabled="loading"
-                      @click="editFlow"
-                    />
-
-                    <Button
-                      severity="danger"
-                      variant="text"
-                      label="Excluir"
-                      size="small"
-                      :loading
-                      @click="handleDeleteFlow"
-                    />
-                  </div>
-                </Popover>
-              </template>
-            </Column>
-
             <template #empty>
               <div v-if="!loading" class="font-light text-neutral-500 text-center h-full">
                 Você ainda não possui nenhum fluxo.
@@ -406,6 +352,8 @@ watch(
         @update="handleUpdateFlow"
         @loading="(value) => (loading = value)"
       />
+
+      <ContextMenu ref="contextMenu" :model="menuItems" />
     </div>
   </div>
 </template>
@@ -425,6 +373,10 @@ watch(
 :deep(.p-datatable-tbody > tr),
 :deep(.p-paginator) {
   background: transparent;
+}
+
+:deep(.p-datatable-tbody > tr) {
+  cursor: pointer;
 }
 
 .loading {
