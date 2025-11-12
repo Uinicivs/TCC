@@ -49,12 +49,6 @@
                   @input="updateResponse"
                 />
               </div>
-              <Message v-if="parseError" severity="error" :closable="false" size="small">
-                <div class="flex items-center gap-2">
-                  <i class="pi pi-exclamation-triangle" />
-                  <span class="text-sm">{{ parseError }}</span>
-                </div>
-              </Message>
             </div>
           </transition>
         </div>
@@ -65,7 +59,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { RadioButton, Textarea, Message } from 'primevue'
+import { RadioButton, Textarea } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
 
@@ -83,7 +77,6 @@ const flowStore = useFlowStore()
 
 const responseType = ref<'default' | 'custom'>('default')
 const customResponseText = ref<string>('')
-const parseError = ref<string>('')
 
 const currentNode = computed(() => {
   if (!props.nodeId) return null
@@ -95,22 +88,6 @@ const defaultResponseValue = computed(() => {
   return !currentNode.value.data.isFalseCase
 })
 
-const validateAndParseCustomResponse = (): EndNodeSettings['response'] => {
-  parseError.value = ''
-
-  if (!customResponseText.value.trim()) {
-    return undefined
-  }
-
-  try {
-    const parsed = JSON.parse(customResponseText.value)
-    return parsed
-  } catch {
-    parseError.value = 'JSON inválido. Verifique a sintaxe.'
-    return undefined
-  }
-}
-
 const updateResponse = () => {
   if (!settings.value || typeof settings.value !== 'object') {
     settings.value = {}
@@ -121,7 +98,7 @@ const updateResponse = () => {
   if (responseType.value === 'default') {
     responseValue = defaultResponseValue.value
   } else {
-    responseValue = validateAndParseCustomResponse()
+    responseValue = customResponseText.value || undefined
   }
 
   settings.value.response = responseValue
@@ -140,7 +117,7 @@ const initializeComponent = () => {
     return
   }
 
-  if (currentResponse === defaultResponseValue.value) {
+  if (typeof currentResponse === 'boolean' || !currentResponse) {
     responseType.value = 'default'
     return
   }
