@@ -17,7 +17,12 @@ const availableNodes = computed(() => {
     : availableNodeTypes
 })
 
+const isNodeDisabled = (node: IMappedNodes) => {
+  return !getFirstNode ? node.type !== 'start' : node.type === 'start'
+}
+
 const handleClick = (node: IMappedNodes) => {
+  if (isNodeDisabled(node)) return
   emit('select', node)
 }
 </script>
@@ -28,7 +33,16 @@ const handleClick = (node: IMappedNodes) => {
       <Card
         v-for="node in availableNodes"
         :key="node.type"
-        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none hover:shadow-lg transition-shadow duration-200 w-ful cursor-pointer"
+        v-tooltip.left="{
+          value: isNodeDisabled(node) ? 'É necessário criar um nó de início primeiro' : '',
+          showDelay: 300,
+        }"
+        class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none transition-shadow duration-200 w-ful"
+        :class="{
+          disabled: isNodeDisabled(node),
+          'cursor-pointer': !isNodeDisabled(node),
+          'cursor-not-allowed': isNodeDisabled(node),
+        }"
         @click="handleClick(node)"
       >
         <template #content>
