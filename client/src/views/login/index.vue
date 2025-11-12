@@ -70,7 +70,7 @@ const handleSubmit = async () => {
 
   try {
     await login({
-      email: user.email,
+      email: user.email.trim(),
       password: user.password.trim(),
     })
 
