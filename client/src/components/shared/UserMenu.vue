@@ -9,12 +9,13 @@
     />
 
     <Popover ref="menu" class="!rounded-tl-xl !rounded-bl-xl !rounded-br-xl !shadow-lg">
-      <div class="flex flex-col gap-2 min-w-[160px]">
+      <div class="flex flex-col gap-3 min-w-[200px]">
         <div class="flex items-center gap-2">
           <Avatar :label="userInitials" shape="circle" size="normal" />
 
           <p class="text-sm truncate">{{ userEmail }}</p>
         </div>
+
         <Button
           severity="danger"
           variant="text"

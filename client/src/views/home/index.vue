@@ -8,6 +8,7 @@ import type { IFlow } from '@/interfaces/flow'
 
 import FlowFormModal from '@/components/home/FlowFormModal.vue'
 import UserMenu from '@/components/shared/UserMenu.vue'
+import ThemeToggle from '@/components/shared/ThemeToggle.vue'
 
 import {
   createFlow,
@@ -209,7 +210,10 @@ watch(
       </template>
 
       <template #end>
-        <UserMenu />
+        <div class="flex gap-2">
+          <ThemeToggle />
+          <UserMenu />
+        </div>
       </template>
     </Toolbar>
 

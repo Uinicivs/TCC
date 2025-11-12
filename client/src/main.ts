@@ -12,7 +12,14 @@ import router from './router'
 const app = createApp(App)
 
 app.use(createPinia())
-app.use(PrimeVue, { theme: { preset: Aura } })
+app.use(PrimeVue, {
+  theme: {
+    preset: Aura,
+    options: {
+      darkModeSelector: '.dark',
+    },
+  },
+})
 app.use(router)
 app.use(ToastService)
 app.use(DialogService)

@@ -4,3 +4,5 @@
 @import '@vue-flow/minimap/dist/style.css';
 @import 'primeicons/primeicons.css';
 @import '@vue-flow/controls/dist/style.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
