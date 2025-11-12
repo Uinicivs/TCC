@@ -16,6 +16,8 @@ const strokeColorMap: Record<Exclude<TStrokeColor, 'none'>, string> = {
 
 export const useFlowStore = defineStore('flow', () => {
   let flowSyncInstance: ReturnType<typeof useFlowSync> | null = null
+  let testResetCallback: (() => void) | null = null
+
   const nodes = ref<Node[]>([])
   const edges = ref<Edge[]>([])
   const currentFlowId = ref<string | null>(null)
@@ -37,6 +39,7 @@ export const useFlowStore = defineStore('flow', () => {
       }
 
       if (currentFlowId.value && flowSyncInstance) {
+        resetTestState()
         await flowSyncInstance.updateNodes(newNodes)
       }
     },
@@ -344,7 +347,7 @@ export const useFlowStore = defineStore('flow', () => {
       let message = ''
 
       if ((simplified === 'true' || simplified === 'false') && removedParts?.length) {
-        message = `A expressão "${removedParts.join(', ')}" está duplicada.`
+        message = `A expressão "${removedParts.join(', ')}" é redundante.`
       }
 
       if (simplified && simplified.length && simplified !== 'true' && simplified !== 'false') {
@@ -363,6 +366,25 @@ export const useFlowStore = defineStore('flow', () => {
 
   const setTestCases = (cases: TestFlowCase[]) => {
     testCases.value = cases || []
+  }
+
+  const resetTestState = () => {
+    testCases.value = []
+    reductionWarningsByNodeId.value = {}
+    edgeHighlightFlags.value = {}
+    edges.value = edges.value.map((edge) => ({
+      ...edge,
+      animated: false,
+      style: undefined,
+    }))
+
+    if (testResetCallback) {
+      testResetCallback()
+    }
+  }
+
+  const setTestResetHandler = (callback: () => void) => {
+    testResetCallback = callback
   }
 
   return {
@@ -388,5 +410,7 @@ export const useFlowStore = defineStore('flow', () => {
     setReductionWarnings,
     setTestCases,
     getWarningForNodeId,
+    resetTestState,
+    setTestResetHandler,
   }
 })

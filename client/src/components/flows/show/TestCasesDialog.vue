@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Dialog } from 'primevue'
-import TestedCasesTable from './TestedCasesTable.vue'
+import TestedCasesTable from '@/components/flows/show/TestedCasesTable.vue'
 import type { TestFlowCase } from '@/interfaces/testFlow'
 
 interface Props {

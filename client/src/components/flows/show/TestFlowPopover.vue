@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue'
+import { ref, useTemplateRef, watch, onMounted, onUnmounted } from 'vue'
 import { Popover, Button, ToggleSwitch } from 'primevue'
 
 import { testFlow } from '@/services/flowService'
@@ -53,6 +53,14 @@ const settings = ref({
 
 const unreachableNodeIds = ref<Set<string>>(new Set())
 const reachableNodeIds = ref<Set<string>>(new Set())
+
+onMounted(() => {
+  flowStore.setTestResetHandler(resetTestState)
+})
+
+onUnmounted(() => {
+  flowStore.setTestResetHandler(() => {})
+})
 
 watch(
   () => settings.value.showUnreachable,
@@ -122,8 +130,16 @@ const testFlowAction = async () => {
   }
 }
 
+const resetTestState = () => {
+  unreachableNodeIds.value.clear()
+  reachableNodeIds.value.clear()
+  settings.value.showUnreachable = true
+  settings.value.showReachable = false
+}
+
 defineExpose({
   toggle: (event: Event) => popover.value?.toggle(event),
   hide: () => popover.value?.hide(),
+  resetTestState,
 })
 </script>
