@@ -26,11 +26,17 @@ const loading = ref(false)
 const showFlowFormModal = ref(false)
 const selectedFlow = ref<IFlow | null>(null)
 const modalMode = ref<'create' | 'edit'>('create')
-const activeMode = ref<'Tabela' | 'Cards'>('Tabela')
+const activeMode = ref<'Tabela' | 'Cards'>(
+  (localStorage.getItem('flow-view-mode') as 'Tabela' | 'Cards') || 'Cards',
+)
 const modeOptions = ['Tabela', 'Cards']
 
 onMounted(async () => {
   await loadFlows()
+})
+
+watch(activeMode, (newMode) => {
+  localStorage.setItem('flow-view-mode', newMode)
 })
 
 const loadFlows = async () => {
