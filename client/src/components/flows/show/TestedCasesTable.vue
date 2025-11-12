@@ -14,8 +14,6 @@
           </template>
         </Column>
       </DataTable>
-
-      <ExecutionResult v-if="testCase.endMetadata" :result="testCase.endMetadata" />
     </div>
   </div>
 </template>
@@ -23,8 +21,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DataTable, Column } from 'primevue'
-
-import ExecutionResult from '@/components/flows/show/ExecutionResult.vue'
 
 import { useFlowStore } from '@/stores/flow'
 import type { Variable } from '@/interfaces/variables'
