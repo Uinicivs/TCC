@@ -16,17 +16,23 @@
             placeholder="E-mail"
             size="small"
             class="w-full !bg-transparent"
-            :disabled="isLoading.value"
+            :disabled="isLoading"
           />
-          <InputText
-            v-model="user.password"
-            placeholder="Senha"
-            type="password"
-            size="small"
-            class="w-full !bg-transparent"
-            :disabled="isLoading.value"
-          />
-          <Button label="Entrar" type="submit" size="small" :loading="isLoading.value" />
+          <IconField>
+            <InputText
+              v-model="user.password"
+              placeholder="Senha"
+              :type="getInputType"
+              size="small"
+              class="w-full !bg-transparent"
+              :disabled="isLoading"
+            />
+            <InputIcon
+              :class="`pi ${getPasswordIcon} cursor-pointer`"
+              @click="showPassword = !showPassword"
+            />
+          </IconField>
+          <Button label="Entrar" type="submit" size="small" :loading="isLoading" />
         </form>
       </div>
     </DottedBackground>
@@ -34,9 +40,9 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from 'vue'
+import { reactive, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Button, InputText } from 'primevue'
+import { Button, InputText, IconField, InputIcon } from 'primevue'
 import { useToast } from 'primevue/usetoast'
 
 import DottedBackground from '@/components/shared/DottedBackground.vue'
@@ -53,7 +59,24 @@ const user = reactive<IUser>({
   password: '',
 })
 
-const isLoading = reactive({ value: false })
+const showPassword = ref(false)
+const isLoading = ref(false)
+
+const getPasswordIcon = computed<string>(() => {
+  if (showPassword.value) {
+    return 'pi-eye-slash'
+  }
+
+  return 'pi-eye'
+})
+
+const getInputType = computed<string>(() => {
+  if (showPassword.value) {
+    return 'text'
+  }
+
+  return 'password'
+})
 
 const handleSubmit = async () => {
   if (!user.email || !user.password) {
