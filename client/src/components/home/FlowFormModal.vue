@@ -133,37 +133,37 @@ watch(
   >
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <label for="flowName" class="font-medium text-neutral-700">
+        <label for="flowName" class="font-medium">
           Nome do Fluxo <span class="text-red-700">*</span>
+          <InputText
+            id="flowName"
+            v-model="newFlow.flowName"
+            :disabled="loading"
+            :invalid="!!errors.flowName"
+            autofocus
+            required
+            size="small"
+            placeholder="Digite o nome do fluxo"
+            class="w-full !bg-transparent"
+          />
         </label>
-        <InputText
-          id="flowName"
-          v-model="newFlow.flowName"
-          :disabled="loading"
-          :invalid="!!errors.flowName"
-          autofocus
-          required
-          size="small"
-          placeholder="Digite o nome do fluxo"
-          class="w-full !bg-transparent"
-        />
         <Message v-if="errors.flowName" severity="error" size="small" variant="simple">
           {{ errors.flowName }}
         </Message>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label for="flowDescription" class="font-medium text-neutral-700">
+        <label for="flowDescription" class="font-medium">
           Descrição (opcional)
+          <Textarea
+            id="flowDescription"
+            v-model="newFlow.flowDescription"
+            placeholder="Digite uma descrição para o fluxo"
+            :disabled="loading"
+            :rows="3"
+            class="w-full !bg-transparent"
+          />
         </label>
-        <Textarea
-          id="flowDescription"
-          v-model="newFlow.flowDescription"
-          placeholder="Digite uma descrição para o fluxo"
-          :disabled="loading"
-          :rows="3"
-          class="w-full !bg-transparent"
-        />
       </div>
     </div>
 
