@@ -4,10 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-    'X-API-Key': import.meta.env.VITE_API_KEY,
-  },
+  headers: { 'Content-Type': 'application/json' },
 })
 
 let isRefreshing = false
@@ -78,12 +75,7 @@ api.interceptors.response.use(
     try {
       const refreshResponse = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/auth/refresh?refresh_token=${refresh}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-Key': import.meta.env.VITE_API_KEY,
-          },
-        },
+        { headers: { 'Content-Type': 'application/json' } },
       )
 
       const { accessToken } = refreshResponse.data
