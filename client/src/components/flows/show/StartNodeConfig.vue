@@ -187,7 +187,7 @@ const addVariable = async () => {
   const newVariable: Variable = {
     displayName: '',
     type: 'text',
-    required: true,
+    required: false,
   }
 
   variables.value.push(newVariable)
