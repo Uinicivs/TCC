@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.post('/', response_model=flow_dtos.ReadFlowOutDTO, status_code=status.HTTP_201_CREATED)
+@router.post('', response_model=flow_dtos.ReadFlowOutDTO, status_code=status.HTTP_201_CREATED)
 async def create_flow(flow_in: flow_dtos.CreateFlowInDTO,
                       current_user: User = Depends(get_current_user),
                       flow_service: FlowService = Depends(get_flow_service),
@@ -36,7 +36,7 @@ async def create_flow(flow_in: flow_dtos.CreateFlowInDTO,
 
 
 @router.get(
-    '/',
+    '',
     response_model=list[flow_dtos.ReadFlowsOutDTO],
 )
 async def get_flows(current_user: User = Depends(get_current_user),

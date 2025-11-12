@@ -37,7 +37,7 @@ instrumentator = Instrumentator()
 instrumentator.instrument(app)
 
 
-@app.get('/')
+@app.get('')
 def read_root():
     return {'message': 'hello world!'}
 

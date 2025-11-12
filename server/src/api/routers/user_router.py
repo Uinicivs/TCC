@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.post(
-    '/',
+    '',
     dependencies=[Depends(is_admin)],
     status_code=status.HTTP_201_CREATED,
     response_model=user_dtos.ReadUserOutDTO
@@ -31,12 +31,12 @@ async def create_user(user_in: user_dtos.CreateUserInDTO, service: UserService =
     '/me',
     response_model=user_dtos.ReadUserOutDTO
 )
-async def get_current_user(current_user: User = Depends(get_current_user)):
+async def get_present_user(current_user: User = Depends(get_current_user)):
     return current_user
 
 
 @router.get(
-    '/',
+    '',
     dependencies=[Depends(is_admin)],
     response_model=list[user_dtos.ReadUsersOutDTO]
 )
