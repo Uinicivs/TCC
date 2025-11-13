@@ -82,6 +82,26 @@ body {
   outline: none !important;
 }
 
+.driver-popover-title,
+.driver-popover-description,
+.driver-popover-footer,
+.driver-popover-close-btn {
+  display: none !important;
+}
+
+.driver-popover * {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif !important;
+}
+
+.driver-popover {
+  width: 100% !important;
+  max-width: 348px !important;
+  border-radius: 1rem !important;
+  padding: 0 !important;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

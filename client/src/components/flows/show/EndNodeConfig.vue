@@ -98,7 +98,7 @@ const updateResponse = () => {
   if (responseType.value === 'default') {
     responseValue = defaultResponseValue.value
   } else {
-    responseValue = customResponseText.value || undefined
+    responseValue = customResponseText.value ? JSON.parse(customResponseText.value) : undefined
   }
 
   settings.value.response = responseValue
@@ -117,7 +117,10 @@ const initializeComponent = () => {
     return
   }
 
-  if (typeof currentResponse === 'boolean' || !currentResponse) {
+  if (
+    (typeof currentResponse === 'boolean' && currentResponse === defaultResponseValue.value) ||
+    !currentResponse
+  ) {
     responseType.value = 'default'
     return
   }
