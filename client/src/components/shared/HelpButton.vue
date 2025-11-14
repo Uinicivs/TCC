@@ -9,7 +9,9 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { Button } from 'primevue'
+import { useAuthStore } from '@/stores/auth'
 import { useTutorial } from '@/composable/useTutorial'
 import type { IStep } from '@/interfaces/tutorial'
 
@@ -19,6 +21,13 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const authStore = useAuthStore()
+
+onMounted(() => {
+  if (authStore.user?.firstAccess) {
+    handleClick()
+  }
+})
 
 const handleClick = () => {
   useTutorial({

@@ -4,9 +4,6 @@ import { useRouter } from 'vue-router'
 import { DataTable, Column, Button, ContextMenu, Card, SelectButton, Toolbar } from 'primevue'
 import { useToast } from 'primevue/usetoast'
 
-import { useAuthStore } from '@/stores/auth'
-import { useTutorial } from '@/composable/useTutorial'
-
 import type { IFlow } from '@/interfaces/flow'
 
 import FlowFormModal from '@/components/home/FlowFormModal.vue'
@@ -27,7 +24,6 @@ import { homeTutorial } from '@/constants/tutorials'
 const router = useRouter()
 const contextMenuRef = useTemplateRef('contextMenu')
 const toast = useToast()
-const authStore = useAuthStore()
 
 const flowLimit = Number(import.meta.env.VITE_DECISION_FLOW_LIMIT) || 10
 
@@ -43,9 +39,6 @@ const modeOptions = ['Tabela', 'Cards']
 
 onMounted(async () => {
   await loadFlows()
-  if (authStore.user?.firstAccess) {
-    useTutorial({ steps: homeTutorial })
-  }
 })
 
 watch(activeMode, (newMode) => {
