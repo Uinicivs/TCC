@@ -11,6 +11,8 @@ export const login = async (payload: ILoginPayload): Promise<ILoginResponse> => 
 
     localStorage.setItem('token_expires', response.data.tokenExpires)
 
+    await authStore.fetchUserData()
+
     return response.data
   } catch {
     throw new Error('Falha ao fazer login. Verifique suas credenciais.')

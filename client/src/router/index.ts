@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 function isAuthenticated(): boolean {
   const accessToken = localStorage.getItem('access_token')
@@ -8,8 +9,21 @@ function isAuthenticated(): boolean {
 }
 
 function requiresAuth() {
-  return (to: any, from: any, next: any) => {
+  return async (to: any, from: any, next: any) => {
     if (isAuthenticated()) {
+      const authStore = useAuthStore()
+
+      if (!authStore.user && authStore.isAuthenticated) {
+        try {
+          await authStore.fetchUserData()
+        } catch (error) {
+          console.error('Erro ao buscar dados do usuário:', error)
+          authStore.clearTokens()
+          next('/login')
+          return
+        }
+      }
+
       next()
       return
     }

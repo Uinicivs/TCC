@@ -10,10 +10,14 @@
 
     <Popover ref="menu" class="!rounded-tl-xl !rounded-bl-xl !rounded-br-xl !shadow-lg">
       <div class="flex flex-col gap-3 min-w-[200px]">
-        <div class="flex items-center gap-2">
-          <Avatar :label="userInitials" shape="circle" size="normal" />
-
-          <p class="text-sm truncate">{{ userEmail }}</p>
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <Avatar :label="userInitials" shape="circle" size="normal" />
+            <div class="flex flex-col">
+              <p class="text-sm font-medium truncate">{{ userName }}</p>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">{{ userEmail }}</p>
+            </div>
+          </div>
         </div>
 
         <Button
@@ -38,7 +42,7 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const { userEmail, userInitials } = storeToRefs(authStore)
+const { userEmail, userName, userInitials } = storeToRefs(authStore)
 const menuRef = useTemplateRef('menu')
 
 const handleLogout = () => {
