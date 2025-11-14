@@ -98,7 +98,12 @@ const menuItems = computed(() => {
 </script>
 
 <template>
-  <div ref="node-wrapper" class="relative w-[250px]" @contextmenu="handleClick($event)">
+  <div
+    ref="node-wrapper"
+    class="relative w-[250px] cursor-pointer"
+    @contextmenu="handleClick($event)"
+    @click.stop="openEditDialog"
+  >
     <Handle type="target" :position="Position.Top" />
 
     <transition name="fade">
