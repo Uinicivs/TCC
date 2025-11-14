@@ -15,9 +15,11 @@ import { mapSchemaToFlow } from '@/utils/flowFormatters'
 import AddNode from '@/components/flows/show/AddNode.vue'
 import ExecuteFlowDrawer from '@/components/flows/show/ExecuteFlowDrawer.vue'
 import TestFlowPopover from '@/components/flows/show/TestFlowPopover.vue'
+import HelpButton from '@/components/shared/HelpButton.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
 import { nodes as mappedNodes } from '@/constants/nodes'
+import { flowEditorTutorial } from '@/constants/tutorials'
 
 const route = useRoute()
 const router = useRouter()
@@ -108,10 +110,11 @@ const goBack = () => {
           </Card>
         </div>
 
-        <VueFlow v-else :nodes :edges @nodeDragStop="onNodeDragStop">
+        <VueFlow v-else id="flow-editor-canvas" :nodes :edges @nodeDragStop="onNodeDragStop">
           <Toolbar class="w-full z-10 fixed dark:!border-none !rounded-t-none">
             <template #start>
               <Button
+                id="back-button"
                 icon="pi pi-arrow-left"
                 size="small"
                 severity="secondary"
@@ -124,8 +127,10 @@ const goBack = () => {
             </template>
 
             <template #end>
-              <div class="flex space-x-1">
+              <div class="flex space-x-1 items-center">
+                <HelpButton id="help-button" :steps="flowEditorTutorial" />
                 <Button
+                  id="test-flow-button"
                   icon="pi pi-sparkles"
                   label="Testar"
                   size="small"
@@ -133,14 +138,24 @@ const goBack = () => {
                   severity="contrast"
                   @click="(event: Event) => testPopoverRef?.toggle(event)"
                 />
-                <Button label="Executar" size="small" @click="showExecuteDrawer = true" />
+                <Button
+                  id="execute-flow-button"
+                  label="Executar"
+                  size="small"
+                  @click="showExecuteDrawer = true"
+                />
               </div>
             </template>
           </Toolbar>
 
-          <AddNode v-if="!nodes.length" class="fixed top-20 left-1/2 z-10" :parentId="null" />
-          <Background variant="dots" />
-          <Controls :showInteractive="false" />
+          <AddNode
+            v-if="!nodes.length"
+            id="add-first-node"
+            class="fixed top-20 left-1/2 z-10"
+            :parentId="null"
+          />
+          <Background id="flow-background" variant="dots" />
+          <Controls id="flow-controls" :showInteractive="false" />
 
           <template
             v-for="(nodeComponent, type) in nodeComponents"
