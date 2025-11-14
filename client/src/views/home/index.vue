@@ -25,6 +25,8 @@ const router = useRouter()
 const contextMenuRef = useTemplateRef('contextMenu')
 const toast = useToast()
 
+const flowLimit = Number(import.meta.env.VITE_DECISION_FLOW_LIMIT) || 10
+
 const flows = ref<IFlow[]>([])
 const loading = ref(false)
 const showFlowFormModal = ref(false)
@@ -234,7 +236,7 @@ watch(
 
         <div class="justify-self-center lg:justify-self-end flex gap-4">
           <Button
-            v-if="flows.length < 10"
+            v-if="flows.length < flowLimit"
             id="create-flow-button"
             label="Criar novo fluxo"
             size="small"
@@ -243,7 +245,7 @@ watch(
           />
           <Button
             v-else
-            v-tooltip.top="'Você só pode criar até 10 fluxos.'"
+            v-tooltip.top="`Você só pode criar até ${flowLimit} fluxos.`"
             label="Limite atingido"
             size="small"
             disabled
@@ -312,7 +314,7 @@ watch(
             id="flows-table"
             :value="flows"
             :loading
-            :rows="10"
+            :rows="flowLimit"
             responsiveLayout="scroll"
             class="rounded-lg w-7xl h-full flex flex-col dark:bg-transparent"
             size="large"
