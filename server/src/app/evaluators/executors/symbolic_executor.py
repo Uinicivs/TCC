@@ -1,6 +1,4 @@
-# src/app/evaluators/executors/symbolic_executor.py
-import hashlib
-from typing import Optional, List, Tuple, Set
+from typing import Optional, List, Tuple
 from z3 import (   # type: ignore
     sat,
     unsat,
@@ -11,40 +9,42 @@ from z3 import (   # type: ignore
     is_or,
     is_and,
     is_not,
-    # unknown,
+    unknown,
     simplify,
 
-    Or,
     Not,
     And,
     Solver,
     BoolVal,
     ExprRef,
     ModelRef,
+    CheckSatResult,
 )
 
+from src.app.core.config import get_settings
 from src.app.evaluators.parser import get_parser
 from src.app.evaluators.transformers import SymbolicTransfomer
 from src.app.models.node_model import AnyNode, ConditionalNode, EndNode
 from src.utils.symbolic_var import symbolic_var_factory, concretize_model
-from src.app.core.exceptions import InvalidFlowException, RuntimeException
+from src.app.core.exceptions import (
+    RuntimeException,
+    InvalidFlowException,
+    SymbolicTimeoutException,
+)
 from src.app.models.symbolic_model import (
     Coverage,
     CaseResult,
     PrunedBranch,
+    UncoveredPath,
     ReductionInfo,
     SymbolicReport,
 )
 
 
-def _canonical_key_from_exprs(exprs: List[Optional[ExprRef]]) -> str:
-    items = sorted(str(e) for e in exprs if e is not None)
-    key_text = "|".join(items)
-    return hashlib.sha256(key_text.encode("utf-8")).hexdigest()
+settings = get_settings()
 
 
 def expr_to_zf_string(expr: ExprRef) -> str:
-    """Converte uma expressão Z3 para uma string legível na sintaxe ZF."""
     if is_and(expr):
         return " and ".join(expr_to_zf_string(c) for c in expr.children())
 
@@ -74,24 +74,31 @@ def expr_to_zf_string(expr: ExprRef) -> str:
     # Caso base: variável, número, comparação simples, função Z3
     s = str(expr)
     s = s.replace("==", "=")
-    s = s.replace("And", "and").replace("Or", "or")
-    s = s.replace("If", "if")
+    s = s.replace("And", "and").replace("Or", "or").replace("Not", "not")
     return s
 
 
 class SymbolicExecutor:
     def __init__(self, nodes: List[AnyNode]):
         self.nodes = nodes
+
         self.solver = Solver()
+        self.solver.set(
+            'timeout',
+            settings.Z3_SOLVER_TIMEOUT_MILLISECONDS
+        )
+
+        self.simplifier_solver = Solver()
+
         self.parser = get_parser()
         self.symbolic_vars = self._create_symbolic_vars()
         self.transformer = SymbolicTransfomer(self.symbolic_vars)
+        self.transformer.reverse_map[BoolVal(True)] = "true"
 
         # aux (outputs)
         self.cases: List[CaseResult] = []
         self.pruned: List[PrunedBranch] = []
-        self.conflicts: List[List[str]] = []
-        self.duplicates: List[List[str]] = []
+        self.uncovered: List[UncoveredPath] = []
         self.reductions: List[ReductionInfo] = []
         # store exprRef lists for every case (for precise analysis later)
         self._case_exprs: List[List[Optional[ExprRef]]] = []
@@ -99,6 +106,24 @@ class SymbolicExecutor:
     # -------------------------
     # helpers
     # -------------------------
+    def _reset_simplifier(self):
+        try:
+            self.simplifier_solver.reset()
+        finally:
+            self.simplifier_solver.set(
+                "timeout",
+                settings.Z3_SOLVER_TIMEOUT_MILLISECONDS
+            )
+
+    def _check_with_timeout(self, solver: Solver) -> CheckSatResult:
+        res = solver.check()
+        if res == unknown:
+            reason = solver.reason_unknown()
+            if "timeout" in reason:
+                raise SymbolicTimeoutException()
+
+        return res
+
     def _create_symbolic_vars(self) -> dict[str, ExprRef]:
         start_node = next(
             (node for node in self.nodes if node.nodeType == "START"), None)
@@ -113,10 +138,19 @@ class SymbolicExecutor:
         return children
 
     def _zf_text(self, expr: Optional[ExprRef]) -> str:
-        """Retorna representação ZF legível para ExprRef (usa reverse_map se disponível)."""
         if expr is None:
             return "<undecidable>"
-        return self.transformer.reverse_map.get(expr, expr_to_zf_string(expr))
+
+        try:
+            # attempt to find canonical simplified key in reverse_map
+            simp = simplify(expr)
+            if simp in self.transformer.reverse_map:
+                return self.transformer.reverse_map[simp]
+            if expr in self.transformer.reverse_map:
+                return self.transformer.reverse_map[expr]
+        except Exception:
+            pass
+        return expr_to_zf_string(expr)
 
     # -------------------------
     # public API
@@ -129,73 +163,78 @@ class SymbolicExecutor:
 
         self.cases.clear()
         self.pruned.clear()
-        self.conflicts.clear()
-        self.duplicates.clear()
+        self.uncovered.clear()
         self.reductions.clear()
         self._case_exprs.clear()
 
-        stack: list[tuple[AnyNode, list[Optional[ExprRef]], Optional[bool]]] = [
-            (start_node, [], None)
-        ]
+        stack: list[tuple[AnyNode, list[Optional[ExprRef]], Optional[bool]]] = []
+        for child in self._get_children(start_node.nodeId):
+            stack.append((child, [], None))
 
         while stack:
             node, constraints, is_false_case = stack.pop()
 
-            if node.nodeType == "START":
-                for child in self._get_children(node.nodeId):
-                    stack.append((child, list(constraints), None))
-
-            elif node.nodeType == "CONDITIONAL":
+            if node.nodeType == "CONDITIONAL":
                 assert isinstance(node, ConditionalNode)
-                expr_text = getattr(node.metadata, "expression", "").replace(
-                    "'", '"').strip()
+                expr_text = node.metadata.expression.replace("'", '"').strip()
                 try:
                     tree = self.parser.parse(expr_text)
                     cond = self.transformer.transform(tree)
                 except Exception as e:
                     raise RuntimeException(
-                        f"expression - {expr_text} - from node {node.nodeId} could not be translated: {e}"
+                        f'expression - {expr_text} - from node {node.nodeId} '
+                        f'could not be translated: {e}'
                     )
 
-                simplified_cond, removed_parts = self._simplify_with_context(
-                    cond, constraints)
+                # attempt to simplify with context
+                try:
+                    simplified, removed_parts = self._simplify_with_context(
+                        cond,
+                        [c for c in constraints if c is not None]
+                    )
+                except SymbolicTimeoutException:
+                    raise
+                except Exception:
+                    # fallback to original cond if simplification fails unexpectedly
+                    simplified, removed_parts = cond, []
+
                 if removed_parts:
-                    self.reductions.append(
-                        ReductionInfo(
-                            nodeId=node.nodeId,
-                            original=self._zf_text(cond),
-                            simplified=self._zf_text(simplified_cond),
-                            removedParts=[self._zf_text(r)
-                                          for r in removed_parts],
-                        )
-                    )
+                    # map removed parts to readable strings
+                    removed_texts = [self._zf_text(r) for r in removed_parts]
+                    orig_text = self._zf_text(cond)
+                    simp_text = self._zf_text(simplified)
+                    self.reductions.append(ReductionInfo(
+                        nodeId=node.nodeId,
+                        original=orig_text,
+                        simplified=simp_text,
+                        removedParts=removed_texts
+                    ))
 
-                # True branch
-                self._process_branch(node, simplified_cond,
-                                     constraints, stack, False)
-                # False branch
+                # process true branch (is_false_case=False)
                 self._process_branch(
-                    node, Not(simplified_cond), constraints, stack, True)
+                    node, simplified, constraints, stack, False)
+                # process false branch (is_false_case=True) using Not(simplified)
+                self._process_branch(node, Not(simplified),
+                                     constraints, stack, True)
 
             elif node.nodeType == "END":
+                assert isinstance(node, EndNode)
+                # finalize case
                 self._finalize_case(node, constraints)
 
         # post-processing
-        self._analyze_duplicates()
-        self._analyze_conflicts()
         coverage = self._calculate_coverage()
 
         return SymbolicReport(
             cases=self.cases,
             coverage=coverage,
             pruned=self.pruned,
-            # conflicts=self.conflicts,
+            uncovered=self.uncovered,
             reductions=self.reductions,
-            # duplicates=self.duplicates,
         )
 
     # -------------------------
-    # traversal
+    # core operations
     # -------------------------
     def _process_branch(
         self,
@@ -205,6 +244,31 @@ class SymbolicExecutor:
         stack: list[tuple[AnyNode, list[Optional[ExprRef]], Optional[bool]]],
         is_false_case: bool,
     ):
+        if cond is not None:
+            # use a fresh reset of simplifier to check condition in isolation
+            self._reset_simplifier()
+            try:
+                self.simplifier_solver.add(cond)
+                chk = self._check_with_timeout(self.simplifier_solver)
+                if chk == unsat:
+                    # the condition itself is impossible
+                    child_nodes = self._get_children(
+                        node.nodeId, is_false_case)
+                    unsat_constraints = [self._zf_text(cond)]
+                    for child in child_nodes:
+                        self.pruned.append(PrunedBranch(
+                            nodeId=child.nodeId,
+                            isFalseCase=is_false_case,
+                            reason="unsatisfiable",
+                            unsatConstraints=unsat_constraints
+                        ))
+                    return
+            finally:
+                # always reset simplifier after this quick check
+                self._reset_simplifier()
+
+        # 2) Evaluate condition in the context of accumulated constraints using main solver
+        # push/pop to isolate context
         self.solver.push()
         try:
             for c in constraints:
@@ -213,176 +277,237 @@ class SymbolicExecutor:
             if cond is not None:
                 self.solver.add(cond)
 
-            chk = self.solver.check()
+            chk = self._check_with_timeout(self.solver)
             if chk == sat:
                 new_constraints = list(constraints) + [cond]
-                for child in self._get_children(node.nodeId, is_false_case):
-                    stack.append((child, new_constraints, is_false_case))
-            else:
-                unsat_constraints = [
-                    self._zf_text(c) for c in constraints if c is not None
-                ]
-                if cond is not None:
-                    unsat_constraints.append(self._zf_text(cond))
 
-                reason = self._classify_pruned_case(constraints, cond)
+                child_nodes = self._get_children(node.nodeId, is_false_case)
+
+                if not child_nodes:
+                    if node.nodeType != 'END':
+                        self.uncovered.append(
+                            UncoveredPath(
+                                nodeId=node.nodeId,
+                                constraints=[
+                                    self._zf_text(c) for c in new_constraints if c is not None
+                                ]
+                            )
+                        )
+                    return
+
+                for child in child_nodes:
+                    stack.append((child, new_constraints, is_false_case))
+            elif chk == unsat:
+                # build unsat_constraints (dedupe and preserve order)
+                unsat_constraints = []
+                seen = set()
+                for c in constraints:
+                    if c is not None:
+                        t = self._zf_text(c)
+                        if t not in seen:
+                            unsat_constraints.append(t)
+                            seen.add(t)
+                if cond is not None:
+                    t = self._zf_text(cond)
+                    if t not in seen:
+                        unsat_constraints.append(t)
+                        seen.add(t)
+
                 child_nodes = self._get_children(node.nodeId, is_false_case)
                 for child in child_nodes:
-                    self.pruned.append(
-                        PrunedBranch(
-                            nodeId=child.nodeId,
-                            isFalseCase=is_false_case,
-                            reason=reason,
-                            unsatConstraints=unsat_constraints,
-                        )
-                    )
+                    self.pruned.append(PrunedBranch(
+                        nodeId=child.nodeId,
+                        isFalseCase=is_false_case,
+                        reason="unreachable",
+                        unsatConstraints=unsat_constraints
+                    ))
+            else:
+                # should not happen because _check_with_timeout raises on unknown
+                raise SymbolicTimeoutException()
         finally:
             self.solver.pop()
-
-    # -------------------------
-    # simplify w/ context
-    # -------------------------
 
     def _simplify_with_context(self, expr: ExprRef,
-                               constraints: List[Optional[ExprRef]]) -> Tuple[ExprRef, List[ExprRef]]:
-        # quick path: no context
-        if not constraints:
-            simplified = simplify(expr)
-            # record reverse_map for simplified if missing
-            if simplified not in self.transformer.reverse_map:
-                self.transformer.reverse_map[simplified] = str(simplified)
-            return simplified, []
+                               base: List[Optional[ExprRef]]) -> Tuple[ExprRef, List[ExprRef]]:
+        removed_parts: list[ExprRef] = []
 
-        # prepare concrete base constraints
-        base = [c for c in constraints if c is not None]
+        # normalize base (filter None)
+        concrete_base = [c for c in base if c is not None]
 
-        # 0) If base already implies expr -> expr redundant
-        s_imp = Solver()
-        for c in base:
-            s_imp.add(c)
-        s_imp.add(Not(expr))
-        if s_imp.check() == unsat:
-            # expr is implied by context -> redundant
-            true_expr = BoolVal(True)
-            # register friendly ZF text for this new expr so _zf_text prints "true"
-            self.transformer.reverse_map[true_expr] = "true"
-            return true_expr, [expr]  # removed_parts contains original expr
+        # Helper: check base ∧ candidate is UNSAT (i.e., candidate impossible under base)
+        def _base_contradicts(candidate: ExprRef) -> bool:
+            try:
+                self._reset_simplifier()
+                for c in concrete_base:
+                    self.simplifier_solver.add(c)
+                self.simplifier_solver.add(candidate)
+                chk = self._check_with_timeout(self.simplifier_solver)
+                return chk == unsat
+            finally:
+                self._reset_simplifier()
 
-        # Otherwise, fall back to previous logic (remove redundant subparts)
-        self.solver.push()
-        try:
-            for c in base:
-                self.solver.add(c)
+        # Helper: check base implies candidate (base => candidate)
+        def _base_implies(candidate: ExprRef) -> bool:
+            try:
+                self._reset_simplifier()
+                for c in concrete_base:
+                    self.simplifier_solver.add(c)
+                self.simplifier_solver.add(Not(candidate))
+                chk = self._check_with_timeout(self.simplifier_solver)
+                return chk == unsat
+            finally:
+                self._reset_simplifier()
 
-            removed_parts: List[ExprRef] = []
+        # 0) If no context, allow only "real" simplify improvements (conservative)
+        if not concrete_base:
+            try:
+                simplified = simplify(expr)
+            except Exception:
+                return expr, []
 
-            def remove_redundant_parts(e: ExprRef) -> ExprRef:
-                if is_and(e):
-                    new_children = []
-                    for child in e.children():
-                        self.solver.push()
-                        self.solver.add(Not(child))
-                        try:
-                            chk = self.solver.check()
-                        finally:
-                            self.solver.pop()
-                        if chk == unsat:
-                            removed_parts.append(child)
-                        else:
-                            new_children.append(child)
-                    if not new_children:
-                        return e
-                    elif len(new_children) == 1:
-                        return new_children[0]
-                    else:
-                        return And(*new_children)
-                elif is_or(e):
-                    new_children = []
-                    for child in e.children():
-                        self.solver.push()
-                        self.solver.add(child)
-                        try:
-                            chk = self.solver.check()
-                        finally:
-                            self.solver.pop()
-                        if chk == unsat:
-                            removed_parts.append(child)
-                        else:
-                            new_children.append(child)
-                    if not new_children:
-                        return e
-                    elif len(new_children) == 1:
-                        return new_children[0]
-                    else:
-                        return Or(*new_children)
-                else:
-                    return e
+            # Nothing changed
+            if simplified is None or str(simplified) == str(expr):
+                return expr, []
 
-            simplified_expr = remove_redundant_parts(expr)
-            simplified_expr = simplify(simplified_expr)
+            # Accept only if it's a literal True/False or strictly shorter textual form
+            try:
+                is_bool_literal = simplified.eq(
+                    BoolVal(True)) or simplified.eq(BoolVal(False))
+            except Exception:
+                is_bool_literal = False
 
-            # ensure we have reverse_map entry for the simplified expr (friendly text fallback)
-            if simplified_expr not in self.transformer.reverse_map:
-                # try to map to a nicer ZF-like string — prefer expr_to_zf_string
+            if is_bool_literal or len(str(simplified)) < len(str(expr)):
+                # register pretty mapping if possible
                 try:
-                    pretty = expr_to_zf_string(simplified_expr)
+                    self.transformer.reverse_map[simplified] = self._zf_text(
+                        simplified)
                 except Exception:
-                    pretty = str(simplified_expr)
-                self.transformer.reverse_map[simplified_expr] = pretty
+                    pass
+                return simplified, [expr]
 
-            return simplified_expr, removed_parts
+            return expr, []
+
+        # 1) If base contradicts the whole expr -> this is NOT a reduction, it's a contradiction
+        try:
+            if _base_contradicts(expr):
+                return expr, []
+        except SymbolicTimeoutException:
+            raise
+        except Exception:
+            # if simplifier fails unexpectedly, continue with conservative path
+            pass
+
+        # 2) If it's a conjunction, test each conjunct individually and remove those implied by base
+        try:
+            if is_and(expr):
+                children = list(expr.children())
+                remaining = []
+
+                for ch in children:
+                    try:
+                        if _base_implies(ch):
+                            removed_parts.append(ch)
+                        else:
+                            # also protect: if base contradicts the child, that's inconsistency (handled elsewhere),
+                            # but don't treat as reduction here.
+                            remaining.append(ch)
+                    except SymbolicTimeoutException:
+                        # propagate timeout
+                        raise
+                    except Exception:
+                        # on unexpected errors, keep the child (conservative)
+                        remaining.append(ch)
+
+                # if all children removed => expression fully redundant -> True
+                if not remaining:
+                    true_expr = BoolVal(True)
+                    try:
+                        self.transformer.reverse_map[simplify(
+                            true_expr)] = "true"
+                    except Exception:
+                        pass
+                    return true_expr, removed_parts
+
+                # build new expr
+                if len(remaining) == 1:
+                    new_expr = remaining[0]
+                else:
+                    new_expr = And(*remaining)
+
+                # register pretty mapping only if textual form changed
+                try:
+                    if self._zf_text(new_expr) != self._zf_text(expr):
+                        self.transformer.reverse_map[simplify(
+                            new_expr)] = self._zf_text(new_expr)
+                except Exception:
+                    pass
+
+                return new_expr, removed_parts
+        except SymbolicTimeoutException:
+            raise
+        except Exception:
+            # fallback to next strategies
+            pass
+
+        # 3) Whole-expression implication: if base => expr then expr is redundant
+        try:
+            if _base_implies(expr):
+                true_expr = BoolVal(True)
+                try:
+                    self.transformer.reverse_map[simplify(true_expr)] = "true"
+                except Exception:
+                    pass
+                return true_expr, [expr]
+        except SymbolicTimeoutException:
+            raise
+        except Exception:
+            pass
+
+        # 4) Controlled use of simplify(): accept only real improvements
+        try:
+            simplified = simplify(expr)
+            if simplified is not None and str(simplified) != str(expr):
+                try:
+                    is_bool_literal = simplified.eq(
+                        BoolVal(True)) or simplified.eq(BoolVal(False))
+                except Exception:
+                    is_bool_literal = False
+
+                if is_bool_literal or len(str(simplified)) < len(str(expr)):
+                    try:
+                        self.transformer.reverse_map[simplified] = self._zf_text(
+                            simplified)
+                    except Exception:
+                        pass
+                    return simplified, [expr]
+        except Exception:
+            pass
+
+        # 5) Final conservative fallback: try main solver to check base => expr (if simplifier unavailable)
+        try:
+            self.solver.push()
+            for c in concrete_base:
+                self.solver.add(c)
+            self.solver.add(Not(expr))
+            chk2 = self._check_with_timeout(self.solver)
+            if chk2 == unsat:
+                true_expr = BoolVal(True)
+                try:
+                    self.transformer.reverse_map[simplify(true_expr)] = "true"
+                except Exception:
+                    pass
+                return true_expr, [expr]
         finally:
-            self.solver.pop()
+            try:
+                self.solver.pop()
+            except Exception:
+                # defensive: if pop fails, raise clearer error upstream
+                raise RuntimeException(
+                    "Solver stack imbalance during simplify_with_context fallback")
 
-    # -------------------------
-    # classify pruned
-    # -------------------------
-    def _classify_pruned_case(self, constraints: List[Optional[ExprRef]], new_cond: Optional[ExprRef]) -> str:
-        """
-        Distinguish:
-          - 'redundant_condition' if new_cond is implied by constraints
-          - 'unreachable' if constraints are sat but constraints + new_cond is unsat
-          - 'unsatisfiable' otherwise
-        Uses fresh solvers to avoid touching main solver state.
-        """
-        # Build list of concrete constraints (skip None)
-        base = [c for c in constraints if c is not None]
+        # nothing changed
+        return expr, []
 
-        # If new_cond is None, we can't classify semantically -> mark 'unsatisfiable'
-        if new_cond is None:
-            return "unsatisfiable"
-
-        # 1) check base satisfiability
-        s_base = Solver()
-        for c in base:
-            s_base.add(c)
-        base_sat = s_base.check() == sat
-
-        # 2) check base + new_cond satisfiability
-        s_new = Solver()
-        for c in base:
-            s_new.add(c)
-        s_new.add(new_cond)
-        new_sat = s_new.check() == sat
-
-        # unreachable: base sat, base + new_cond unsat
-        if base_sat and not new_sat:
-            return "unreachable"
-
-        # redundant: base implies new_cond -> base ∧ ¬new_cond unsat
-        s_imp = Solver()
-        for c in base:
-            s_imp.add(c)
-        s_imp.add(Not(new_cond))
-        if s_imp.check() == unsat:
-            return "redundant_condition"
-
-        # default
-        return "unsatisfiable"
-
-    # -------------------------
-    # finalize case
-    # -------------------------
     def _finalize_case(self, node: AnyNode, constraints: List[Optional[ExprRef]]) -> None:
         self.solver.push()
         try:
@@ -390,20 +515,22 @@ class SymbolicExecutor:
                 if c is not None:
                     self.solver.add(c)
 
-            if self.solver.check() == sat:
+            chk = self._check_with_timeout(self.solver)
+            if chk == sat:
                 model: ModelRef = self.solver.model()
                 concrete = concretize_model(model, self.symbolic_vars)
             else:
                 concrete = None
 
-            # textualize then dedupe preserving order
-            texts = [self._zf_text(c) for c in constraints if c is not None]
             seen = set()
             constraint_texts = []
-            for t in texts:
-                if t not in seen:
-                    seen.add(t)
-                    constraint_texts.append(t)
+            for c in constraints:
+                if c is None:
+                    continue
+                text = self._zf_text(c)
+                if text not in seen:
+                    seen.add(text)
+                    constraint_texts.append(text)
 
             assert isinstance(node, EndNode)
             self.cases.append(CaseResult(
@@ -412,47 +539,9 @@ class SymbolicExecutor:
                 constraints=constraint_texts,
                 concrete=concrete
             ))
-
-            # store expr refs aligned with cases for precise analysis
             self._case_exprs.append(list(constraints))
         finally:
             self.solver.pop()
-
-    # -------------------------
-    # duplicates & conflicts
-    # -------------------------
-    def _analyze_duplicates(self) -> None:
-        key_map: dict[str, set[str]] = {}
-        for idx, exprs in enumerate(self._case_exprs):
-            key = _canonical_key_from_exprs(exprs)
-            key_map.setdefault(key, set()).add(self.cases[idx].endNodeId)
-        self.duplicates = [sorted(list(v))
-                           for v in key_map.values() if len(v) > 1]
-
-    def _analyze_conflicts(self) -> None:
-        conflicts_set: Set[Tuple[str, str]] = set()
-        N = len(self._case_exprs)
-        for i in range(N):
-            for j in range(i + 1, N):
-                id_a = self.cases[i].endNodeId
-                id_b = self.cases[j].endNodeId
-                if id_a == id_b:
-                    continue
-                self.solver.push()
-                try:
-                    for c in self._case_exprs[i]:
-                        if c is not None:
-                            self.solver.add(c)
-                    for c in self._case_exprs[j]:
-                        if c is not None:
-                            self.solver.add(c)
-                    chk = self.solver.check()
-                    if chk == sat:
-                        pair = (id_a, id_b) if id_a <= id_b else (id_b, id_a)
-                        conflicts_set.add(pair)
-                finally:
-                    self.solver.pop()
-        self.conflicts = [list(pair) for pair in sorted(conflicts_set)]
 
     # -------------------------
     # coverage

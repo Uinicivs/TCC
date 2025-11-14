@@ -3,6 +3,7 @@ from bson import ObjectId
 from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from src.app.core.config import get_settings
 from src.app.core.security import hash_password, verify_password
 from src.app.core.auth import create_access_token, decode_access_token
 from src.app.models.user_model import User, UserRole, AuthUser, RefreshUser
@@ -13,7 +14,11 @@ from src.app.core.exceptions import (
     TokenExpiredException,
     UpdateFailedException,
     InvalidObjectIdException,
+    UserExceededFlowLimitException,
 )
+
+
+settings = get_settings()
 
 
 class UserService:
@@ -79,6 +84,12 @@ class UserService:
                 raise InvalidObjectIdException()
 
             user = await self.get_user(id)
+
+            if (user.role == UserRole.TESTER
+                    and user.flowCount >= settings.TESTER_MAX_FLOWS):
+                raise UserExceededFlowLimitException(
+                    f'You have reached the limit of {settings.TESTER_MAX_FLOWS}'
+                )
 
             update_user: dict[str, Any] = {}
             update_user['flowCount'] = user.flowCount + 1

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Request, Depends, status
 
 from src.api.dtos import flow_dtos
 from src.app.services import FlowService, UserService
 from src.app.models.user_model import User
 from src.api.dependencies import (
+    get_limiter,
     get_flow_service,
     get_user_service,
     get_current_user,
@@ -15,6 +16,7 @@ router = APIRouter(
     prefix='/decision_flows',
     tags=['Decision Flows']
 )
+limiter = get_limiter()
 
 
 @router.post('', response_model=flow_dtos.ReadFlowOutDTO, status_code=status.HTTP_201_CREATED)
@@ -24,13 +26,13 @@ async def create_flow(flow_in: flow_dtos.CreateFlowInDTO,
                       user_service: UserService = Depends(get_user_service)):
     assert current_user.id is not None
 
+    await user_service.increment_flow_count(current_user.id)
+
     created_flow = await flow_service.create_flow(
         owner_id=current_user.id,
         flow_name=flow_in.flowName,
         flow_description=flow_in.flowDescription,
     )
-
-    await user_service.increment_flow_count(current_user.id)
 
     return created_flow
 
@@ -113,6 +115,8 @@ async def evaluate_flow(id: str,
     dependencies=[Depends(get_authorized_user)],
     response_model=flow_dtos.TestFlowResponseDTO,
 )
-async def symbolic_evaluate_flow(id: str,
+@limiter.limit('10/minute')
+async def symbolic_evaluate_flow(request: Request,
+                                 id: str,
                                  service: FlowService = Depends(get_flow_service)):
     return await service.symbolic_evaluate_flow(id=id)

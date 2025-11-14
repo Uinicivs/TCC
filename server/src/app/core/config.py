@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 2
     GRAFANA_METRICS_TOKEN: str = ''
+    Z3_SOLVER_TIMEOUT_MILLISECONDS: int = 2000
+    TEST_ENDPOINT_RATE_LIMIT: str = '10/minute'
+    TESTER_MAX_FLOWS: int = 10
 
     class Config:
         env_file = '.env'

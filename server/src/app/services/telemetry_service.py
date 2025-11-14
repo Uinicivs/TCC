@@ -105,8 +105,9 @@ class TelemetryService:
 
         metrics = [
             ('pruned', prev.pruned, curr.pruned, -1),
+            ('uncovered', prev.uncovered, curr.uncovered, -0.7),
             ('reductions', prev.reductions, curr.reductions, -0.3),
-            ('coverage', prev.coverage, curr.coverage, 1.5)
+            ('coverage', prev.coverage, curr.coverage, 1.5),
         ]
 
         score: float = 0
