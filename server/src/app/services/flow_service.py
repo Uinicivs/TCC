@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from src.app.models.flow_model import Flow
+from src.utils.pool import run_in_threadpool
 from src.app.models.node_model import AnyNode
 from src.utils.validation import create_dynamic_model
 from src.app.services.telemetry_service import TelemetryService
@@ -12,8 +13,10 @@ from src.app.evaluators.executors import ConcreteExecutor, SymbolicExecutor
 from src.app.models.symbolic_model import SymbolicReport, SymbolicExecution
 from src.app.core.metrics import (
     symbolic_evaluations_total,
-    symbolic_evolution_index_gauge,
+    symbolic_solver_errors_total,
+    symbolic_solver_timeout_total,
     symbolic_inconsistencies_ratio,
+    symbolic_evolution_index_events,
     symbolic_evaluation_duration_seconds,
     symbolic_time_to_modification_seconds,
 )
@@ -27,6 +30,7 @@ from src.app.core.exceptions import (
     UpdateFailedException,
     InvalidPayloadException,
     InvalidObjectIdException,
+    SymbolicTimeoutException,
 )
 
 
@@ -147,7 +151,8 @@ class FlowService:
 
         if before:
             delta = (now - before).total_seconds()
-            symbolic_time_to_modification_seconds.observe(delta)
+            symbolic_time_to_modification_seconds.labels(
+                flow_id=id).observe(delta)
 
     async def evaluate_flow(self, id: str, payload: dict[str, Any]) -> dict:
         flow = await self.get_flow(id)
@@ -189,43 +194,54 @@ class FlowService:
 
         if num_start_nodes != 1:
             raise InvalidFlowException(
-                f'Flow is broken, it has {num_start_nodes} START NODEs, \
-                it should be 1'
+                f'Flow is broken, it has {num_start_nodes} START NODEs, '
+                'it should be 1'
             )
 
         if num_end_nodes < 2:
             raise InvalidFlowException(
-                f'Flow is broken, it has {num_end_nodes} END NODEs, \
-                it should have at least 2'
+                f'Flow is broken, it has {num_end_nodes} END NODEs, '
+                'it should have at least 2'
             )
 
         try:
             executor = SymbolicExecutor(flow.nodes)
-            result = executor.execute()
+            result: SymbolicReport = await run_in_threadpool(executor.execute)
+
         except Exception as e:
+            if isinstance(e, SymbolicTimeoutException):
+                symbolic_solver_timeout_total.inc()
+
+            symbolic_solver_errors_total.inc()
+
             re = RuntimeException(f'Error while testing flow {str(e)}')
             setattr(re, 'originalErrorType', type(e).__name__)
             raise re from e
 
         duration = time.perf_counter() - start
-        symbolic_evaluations_total.inc()
+        symbolic_evaluations_total.labels(flow_id=id).inc()
         symbolic_evaluation_duration_seconds.observe(duration)
 
         total_conds = sum(1 for n in flow.nodes if n.nodeType == 'CONDITIONAL')
-        inconsistencies = len(result.pruned) + len(result.reductions)
+        inconsistencies = (len(result.pruned)
+                           + len(result.reductions)
+                           + len(result.uncovered)
+                           )
         ratio = inconsistencies / total_conds if total_conds else 0
-        symbolic_inconsistencies_ratio.labels(flow_id=id).set(ratio)
+        symbolic_inconsistencies_ratio.labels(flow_id=id).observe(ratio)
 
         await self.telemetry_service.store_symbolic_execution(
             SymbolicExecution(
                 flowId=id,
                 pruned=len(result.pruned),
                 reductions=len(result.reductions),
+                uncovered=len(result.uncovered),
                 coverage=(result.coverage.endCount / num_end_nodes)
             )
         )
 
         sei = await self.telemetry_service.compute_symbolic_evolution_index(id)
-        symbolic_evolution_index_gauge.labels(flow_id=id).set(sei)
+        sei_norm = sei + 1
+        symbolic_evolution_index_events.labels(flow_id=id).observe(sei_norm)
 
         return result

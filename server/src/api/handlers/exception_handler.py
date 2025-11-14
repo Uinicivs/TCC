@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 from fastapi.exceptions import RequestValidationError
 
 from src.app.core.exceptions import (
@@ -35,3 +37,7 @@ def add_exception_handlers(app: FastAPI) -> None:
             status_code=translated.status_code,
             content={"error": translated.detail},
         )
+
+    @app.exception_handler(RateLimitExceeded)
+    async def handle_rate_limit(request: Request, exc: RateLimitExceeded):
+        return _rate_limit_exceeded_handler(request, exc)
