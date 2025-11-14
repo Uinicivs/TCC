@@ -102,7 +102,6 @@ const menuItems = computed(() => {
     ref="node-wrapper"
     class="relative w-[250px] cursor-pointer"
     @contextmenu="handleClick($event)"
-    @click.stop="openEditDialog"
   >
     <Handle type="target" :position="Position.Top" />
 
@@ -113,6 +112,7 @@ const menuItems = computed(() => {
     <div
       class="bg-neutral-50 p-4 border border-[#e2e8f0] rounded-lg dark:bg-neutral-900 dark:border-neutral-900 max-w-[300px] node-content"
       :class="containerClass"
+      @click.stop="openEditDialog"
     >
       <div class="flex gap-4 h-full">
         <i
@@ -169,8 +169,8 @@ const menuItems = computed(() => {
       :parentId="id || null"
     />
 
-    <ContextMenu ref="contextMenu" :model="menuItems" />
-
     <EditNode v-if="id" ref="editNode" :node-id="id" />
+
+    <ContextMenu ref="contextMenu" :model="menuItems" />
   </div>
 </template>
