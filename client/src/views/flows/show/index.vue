@@ -30,10 +30,20 @@ const flowStore = useFlowStore()
 const { nodes, edges, getStartNodeVariables } = storeToRefs(flowStore)
 
 const isLoading = ref<boolean>(true)
+const isSaving = ref<boolean>(false)
 const error = ref<string | null>(null)
 const flowName = ref<string>('')
 const showExecuteDrawer = ref<boolean>(false)
 const testPopoverRef = useTemplateRef('test-flow-popover')
+
+const handleSave = async () => {
+  isSaving.value = true
+  try {
+    await flowStore.saveFlowNow()
+  } finally {
+    isSaving.value = false
+  }
+}
 
 onMounted(async () => {
   try {
@@ -137,14 +147,23 @@ const goBack = () => {
                   label="Testar"
                   size="small"
                   variant="text"
-                  severity="contrast"
+                  severity="secondary"
                   @click="(event: Event) => testPopoverRef?.toggle(event)"
                 />
                 <Button
                   id="execute-flow-button"
                   label="Executar"
                   size="small"
+                  variant="text"
+                  severity="secondary"
                   @click="showExecuteDrawer = true"
+                />
+                <Button
+                  id="save-flow-button"
+                  label="Salvar"
+                  size="small"
+                  :loading="isSaving"
+                  @click="handleSave"
                 />
               </div>
             </template>

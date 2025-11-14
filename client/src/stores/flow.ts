@@ -387,6 +387,11 @@ export const useFlowStore = defineStore('flow', () => {
     testResetCallback = callback
   }
 
+  const saveFlowNow = async (): Promise<boolean> => {
+    if (!flowSyncInstance) return false
+    return await flowSyncInstance.saveNow(nodes.value)
+  }
+
   return {
     nodes,
     edges,
@@ -412,5 +417,6 @@ export const useFlowStore = defineStore('flow', () => {
     getWarningForNodeId,
     resetTestState,
     setTestResetHandler,
+    saveFlowNow,
   }
 })

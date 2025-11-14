@@ -27,3 +27,20 @@ const handleClick = () => {
   })
 }
 </script>
+
+<style scoped>
+.p-button.p-button-secondary {
+  border: none;
+  outline: none;
+}
+
+.p-button.p-button-secondary:hover {
+  background: var(--p-surface-100);
+  color: var(--p-surface-700);
+}
+
+.dark .p-button.p-button-secondary:hover {
+  background: var(--p-surface-800);
+  color: var(--p-surface-0);
+}
+</style>

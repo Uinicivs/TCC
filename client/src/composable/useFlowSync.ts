@@ -41,6 +41,32 @@ export function useFlowSync(flowId: string, delay = 5000) {
     await applyUpdate(nodes)
   }
 
+  const saveNow = async (nodes: Node[]): Promise<boolean> => {
+    if (!flowId) return false
+    if (isEqual(previousNodes.value, nodes)) return false
+
+    applyUpdate.cancel()
+    isUpdating.value = true
+
+    try {
+      setInitialNodes(nodes)
+      await updateFlowNodes(flowId, mapFlowToSchema(nodes))
+      toast.removeGroup(TOAST_GROUP)
+      toast.add({ severity: 'success', summary: 'Salvo!', life: 1200, closable: false })
+      return true
+    } catch (error) {
+      toast.add({
+        severity: 'error',
+        summary: 'Erro ao salvar',
+        detail: error instanceof Error ? error.message : 'Erro desconhecido',
+        life: 3000,
+      })
+      return false
+    } finally {
+      isUpdating.value = false
+    }
+  }
+
   const cancelPendingUpdates = () => {
     applyUpdate.cancel()
   }
@@ -51,6 +77,7 @@ export function useFlowSync(flowId: string, delay = 5000) {
 
   return {
     updateNodes,
+    saveNow,
     cancelPendingUpdates,
     setInitialNodes,
     isUpdating,
