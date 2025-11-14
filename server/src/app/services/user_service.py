@@ -93,6 +93,37 @@ class UserService:
 
             update_user: dict[str, Any] = {}
             update_user['flowCount'] = user.flowCount + 1
+
+            if user.firstAccess:
+                update_user['firstAccess'] = False
+
+            update_user['updatedAt'] = datetime.now(timezone.utc)
+
+            result = await self.database.users.update_one(
+                {'_id': ObjectId(id)},
+                {'$set': update_user}
+            )
+        except Exception as e:
+            raise translate_mongo_error(e)
+
+        if result.matched_count == 0:
+            raise NotFoundException()
+
+        if result.modified_count == 0:
+            raise UpdateFailedException()
+
+    async def decrement_flow_count(self, id: str) -> None:
+        try:
+            if not ObjectId.is_valid(id):
+                raise InvalidObjectIdException()
+
+            user = await self.get_user(id)
+
+            if user.flowCount == 0:
+                return
+
+            update_user: dict[str, Any] = {}
+            update_user['flowCount'] = user.flowCount - 1
             update_user['updatedAt'] = datetime.now(timezone.utc)
 
             result = await self.database.users.update_one(
@@ -113,7 +144,12 @@ class UserService:
             if not ObjectId.is_valid(user_id):
                 raise InvalidObjectIdException()
 
-            result = await self.database.users.delete_one({"_id": ObjectId(user_id)})
+            await self.database.decision_flows.delete_many(
+                {'ownerId': user_id}
+            )
+            result = await self.database.users.delete_one(
+                {"_id": ObjectId(user_id)}
+            )
         except Exception as e:
             raise translate_mongo_error(e)
 

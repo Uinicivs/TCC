@@ -28,6 +28,7 @@ class User(BaseModel):
     password: str
     role: UserRole
     flowCount: int = 0
+    firstAccess: bool = True
     createdAt: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc))
     updatedAt: datetime = Field(
