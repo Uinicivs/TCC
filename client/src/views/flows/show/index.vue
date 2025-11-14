@@ -16,6 +16,7 @@ import AddNode from '@/components/flows/show/AddNode.vue'
 import ExecuteFlowDrawer from '@/components/flows/show/ExecuteFlowDrawer.vue'
 import TestFlowPopover from '@/components/flows/show/TestFlowPopover.vue'
 import HelpButton from '@/components/shared/HelpButton.vue'
+import ThemeToggle from '@/components/shared/ThemeToggle.vue'
 import { Start, Conditional, End } from '@/components/nodes'
 
 import { nodes as mappedNodes } from '@/constants/nodes'
@@ -129,6 +130,7 @@ const goBack = () => {
             <template #end>
               <div class="flex space-x-1 items-center">
                 <HelpButton id="help-button" :steps="flowEditorTutorial" />
+                <ThemeToggle />
                 <Button
                   id="test-flow-button"
                   icon="pi pi-sparkles"

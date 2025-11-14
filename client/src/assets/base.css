@@ -127,3 +127,24 @@ body {
 .fade-leave-to {
   opacity: 0;
 }
+
+/* Vue Flow Controls Dark Mode */
+.dark .vue-flow__controls {
+  background: var(--vt-c-black-soft) !important;
+  border-color: var(--vt-c-divider-dark-2) !important;
+}
+
+.dark .vue-flow__controls-button {
+  background: var(--vt-c-black-mute) !important;
+  border-color: var(--vt-c-divider-dark-2) !important;
+  color: var(--vt-c-white) !important;
+}
+
+.dark .vue-flow__controls-button:hover {
+  background: var(--vt-c-black-soft) !important;
+  border-color: var(--vt-c-divider-dark-1) !important;
+}
+
+.dark .vue-flow__controls-button svg {
+  fill: var(--vt-c-white) !important;
+}
