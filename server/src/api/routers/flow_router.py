@@ -76,8 +76,14 @@ async def update_flow_metadata(id: str, flow_in: flow_dtos.UpdateFlowInDTO,
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(get_authorized_user)],
 )
-async def delete_flow(id: str, service: FlowService = Depends(get_flow_service)):
-    await service.delete_flow(id=id)
+async def delete_flow(id: str,
+                      current_user: User = Depends(get_current_user),
+                      flow_service: FlowService = Depends(get_flow_service),
+                      user_service: UserService = Depends(get_user_service)):
+    assert current_user.id is not None
+
+    await user_service.decrement_flow_count(current_user.id)
+    await flow_service.delete_flow(id)
     return
 
 
