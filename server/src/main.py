@@ -7,6 +7,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from src.app.db.connection import lifespan
+from src.api.dependencies import get_limiter
 from src.app.core.config import get_settings
 from src.api.routers import FlowRouter, UserRouter, AuthRouter
 from src.api.handlers.exception_handler import add_exception_handlers
@@ -18,6 +19,8 @@ app = FastAPI(
     title='Decision Engine API',
     lifespan=lifespan
 )
+limiter = get_limiter()
+app.state.limiter = limiter
 
 add_exception_handlers(app)
 

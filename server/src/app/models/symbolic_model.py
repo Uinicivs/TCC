@@ -31,10 +31,16 @@ class Coverage(BaseModel):
     totalEndNodes: int
 
 
+class UncoveredPath(BaseModel):
+    nodeId: str
+    constraints: list[str]
+
+
 class SymbolicReport(BaseModel):
     cases: list[CaseResult]
     pruned: list[PrunedBranch]
     reductions: list[ReductionInfo]
+    uncovered: list[UncoveredPath]
     coverage: Coverage
 
 
@@ -57,4 +63,5 @@ class SymbolicExecution(BaseModel):
         default_factory=lambda: datetime.now(timezone.utc))
     pruned: int
     reductions: int
+    uncovered: int
     coverage: float
