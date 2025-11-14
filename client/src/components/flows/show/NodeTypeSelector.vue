@@ -6,7 +6,10 @@ import { useFlowStore } from '@/stores/flow'
 
 import type { IMappedNodes } from '@/interfaces/node'
 
-const { availableNodeTypes } = defineProps<{ availableNodeTypes: IMappedNodes[] }>()
+const { availableNodeTypes, hasEndNodeInPath } = defineProps<{
+  availableNodeTypes: IMappedNodes[]
+  hasEndNodeInPath: boolean
+}>()
 const emit = defineEmits<{ select: [node: IMappedNodes] }>()
 
 const { getFirstNode } = useFlowStore()
@@ -18,7 +21,31 @@ const availableNodes = computed(() => {
 })
 
 const isNodeDisabled = (node: IMappedNodes) => {
-  return !getFirstNode ? node.type !== 'start' : node.type === 'start'
+  if (!getFirstNode) {
+    return node.type !== 'start'
+  }
+
+  if (node.type === 'start') {
+    return true
+  }
+
+  if (node.type === 'end' && hasEndNodeInPath) {
+    return true
+  }
+
+  return false
+}
+
+const getTooltipMessage = (node: IMappedNodes) => {
+  if (!getFirstNode && node.type !== 'start') {
+    return 'É necessário criar um nó de início primeiro'
+  }
+
+  if (node.type === 'end' && hasEndNodeInPath) {
+    return 'O nó de fim só pode ser adicionado quando não há outros nós como filhos'
+  }
+
+  return ''
 }
 
 const handleClick = (node: IMappedNodes) => {
@@ -34,7 +61,8 @@ const handleClick = (node: IMappedNodes) => {
         v-for="node in availableNodes"
         :key="node.type"
         v-tooltip.left="{
-          value: isNodeDisabled(node) ? 'É necessário criar um nó de início primeiro' : '',
+          value: getTooltipMessage(node),
+          pt: { root: { style: { maxWidth: '15rem' } } },
           showDelay: 300,
         }"
         class="border-[#e2e8f0] border-1 dark:border-neutral-800 !shadow-none transition-shadow duration-200 w-ful"

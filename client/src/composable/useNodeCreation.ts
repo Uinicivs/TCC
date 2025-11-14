@@ -37,6 +37,27 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
 
   const nodeData = reactive<INode>(Object.assign({}, initialNodeState))
 
+  const hasEndNodeInPath = computed(() => {
+    if (!parentId) return false
+
+    const parentNode = flowStore.getNodeById(parentId)
+    if (!parentNode) return false
+
+    if (parentNode.type === 'conditional' && handleId) {
+      const isRightPath = handleId === 'conditional-right'
+
+      const childrenInSamePath =
+        parentNode.data.children?.filter((childId: string) => {
+          const childNode = flowStore.getNodeById(childId)
+          return childNode && childNode.data.isFalseCase === isRightPath
+        }) || []
+
+      return childrenInSamePath.length > 0
+    }
+
+    return (parentNode.data.children?.length || 0) > 0
+  })
+
   const reset = () => {
     currentStep.value = steps.chooseNode
     selectedNode.value = null
@@ -448,6 +469,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     shouldShowConfigStep,
     getDialogHeader,
     availableNodeTypes,
+    hasEndNodeInPath,
     toggleCreateNodeDialog,
     handleNodeSelect,
     handleStepNavigation,

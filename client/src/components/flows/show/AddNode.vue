@@ -26,6 +26,7 @@ const {
   hasNodeTypeSelected,
   hasNodeLabelFilled,
   shouldShowConfigStep,
+  hasEndNodeInPath,
   getDialogHeader,
   toggleCreateNodeDialog,
   handleNodeSelect,
@@ -157,6 +158,7 @@ const getDisabledMessage = computed(() => {
       <NodeTypeSelector
         v-if="currentStep === steps.chooseNode"
         :available-node-types="availableNodeTypes"
+        :has-end-node-in-path="hasEndNodeInPath"
         @select="handleNodeSelect"
       />
 
