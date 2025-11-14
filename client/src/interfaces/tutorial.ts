@@ -4,7 +4,7 @@ export interface IStep {
   targetId: string
   imagePath?: string
   title?: string
-  description: string
+  description: string | Array<string>
   align?: Alignment
   side?: Side
 }
@@ -15,7 +15,7 @@ export interface ITutorial {
 }
 
 export interface ITutorialCard {
-  description: string
+  description: string | Array<string>
   title?: string
   stepIndex: number
   isFirstStep: boolean

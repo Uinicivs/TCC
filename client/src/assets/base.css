@@ -97,9 +97,25 @@ body {
 
 .driver-popover {
   width: 100% !important;
-  max-width: 348px !important;
+  max-width: 450px !important;
   border-radius: 1rem !important;
   padding: 0 !important;
+}
+
+.driver-popover-arrow-side-bottom {
+  border-bottom-color: var(--p-content-background) !important;
+}
+
+.driver-popover-arrow-side-top {
+  border-top-color: var(--p-content-background) !important;
+}
+
+.driver-popover-arrow-side-left {
+  border-left-color: var(--p-content-background) !important;
+}
+
+.driver-popover-arrow-side-right {
+  border-right-color: var(--p-content-background) !important;
 }
 
 .fade-enter-active,
