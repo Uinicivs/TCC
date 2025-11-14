@@ -9,6 +9,7 @@ import type { IFlow } from '@/interfaces/flow'
 import FlowFormModal from '@/components/home/FlowFormModal.vue'
 import UserMenu from '@/components/shared/UserMenu.vue'
 import ThemeToggle from '@/components/shared/ThemeToggle.vue'
+import HelpButton from '@/components/shared/HelpButton.vue'
 
 import {
   createFlow,
@@ -17,6 +18,8 @@ import {
   updateFlow,
   type TCreateFlowPayload,
 } from '@/services/flowService'
+
+import { homeTutorial } from '@/constants/tutorials'
 
 const router = useRouter()
 const contextMenuRef = useTemplateRef('contextMenu')
@@ -211,6 +214,7 @@ watch(
 
       <template #end>
         <div class="flex gap-2">
+          <HelpButton id="help-button" :steps="homeTutorial" />
           <ThemeToggle />
           <UserMenu />
         </div>
@@ -221,7 +225,7 @@ watch(
       class="mx-auto h-full w-full flex flex-col items-center lg:max-w-[1280px] pt-[100px] gap-8"
     >
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full items-center">
-        <div class="flex flex-col gap-1 text-center md:text-left">
+        <div id="flow-list-header" class="flex flex-col gap-1 text-center md:text-left">
           <h2 class="font-medium text-xl text-neutral-800 dark:text-white">Meus Fluxos</h2>
           <p class="font-light text-sm text-neutral-500 dark:text-white">
             Aqui você pode visualizar, editar ou remover qualquer fluxo rapidamente.
@@ -231,6 +235,7 @@ watch(
         <div class="justify-self-center lg:justify-self-end flex gap-4">
           <Button
             v-if="flows.length < 10"
+            id="create-flow-button"
             label="Criar novo fluxo"
             size="small"
             :loading="loading"
@@ -244,6 +249,7 @@ watch(
             disabled
           />
           <SelectButton
+            id="view-mode-toggle"
             v-model="activeMode"
             :options="modeOptions"
             class="!hidden md:block lg:!block"
@@ -254,6 +260,7 @@ watch(
         <transition name="fade" mode="out-in">
           <div
             v-if="activeMode === 'Cards'"
+            id="flows-container"
             class="flex flex-col items-center gap-4 h-full w-full justify-self-start bg-neutral-50 dark:bg-neutral-950 p-4 rounded-lg mb-8"
           >
             <div v-if="loading" class="flex justify-center items-center h-full">
@@ -262,12 +269,13 @@ watch(
 
             <div
               v-else-if="flows.length"
+              id="flow-cards-grid"
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
             >
               <Card
                 v-for="flow in flows"
                 :key="flow.flowId"
-                class="w-full cursor-pointer"
+                class="w-full cursor-pointer flow-card"
                 @click="((selectedFlow = flow), viewFlow())"
                 @contextmenu="showContextMenu($event, flow)"
               >
@@ -301,6 +309,7 @@ watch(
 
           <DataTable
             v-else
+            id="flows-table"
             :value="flows"
             :loading
             :rows="10"
