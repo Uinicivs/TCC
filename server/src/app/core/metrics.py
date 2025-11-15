@@ -1,44 +1,43 @@
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram, Gauge
 
 
-symbolic_evaluations_total = Counter(
-    "symbolic_evaluations_total",
-    "Número total de execuções simbólicas realizadas",
-    ['flow_id']
+# Prometheus Metrics Definitions
+# Per Flow Metrics
+inconsistencies_ratio = Gauge(
+    "inconsistencies_ratio",
+    "Razão de inconsistências sobre o total de condições para um fluxo específico",
+    ["flow_id"]
 )
 
-symbolic_inconsistencies_ratio = Histogram(
-    "symbolic_inconsistencies_ratio",
-    "Distribuição temporal do ratio de inconsistências",
-    ["flow_id"],
-    buckets=[0, 0.1, 0.3, 0.6, 1.0, 2.0, 5.0]
+evolution_index = Gauge(
+    "evolution_index",
+    "Índice de evolução (-1 a 1) para um fluxo específico",
+    ["flow_id"]
 )
 
-symbolic_evolution_index_events = Histogram(
-    'symbolic_evolution_index_events',
-    'Índice de evolução simbólica entre execuções consecutivas ao longo do tempo (-1 a +1)',
-    ['flow_id'],
-    buckets=[0, 0.5, 1.0, 1.5, 2.0]
+time_to_modification_seconds = Gauge(
+    "time_to_modification_seconds",
+    "Tempo em segundos entre a última execução simbólica e a modificação do fluxo",
+    ["flow_id"]
 )
 
-symbolic_time_to_modification_seconds = Histogram(
-    "symbolic_time_to_modification_seconds",
-    "Tempo entre última execução simbólica e modificação do fluxo (segundos)",
-    ['flow_id']
+tests_total = Counter(
+    "tests_total",
+    "Total de execuções simbólicas do fluxo",
+    ["flow_id"]
 )
 
-symbolic_evaluation_duration_seconds = Histogram(
-    "symbolic_evaluation_duration_seconds",
-    "Tempo de execução simbólica (segundos)",
-    buckets=[0.01, 0.05, 0.1, 0.3, 0.6, 1, 2, 5]
+# Global Metrics
+execution_errors_total = Counter(
+    "execution_errors_total",
+    "Número total de erros na execução simbólica",
 )
-
-symbolic_solver_timeout_total = Counter(
-    "symbolic_solver_timeout_total",
-    "Quantidade de execuções simbólicas que atingiram o timeout"
+execution_timeouts_total = Counter(
+    "execution_timeouts_total",
+    "Número total de timeouts durante a execução simbólica"
 )
-
-symbolic_solver_errors_total = Counter(
-    "symbolic_solver_errors_total",
-    "Quantidade de erros internos do executor simbólico"
+execution_duration_seconds = Histogram(
+    "execution_duration_seconds",
+    "Duração da execução simbólica em segundos",
+    buckets=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 30, 60]
 )

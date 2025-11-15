@@ -35,13 +35,13 @@ class TelemetryService:
         except Exception as e:
             raise translate_mongo_error(e)
 
-    async def get_last_symbolic_execution_time(self, flow_id: str) -> datetime | None:
+    async def get_last_symbolic_execution_timestamp(self, flow_id: str) -> datetime | None:
         try:
             if not ObjectId.is_valid(flow_id):
                 raise InvalidObjectIdException()
 
             execution_from_db = await self.database.symbolic_events.find_one(
-                {'flowId': ObjectId(flow_id)},
+                {'flowId': flow_id},
                 sort=[('timestamp', -1)],
                 projection={'timestamp': 1}
             )
@@ -51,33 +51,7 @@ class TelemetryService:
         if not execution_from_db:
             return None
 
-        return SymbolicExecution.model_validate(execution_from_db).timestamp
-
-    async def compare_with_previous_report(self, flow_id: str) -> bool:
-        try:
-            if not ObjectId.is_valid(flow_id):
-                raise InvalidObjectIdException()
-
-            last_two = await self.database.symbolic_events.find(
-                {'flowId': flow_id}
-            ).sort('timestamp', -1).limit(2).to_list(2)
-        except Exception as e:
-            raise translate_mongo_error(e)
-
-        if len(last_two) < 2:
-            return False
-
-        current, previous = (
-            SymbolicExecution.model_validate(last_two[0]),
-            SymbolicExecution.model_validate(last_two[1])
-        )
-
-        delta_pruned = previous.pruned - current.pruned
-        delta_reductions = previous.reductions - current.reductions
-
-        resolved = (delta_pruned + delta_reductions) > 0
-
-        return resolved
+        return execution_from_db['timestamp']
 
     async def compute_symbolic_evolution_index(self, flow_id: str) -> float:
         try:
@@ -98,10 +72,15 @@ class TelemetryService:
             SymbolicExecution.model_validate(last_two[1])
         )
 
-        def delta(a: float, b: float) -> float:
-            if a == b == 0:
-                return 0
-            return (a - b) / (abs(b) + 1e-6)
+        def delta(old: float, new: float) -> float:
+            raw = new - old
+
+            if raw > 5:
+                raw = 5
+            elif raw < -5:
+                raw = -5
+
+            return raw / 5.0
 
         metrics = [
             ('pruned', prev.pruned, curr.pruned, -1),
