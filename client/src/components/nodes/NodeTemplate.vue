@@ -106,7 +106,7 @@ const menuItems = computed(() => {
     <Handle type="target" :position="Position.Top" />
 
     <transition name="fade">
-      <WarningTooltip v-if="warningMessage" :message="warningMessage" />
+      <WarningTooltip v-if="warningMessage" type="warning" :message="warningMessage" />
     </transition>
 
     <div

@@ -11,6 +11,11 @@ export interface TestFlowPruned {
   reason?: string
 }
 
+export interface TestFlowUncovered {
+  nodeId: string
+  constraints?: string[]
+}
+
 export interface TestFlowCase {
   endNodeId: string
   endMetadata?: Record<string, unknown>
@@ -27,5 +32,6 @@ export interface TestFlowResult {
   cases?: TestFlowCase[]
   pruned?: TestFlowPruned[]
   reductions?: TestFlowReduction[]
+  uncovered?: TestFlowUncovered[]
   coverage?: TestFlowCoverage
 }

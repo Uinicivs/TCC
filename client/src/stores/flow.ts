@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
-import type { TestFlowReduction, TestFlowCase } from '@/interfaces/testFlow'
+import type { TestFlowReduction, TestFlowCase, TestFlowUncovered } from '@/interfaces/testFlow'
 
 type TStrokeColor = 'success' | 'error' | 'warning' | 'info' | 'none'
 
@@ -22,6 +22,7 @@ export const useFlowStore = defineStore('flow', () => {
   const edges = ref<Edge[]>([])
   const currentFlowId = ref<string | null>(null)
   const reductionWarningsByNodeId = ref<Record<string, string>>({})
+  const uncoveredWarningsByNodeId = ref<Record<string, string>>({})
   const edgeHighlightFlags = ref<Record<string, { reachable?: boolean; unreachable?: boolean }>>({})
   const testCases = ref<TestFlowCase[]>([])
   const isInitialLoad = ref(true)
@@ -255,6 +256,7 @@ export const useFlowStore = defineStore('flow', () => {
     edges.value = []
     currentFlowId.value = null
     reductionWarningsByNodeId.value = {}
+    uncoveredWarningsByNodeId.value = {}
     testCases.value = []
     isInitialLoad.value = true
   }
@@ -335,7 +337,14 @@ export const useFlowStore = defineStore('flow', () => {
   }
 
   const getWarningForNodeId = (nodeId: string): string | null => {
-    return reductionWarningsByNodeId.value[nodeId] ?? null
+    const reductionWarning = reductionWarningsByNodeId.value[nodeId]
+    const uncoveredWarning = uncoveredWarningsByNodeId.value[nodeId]
+
+    if (reductionWarning && uncoveredWarning) {
+      return `${reductionWarning}\n\n${uncoveredWarning}`
+    }
+
+    return reductionWarning || uncoveredWarning || null
   }
 
   const setReductionWarnings = (reductions: TestFlowReduction[]) => {
@@ -364,6 +373,24 @@ export const useFlowStore = defineStore('flow', () => {
     reductionWarningsByNodeId.value = messagesByNode
   }
 
+  const setUncoveredWarnings = (uncovered: TestFlowUncovered[]) => {
+    const messagesByNode: Record<string, string> = {}
+
+    uncovered?.forEach((item) => {
+      const { nodeId, constraints } = item
+
+      if (constraints && constraints.length > 0) {
+        const constraintsList = constraints.map((constraint) => `"${constraint}"`).join(', ')
+        messagesByNode[nodeId] =
+          `Este nó possui ramificações sem conclusão.\nRestrições não cobertas: ${constraintsList}`
+      } else {
+        messagesByNode[nodeId] = 'Este nó possui ramificações sem conclusão.'
+      }
+    })
+
+    uncoveredWarningsByNodeId.value = messagesByNode
+  }
+
   const setTestCases = (cases: TestFlowCase[]) => {
     testCases.value = cases || []
   }
@@ -371,6 +398,7 @@ export const useFlowStore = defineStore('flow', () => {
   const resetTestState = () => {
     testCases.value = []
     reductionWarningsByNodeId.value = {}
+    uncoveredWarningsByNodeId.value = {}
     edgeHighlightFlags.value = {}
     edges.value = edges.value.map((edge) => ({
       ...edge,
@@ -413,6 +441,7 @@ export const useFlowStore = defineStore('flow', () => {
     clearFlow,
     highlightPathFromNode,
     setReductionWarnings,
+    setUncoveredWarnings,
     setTestCases,
     getWarningForNodeId,
     resetTestState,
