@@ -272,7 +272,7 @@ watch(
             <div
               v-else-if="flows.length"
               id="flow-cards-grid"
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
+              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full"
             >
               <Card
                 v-for="flow in flows"
@@ -283,7 +283,7 @@ watch(
               >
                 <template #title>
                   <div class="flex justify-between items-start">
-                    <h3 class="text-lg truncate pr-2">
+                    <h3 class="text-sm truncate pr-2">
                       {{ flow.flowName }}
                     </h3>
                   </div>
