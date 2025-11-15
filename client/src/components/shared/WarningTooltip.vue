@@ -1,5 +1,38 @@
 <script setup lang="ts">
-defineProps<{ message: string }>()
+import { computed } from 'vue'
+
+interface IProps {
+  type: 'info' | 'warning' | 'error'
+  message: string
+}
+
+const { type } = defineProps<IProps>()
+
+const getColorClass = computed(() => {
+  switch (type) {
+    case 'info':
+      return 'blue-500'
+    case 'warning':
+      return 'amber-500'
+    case 'error':
+      return 'red-500'
+    default:
+      return 'amber-500'
+  }
+})
+
+const getIconClass = computed(() => {
+  switch (type) {
+    case 'info':
+      return 'pi-info-circle'
+    case 'warning':
+      return 'pi-exclamation-triangle'
+    case 'error':
+      return 'pi-times-circle'
+    default:
+      return 'pi-exclamation-triangle'
+  }
+})
 </script>
 
 <template>
@@ -9,11 +42,11 @@ defineProps<{ message: string }>()
       value: message,
       pt: {
         root: { style: { maxWidth: '30rem' } },
-        arrow: { style: { borderRightColor: 'var(--p-amber-500)' } },
-        text: '!bg-amber-500 !font-medium',
+        arrow: { style: { borderRightColor: `var(--p-${getColorClass})` } },
+        text: `!bg-${getColorClass} !font-medium`,
       },
     }"
   >
-    <i class="pi pi-exclamation-triangle text-amber-500" />
+    <i :class="`pi ${getIconClass} text-${getColorClass}`" />
   </div>
 </template>
