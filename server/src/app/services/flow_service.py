@@ -12,13 +12,16 @@ from src.app.services.telemetry_service import TelemetryService
 from src.app.evaluators.executors import ConcreteExecutor, SymbolicExecutor
 from src.app.models.symbolic_model import SymbolicReport, SymbolicExecution
 from src.app.core.metrics import (
-    symbolic_evaluations_total,
-    symbolic_solver_errors_total,
-    symbolic_solver_timeout_total,
-    symbolic_inconsistencies_ratio,
-    symbolic_evolution_index_events,
-    symbolic_evaluation_duration_seconds,
-    symbolic_time_to_modification_seconds,
+    # per flow
+    tests_total,
+    evolution_index,
+    inconsistencies_ratio,
+    time_to_modification_seconds,
+
+    # globals
+    execution_errors_total,
+    execution_timeouts_total,
+    execution_duration_seconds,
 )
 from src.app.core.exceptions import (
     translate_mongo_error,
@@ -125,7 +128,7 @@ class FlowService:
         if not ObjectId.is_valid(id):
             raise InvalidObjectIdException()
 
-        before = await self.telemetry_service.get_last_symbolic_execution_time(id)
+        before = await self.telemetry_service.get_last_symbolic_execution_timestamp(id)
         now = datetime.now(timezone.utc)
 
         try:
@@ -151,8 +154,9 @@ class FlowService:
 
         if before:
             delta = (now - before).total_seconds()
-            symbolic_time_to_modification_seconds.labels(
-                flow_id=id).observe(delta)
+            time_to_modification_seconds.labels(
+                flow_id=id
+            ).set(delta)
 
     async def evaluate_flow(self, id: str, payload: dict[str, Any]) -> dict:
         flow = await self.get_flow(id)
@@ -210,25 +214,27 @@ class FlowService:
 
         except Exception as e:
             if isinstance(e, SymbolicTimeoutException):
-                symbolic_solver_timeout_total.inc()
+                execution_timeouts_total.inc()
 
-            symbolic_solver_errors_total.inc()
+            execution_errors_total.inc()
 
             re = RuntimeException(f'Error while testing flow {str(e)}')
             setattr(re, 'originalErrorType', type(e).__name__)
             raise re from e
 
         duration = time.perf_counter() - start
-        symbolic_evaluations_total.labels(flow_id=id).inc()
-        symbolic_evaluation_duration_seconds.observe(duration)
+        execution_duration_seconds.observe(duration)
+
+        tests_total.labels(flow_id=id).inc()
 
         total_conds = sum(1 for n in flow.nodes if n.nodeType == 'CONDITIONAL')
-        inconsistencies = (len(result.pruned)
-                           + len(result.reductions)
-                           + len(result.uncovered)
-                           )
-        ratio = inconsistencies / total_conds if total_conds else 0
-        symbolic_inconsistencies_ratio.labels(flow_id=id).observe(ratio)
+        pruned_node_ids = {p.nodeId for p in result.pruned}
+        reduction_node_ids = {r.nodeId for r in result.reductions}
+        uncovered_node_ids = {u.nodeId for u in result.uncovered}
+
+        affected_nodes = pruned_node_ids | reduction_node_ids | uncovered_node_ids
+        ratio = len(affected_nodes) / total_conds if total_conds else 0.0
+        inconsistencies_ratio.labels(flow_id=id).set(ratio)
 
         await self.telemetry_service.store_symbolic_execution(
             SymbolicExecution(
@@ -241,7 +247,6 @@ class FlowService:
         )
 
         sei = await self.telemetry_service.compute_symbolic_evolution_index(id)
-        sei_norm = sei + 1
-        symbolic_evolution_index_events.labels(flow_id=id).observe(sei_norm)
+        evolution_index.labels(flow_id=id).set(sei)
 
         return result
