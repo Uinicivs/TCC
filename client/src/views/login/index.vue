@@ -48,13 +48,12 @@ import { useToast } from 'primevue/usetoast'
 import DottedBackground from '@/components/shared/DottedBackground.vue'
 
 import { login } from '@/services/authService'
-import type { IUser } from '@/interfaces/user'
+import type { IUserCredentials } from '@/interfaces/user'
 
 const router = useRouter()
 const toast = useToast()
 
-const user = reactive<IUser>({
-  name: '',
+const user = reactive<IUserCredentials>({
   email: '',
   password: '',
 })
