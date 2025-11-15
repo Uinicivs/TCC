@@ -5,6 +5,7 @@ import type { INode } from '@/interfaces/node'
 
 import NodeTemplate from '@/components/nodes/NodeTemplate.vue'
 import TestCasesDialog from '@/components/flows/show/TestCasesDialog.vue'
+import WarningTooltip from '@/components/shared/WarningTooltip.vue'
 import { useFlowStore } from '@/stores/flow'
 
 const props = defineProps<{ data: INode; id: string }>()
@@ -18,6 +19,10 @@ const caseCount = computed(() => {
 
 const hasCases = computed(() => caseCount.value > 0)
 
+const prunedReason = computed(() => {
+  return flowStore.getPrunedReasonByNodeId(props.id)
+})
+
 const handleClick = () => {
   if (hasCases.value && dialogRef.value) {
     const cases = flowStore.getCasesByNodeId(props.id)
@@ -29,20 +34,15 @@ const handleClick = () => {
 <template>
   <div @click="handleClick" :class="{ 'cursor-pointer': hasCases }">
     <transition name="fade">
-      <div
+      <WarningTooltip
         v-if="hasCases"
-        class="absolute -right-6 -top-2 z-10 flex items-center justify-center"
-        v-tooltip="{
-          value: 'Clique para visualizar os casos de teste',
-          pt: {
-            root: { style: { maxWidth: '15rem' } },
-            arrow: { style: { borderRightColor: 'var(--p-emerald-500)' } },
-            text: '!bg-emerald-500 !font-medium',
-          },
-        }"
-      >
-        <i class="pi pi-check-circle text-emerald-500" />
-      </div>
+        type="success"
+        message="Clique para visualizar os casos de teste"
+      />
+    </transition>
+
+    <transition name="fade">
+      <WarningTooltip v-if="prunedReason" type="error" :message="prunedReason" />
     </transition>
 
     <NodeTemplate

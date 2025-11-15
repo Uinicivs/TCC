@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 interface IProps {
-  type: 'info' | 'warning' | 'error'
+  type: 'info' | 'warning' | 'error' | 'success'
   message: string
 }
 
@@ -16,6 +16,8 @@ const getColorClass = computed(() => {
       return 'amber-500'
     case 'error':
       return 'red-500'
+    case 'success':
+      return 'emerald-500'
     default:
       return 'amber-500'
   }
@@ -29,6 +31,8 @@ const getIconClass = computed(() => {
       return 'pi-exclamation-triangle'
     case 'error':
       return 'pi-times-circle'
+    case 'success':
+      return 'pi-check-circle'
     default:
       return 'pi-exclamation-triangle'
   }

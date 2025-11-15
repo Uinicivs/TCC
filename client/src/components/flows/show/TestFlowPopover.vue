@@ -96,7 +96,7 @@ const highlightPrunedPaths = (prunedItems: TestFlowPruned[] = []) => {
   unreachableNodeIds.value.clear()
 
   prunedItems.forEach((item) => {
-    if (item.reason === 'unreachable') {
+    if (item.reason && ['unreachable', 'unsatisfiable'].includes(item.reason)) {
       unreachableNodeIds.value.add(item.nodeId)
       if (settings.value.showUnreachable) {
         flowStore.highlightPathFromNode(item.nodeId, 'error', 'unreachable')
@@ -120,6 +120,7 @@ const testFlowAction = async () => {
     const response: TestFlowResult = await testFlow(props.flowId)
     flowStore.setReductionWarnings(response.reductions || [])
     flowStore.setUncoveredWarnings(response.uncovered || [])
+    flowStore.setPrunedReasons(response.pruned || [])
     flowStore.setTestCases(response.cases || [])
 
     highlightPrunedPaths(response.pruned || [])

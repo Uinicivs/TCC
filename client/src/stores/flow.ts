@@ -3,7 +3,12 @@ import { defineStore } from 'pinia'
 import type { Node, Edge } from '@vue-flow/core'
 import type { Variable } from '@/interfaces/variables'
 import { useFlowSync } from '@/composable/useFlowSync'
-import type { TestFlowReduction, TestFlowCase, TestFlowUncovered } from '@/interfaces/testFlow'
+import type {
+  TestFlowReduction,
+  TestFlowCase,
+  TestFlowUncovered,
+  TestFlowPruned,
+} from '@/interfaces/testFlow'
 
 type TStrokeColor = 'success' | 'error' | 'warning' | 'info' | 'none'
 
@@ -23,6 +28,7 @@ export const useFlowStore = defineStore('flow', () => {
   const currentFlowId = ref<string | null>(null)
   const reductionWarningsByNodeId = ref<Record<string, string>>({})
   const uncoveredWarningsByNodeId = ref<Record<string, string>>({})
+  const prunedReasonsByNodeId = ref<Record<string, string>>({})
   const edgeHighlightFlags = ref<Record<string, { reachable?: boolean; unreachable?: boolean }>>({})
   const testCases = ref<TestFlowCase[]>([])
   const isInitialLoad = ref(true)
@@ -159,6 +165,10 @@ export const useFlowStore = defineStore('flow', () => {
     return testCases.value.filter((testCase) => testCase.endNodeId === nodeId)
   }
 
+  const getPrunedReasonByNodeId = (nodeId: string): string | null => {
+    return prunedReasonsByNodeId.value[nodeId] ?? null
+  }
+
   const buildEdgeId = (node: Node): string => {
     return `${node.data.parent}-${node.id}`
   }
@@ -257,6 +267,7 @@ export const useFlowStore = defineStore('flow', () => {
     currentFlowId.value = null
     reductionWarningsByNodeId.value = {}
     uncoveredWarningsByNodeId.value = {}
+    prunedReasonsByNodeId.value = {}
     testCases.value = []
     isInitialLoad.value = true
   }
@@ -391,6 +402,27 @@ export const useFlowStore = defineStore('flow', () => {
     uncoveredWarningsByNodeId.value = messagesByNode
   }
 
+  const setPrunedReasons = (pruned: TestFlowPruned[]) => {
+    const reasonsByNode: Record<string, string> = {}
+
+    pruned?.forEach((item) => {
+      const { nodeId, reason } = item
+
+      if (reason) {
+        const translatedReason =
+          reason === 'unreachable'
+            ? 'Razão: Condição inalcançável'
+            : reason === 'unsatisfiable'
+              ? 'Razão: Condição insatisfatível'
+              : `Razão: ${reason}`
+
+        reasonsByNode[nodeId] = translatedReason
+      }
+    })
+
+    prunedReasonsByNodeId.value = reasonsByNode
+  }
+
   const setTestCases = (cases: TestFlowCase[]) => {
     testCases.value = cases || []
   }
@@ -399,6 +431,7 @@ export const useFlowStore = defineStore('flow', () => {
     testCases.value = []
     reductionWarningsByNodeId.value = {}
     uncoveredWarningsByNodeId.value = {}
+    prunedReasonsByNodeId.value = {}
     edgeHighlightFlags.value = {}
     edges.value = edges.value.map((edge) => ({
       ...edge,
@@ -430,6 +463,7 @@ export const useFlowStore = defineStore('flow', () => {
     getStartNodeVariables,
     getCaseCountByNodeId,
     getCasesByNodeId,
+    getPrunedReasonByNodeId,
     addNodes,
     removeNode,
     updateNode,
@@ -442,6 +476,7 @@ export const useFlowStore = defineStore('flow', () => {
     highlightPathFromNode,
     setReductionWarnings,
     setUncoveredWarnings,
+    setPrunedReasons,
     setTestCases,
     getWarningForNodeId,
     resetTestState,
