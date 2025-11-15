@@ -178,6 +178,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     parentPosition: { x: number; y: number },
     isFalseCase?: boolean,
   ): Node => {
+    const parentNode = flowStore.getNodeById(parentNodeId)
     const endNodeData: INode = {
       title: getDefaultNodeTitle('end'),
       settings: { response: isFalseCase },
@@ -187,7 +188,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     let positionX = parentPosition.x
-    if (typeof isFalseCase === 'boolean') {
+    if (typeof isFalseCase === 'boolean' && parentNode?.type === 'conditional') {
       positionX = isFalseCase
         ? parentPosition.x + HORIZONTAL_SPACING
         : parentPosition.x - HORIZONTAL_SPACING
@@ -399,9 +400,8 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     }
 
     const shouldCreateEndNode =
-      selectedNode.value.type !== 'end' &&
-      (formattedNodeData.children.length === 0 ||
-        (selectedNode.value.type === 'conditional' && formattedNodeData.children.length === 1))
+      (selectedNode.value.type === 'start' && !formattedNodeData.children.length) ||
+      (selectedNode.value.type === 'conditional' && formattedNodeData.children.length < 2)
 
     if (!(handleId && parentId)) {
       flowStore.addNodes({ ...formatNode })
