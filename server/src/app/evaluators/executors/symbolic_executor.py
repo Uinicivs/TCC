@@ -371,8 +371,10 @@ class SymbolicExecutor:
 
             # Accept only if it's a literal True/False or strictly shorter textual form
             try:
-                is_bool_literal = simplified.eq(
-                    BoolVal(True)) or simplified.eq(BoolVal(False))
+                is_bool_literal = (
+                    simplified.eq(BoolVal(True))
+                    or simplified.eq(BoolVal(False))
+                )
             except Exception:
                 is_bool_literal = False
 
@@ -433,6 +435,9 @@ class SymbolicExecutor:
                     new_expr = remaining[0]
                 else:
                     new_expr = And(*remaining)
+
+                if str(new_expr) == str(expr):
+                    return expr, []
 
                 # register pretty mapping only if textual form changed
                 try:
