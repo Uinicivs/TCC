@@ -31,6 +31,36 @@
         </div>
       </div>
     </div>
+
+    <Message severity="info" size="small" :closable="false" class="mt-6">
+      <div class="space-y-2">
+        <p class="font-semibold text-sm">💡 Como usar as funções:</p>
+        <ul class="space-y-1 text-xs ml-6">
+          <li class="mb-4">
+            <code class="font-semibold bg-surface-100 dark:bg-surface-800">
+              contains(texto, valor)
+            </code>
+            <div>Verifica se um valor está presente em um texto</div>
+          </li>
+          <li class="mb-4">
+            <code class="font-semibold bg-surface-100 dark:bg-surface-800"> length(texto) </code>
+            <div>Retorna o número de elementos de um texto</div>
+          </li>
+          <li class="mb-4">
+            <code class="font-semibold bg-surface-100 dark:bg-surface-800">
+              startsWith(texto, valor)
+            </code>
+            <div>Verifica se um texto começa com o valor especificado</div>
+          </li>
+          <li>
+            <code class="font-semibold bg-surface-100 dark:bg-surface-800">
+              endsWith(texto, valor)
+            </code>
+            <div>Verifica se um texto termina com o valor especificado</div>
+          </li>
+        </ul>
+      </div>
+    </Message>
   </div>
 </template>
 

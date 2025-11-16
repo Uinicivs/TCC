@@ -1,12 +1,4 @@
-export const MFEELFunctions = [
-  'length',
-  'upper',
-  'lower',
-  'contains',
-  'startsWith',
-  'endsWith',
-  'count',
-]
+export const MFEELFunctions = ['length', 'contains', 'startsWith', 'endsWith']
 
 export const MFEELOperators = [
   '+',
@@ -22,5 +14,4 @@ export const MFEELOperators = [
   'and',
   'or',
   'not',
-  'in',
 ]
