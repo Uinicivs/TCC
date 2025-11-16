@@ -7,8 +7,6 @@ class InputType(str, Enum):
     NUMBER = 'number'
     TEXT = 'text'
     BOOL = 'bool'
-    OBJECT = 'object'
-    LIST = 'list'
 
 
 class InputMetadata(BaseModel):
