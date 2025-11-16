@@ -117,7 +117,6 @@ export const flowEditorTutorial: IStep[] = [
       'Use estes controles para navegar pelo fluxo:',
       '• Zoom In/Out: Aproximar ou afastar a visualização',
       '• Fit View: Ajustar o zoom para ver todo o fluxo',
-      '• Lock/Unlock: Travar ou destravar a posição dos nós',
     ],
     align: 'end',
     side: 'left',
