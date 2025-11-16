@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
 import { Button, Drawer, Message } from 'primevue'
+import { storeToRefs } from 'pinia'
 
 import NodeConfigForm from '@/components/flows/show/NodeConfigForm.vue'
 
@@ -19,7 +20,9 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { getStartNodeVariables, getNodeById, updateNode } = useFlowStore()
+const flowStore = useFlowStore()
+const { getNodeById, updateNode } = flowStore
+const { getStartNodeVariables } = storeToRefs(flowStore)
 
 const visible = ref(false)
 const selectedNode = ref<IMappedNodes | null>(null)
@@ -42,9 +45,11 @@ const shouldDisableNextButton = computed(() => {
     const expression = nodeData.settings?.expression as string
 
     if (!expression || !expression.trim()) return true
-    if (!getStartNodeVariables.length) return false
+    if (!getStartNodeVariables.value.length) return false
 
-    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    const requiredVariables = getStartNodeVariables.value.filter(
+      ({ required }: Variable) => required,
+    )
 
     if (requiredVariables.length > 0) {
       return !requiredVariables.every(({ displayName }: Variable) =>
@@ -77,7 +82,9 @@ const getDisabledMessage = computed(() => {
       return 'Digite uma expressão para continuar'
     }
 
-    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    const requiredVariables = getStartNodeVariables.value.filter(
+      ({ required }: Variable) => required,
+    )
     if (requiredVariables.length > 0) {
       const missingVariables = requiredVariables.filter(
         ({ displayName }: Variable) => !expression.includes(displayName),

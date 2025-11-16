@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Button, Drawer, Stepper, StepList, Step, Message } from 'primevue'
+import { storeToRefs } from 'pinia'
 
 import type { INode } from '@/interfaces/node'
 import type { Variable } from '@/interfaces/variables'
@@ -33,7 +34,8 @@ const {
   handleStepNavigation,
   handleCreateNode,
 } = useNodeCreation(props.parentId, props.handleId)
-const { getStartNodeVariables } = useFlowStore()
+const flowStore = useFlowStore()
+const { getStartNodeVariables } = storeToRefs(flowStore)
 
 const getCreateNodeButtonLabel = computed(() => {
   const handleId = props.handleId || ''
@@ -57,9 +59,11 @@ const shouldDisableNextButton = computed(() => {
   if (selectedNode.value?.type === 'conditional') {
     const expression = nodeData.settings?.expression as string
     if (!expression || !expression.trim()) return true
-    if (!getStartNodeVariables.length) return false
+    if (!getStartNodeVariables.value.length) return false
 
-    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    const requiredVariables = getStartNodeVariables.value.filter(
+      ({ required }: Variable) => required,
+    )
 
     if (requiredVariables.length > 0) {
       return !requiredVariables.every(({ displayName }: Variable) =>
@@ -94,7 +98,9 @@ const getDisabledMessage = computed(() => {
       return 'Digite uma expressão para continuar'
     }
 
-    const requiredVariables = getStartNodeVariables.filter(({ required }: Variable) => required)
+    const requiredVariables = getStartNodeVariables.value.filter(
+      ({ required }: Variable) => required,
+    )
     if (requiredVariables.length > 0) {
       const missingVariables = requiredVariables.filter(
         ({ displayName }: Variable) => !expression.includes(displayName),
