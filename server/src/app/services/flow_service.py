@@ -117,7 +117,12 @@ class FlowService:
             if not ObjectId.is_valid(id):
                 raise InvalidObjectIdException()
 
-            result = await self.database.decision_flows.delete_one({'_id': ObjectId(id)})
+            await self.database.symbolic_events.delete_many(
+                {'flowId': id}
+            )
+            result = await self.database.decision_flows.delete_one(
+                {'_id': ObjectId(id)}
+            )
         except Exception as e:
             raise translate_mongo_error(e)
 
