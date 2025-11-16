@@ -358,18 +358,73 @@ class SymbolicExecutor:
             finally:
                 self._reset_simplifier()
 
+        # Helper: check if a => b without relying on base
+        def _implies_without_base(a: ExprRef, b: ExprRef) -> bool:
+            try:
+                self._reset_simplifier()
+                self.simplifier_solver.add(a)
+                self.simplifier_solver.add(Not(b))
+                chk = self._check_with_timeout(self.simplifier_solver)
+                return chk == unsat
+            finally:
+                self._reset_simplifier()
+
         # 0) If no context, allow only "real" simplify improvements (conservative)
         if not concrete_base:
+            if is_and(expr):
+                children = list(expr.children())
+                remaining = []
+                removed_parts = []
+
+                for ch in children:
+                    redundant = False
+                    for other in children:
+                        if ch is other:
+                            continue
+                        # Se other ⇒ ch, então ch é redundante
+                        if _implies_without_base(other, ch):
+                            redundant = True
+                            break
+
+                    if redundant:
+                        removed_parts.append(ch)
+                    else:
+                        remaining.append(ch)
+
+                if removed_parts:
+                    # se tudo foi removido → True
+                    if not remaining:
+                        true_expr = BoolVal(True)
+                        try:
+                            self.transformer.reverse_map[simplify(
+                                true_expr)] = "true"
+                        except Exception:
+                            pass
+                        return true_expr, removed_parts
+
+                    # se sobra 1 → retorna direto
+                    if len(remaining) == 1:
+                        new_expr = remaining[0]
+                    else:
+                        new_expr = And(*remaining)
+
+                    try:
+                        self.transformer.reverse_map[simplify(
+                            new_expr)] = self._zf_text(new_expr)
+                    except Exception:
+                        pass
+
+                    return new_expr, removed_parts
+
+            # fallback padrão sem contexto
             try:
                 simplified = simplify(expr)
             except Exception:
                 return expr, []
 
-            # Nothing changed
             if simplified is None or str(simplified) == str(expr):
                 return expr, []
 
-            # Accept only if it's a literal True/False or strictly shorter textual form
             try:
                 is_bool_literal = (
                     simplified.eq(BoolVal(True))
@@ -379,7 +434,6 @@ class SymbolicExecutor:
                 is_bool_literal = False
 
             if is_bool_literal or len(str(simplified)) < len(str(expr)):
-                # register pretty mapping if possible
                 try:
                     self.transformer.reverse_map[simplified] = self._zf_text(
                         simplified)

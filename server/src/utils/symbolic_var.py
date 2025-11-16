@@ -7,9 +7,7 @@ from src.app.models.metadata_model import InputType, StartMetadata
 type_mapping: dict[InputType, Callable[[str], ExprRef]] = {
     InputType.BOOL: Bool,
     InputType.NUMBER: Real,
-    InputType.TEXT: String,
-    InputType.OBJECT: String,
-    InputType.LIST: String
+    InputType.TEXT: String
 }
 
 

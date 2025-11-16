@@ -1,3 +1,4 @@
+from typing import Literal
 from lark import Transformer, v_args, Token
 from z3 import (   # type: ignore
     And, Or, Not,
@@ -20,6 +21,19 @@ class SymbolicTransfomer(Transformer):
         """Guarda o texto ZF correspondente à expressão simbólica."""
         self.reverse_map[expr] = text
         return expr
+
+    def _collect_children(self, expr: ExprRef, type: Literal['and', 'or']) -> list:
+        try:
+            if hasattr(expr, 'decl') and expr.decl().name() == type:
+                flat = []
+                for ch in expr.children():
+                    flat.extend(self._collect_children(ch, type))
+
+                return flat
+        except Exception:
+            pass
+
+        return [expr]
 
     # --- LITERALS ---
     def number(self, tok: Token):
@@ -57,13 +71,27 @@ class SymbolicTransfomer(Transformer):
 
     # --- LOGIC OPS ---
     def and_op(self, a, b):
-        expr = And(a, b)
-        text = f"({self.reverse_map.get(a, str(a))} and {self.reverse_map.get(b, str(b))})"
+        children = []
+        children.extend(self._collect_children(a, 'and'))
+        children.extend(self._collect_children(b, 'and'))
+
+        expr = And(*children) if len(children) > 1 else children[0]
+
+        parts = [self.reverse_map.get(ch, str(ch)) for ch in children]
+        text = f'({' and '.join(parts)})' if len(parts) > 1 else parts[0]
+
         return self._record(expr, text)
 
     def or_op(self, a, b):
-        expr = Or(a, b)
-        text = f"({self.reverse_map.get(a, str(a))} or {self.reverse_map.get(b, str(b))})"
+        children = []
+        children.extend(self._collect_children(a, 'or'))
+        children.extend(self._collect_children(b, ))
+
+        expr = Or(*children) if len(children) > 1 else children[0]
+
+        parts = [self.reverse_map.get(ch, str(ch)) for ch in children]
+        text = f'({' or '.join(parts)})' if len(parts) > 1 else parts[0]
+
         return self._record(expr, text)
 
     def not_op(self, a):

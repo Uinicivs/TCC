@@ -7,9 +7,7 @@ from src.app.models.metadata_model import InputType, StartMetadata
 type_mapping = {
     InputType.BOOL: bool,
     InputType.NUMBER: float,
-    InputType.TEXT: str,
-    InputType.OBJECT: dict[str, Union[str, float, bool]],
-    InputType.LIST: Union[list[str], list[float], list[bool]]
+    InputType.TEXT: str
 }
 
 
