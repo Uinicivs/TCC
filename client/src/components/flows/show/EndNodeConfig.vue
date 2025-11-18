@@ -98,7 +98,7 @@ const updateResponse = () => {
   if (responseType.value === 'default') {
     responseValue = defaultResponseValue.value
   } else {
-    responseValue = customResponseText.value ? JSON.parse(customResponseText.value) : undefined
+    responseValue = customResponseText.value || undefined
   }
 
   settings.value.response = responseValue
@@ -132,7 +132,7 @@ const initializeComponent = () => {
     return
   }
 
-  customResponseText.value = String(currentResponse)
+  customResponseText.value = currentResponse.toString()
 }
 
 onMounted(() => {
