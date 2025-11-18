@@ -432,7 +432,7 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
           }
         }
       } else {
-        const endNode = createEndNode(formatNode.id, formatNode.position)
+        const endNode = createEndNode(formatNode.id, formatNode.position, true)
         addNodesToFlow([endNode], formatNode)
       }
     }
