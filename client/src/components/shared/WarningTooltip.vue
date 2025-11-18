@@ -23,6 +23,21 @@ const getColorClass = computed(() => {
   }
 })
 
+const getBackgroundClass = computed(() => {
+  switch (type) {
+    case 'info':
+      return '!bg-blue-500'
+    case 'warning':
+      return '!bg-amber-500'
+    case 'error':
+      return '!bg-red-500'
+    case 'success':
+      return '!bg-emerald-500'
+    default:
+      return '!bg-amber-500'
+  }
+})
+
 const getIconClass = computed(() => {
   switch (type) {
     case 'info':
@@ -47,7 +62,7 @@ const getIconClass = computed(() => {
       pt: {
         root: { style: { maxWidth: '30rem' } },
         arrow: { style: { borderRightColor: `var(--p-${getColorClass})` } },
-        text: `!bg-${getColorClass} !font-medium`,
+        text: `${getBackgroundClass} !font-medium`,
       },
     }"
   >
