@@ -85,7 +85,7 @@ const currentNode = computed(() => {
 
 const defaultResponseValue = computed(() => {
   if (!currentNode.value) return true
-  return !currentNode.value.data.isFalseCase
+  return currentNode.value.data.isFalseCase
 })
 
 const updateResponse = () => {
