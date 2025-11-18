@@ -109,7 +109,7 @@ const initializeComponent = () => {
     settings.value = {}
   }
 
-  const currentResponse = !settings.value?.response
+  const currentResponse = settings.value?.response
 
   if (currentResponse === undefined || currentResponse === null) {
     responseType.value = 'default'
