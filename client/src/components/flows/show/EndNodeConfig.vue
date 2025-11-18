@@ -85,7 +85,7 @@ const currentNode = computed(() => {
 
 const defaultResponseValue = computed(() => {
   if (!currentNode.value) return true
-  return currentNode.value.data.isFalseCase
+  return !currentNode.value.data.isFalseCase
 })
 
 const updateResponse = () => {
@@ -109,7 +109,7 @@ const initializeComponent = () => {
     settings.value = {}
   }
 
-  const currentResponse = settings.value?.response
+  const currentResponse = !settings.value?.response
 
   if (currentResponse === undefined || currentResponse === null) {
     responseType.value = 'default'
