@@ -7,6 +7,10 @@ export interface IStep {
   description: string | Array<string>
   align?: Alignment
   side?: Side
+  link?: {
+    url: string
+    label: string
+  }
 }
 
 export interface ITutorial {
@@ -21,6 +25,10 @@ export interface ITutorialCard {
   isFirstStep: boolean
   isLastStep: boolean
   imagePath?: string
+  link?: {
+    url: string
+    label: string
+  }
   steps: Array<IStep>
   onNextStep: () => void
   onPreviousStep: () => void

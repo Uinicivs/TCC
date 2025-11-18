@@ -51,6 +51,7 @@ export const useTutorial = (config: ITutorial) => {
         render() {
           return h(TutorialCard, {
             description: currentStep.description,
+            link: currentStep.link,
             imagePath: currentStep.imagePath,
             isFirstStep: driver.isFirstStep(),
             isLastStep: driver.isLastStep(),

@@ -28,6 +28,18 @@
         </div>
       </div>
 
+      <Button
+        v-if="link"
+        :label="link.label"
+        size="small"
+        link
+        as="a"
+        :href="link.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="!p-0 my-4"
+      />
+
       <div class="flex items-center justify-between gap-3 mt-2">
         <div class="flex gap-2">
           <Button

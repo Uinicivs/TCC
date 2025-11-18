@@ -157,6 +157,18 @@ export const flowEditorTutorial: IStep[] = [
   },
   {
     targetId: 'flow-editor-canvas',
+    title: 'Quer Ver na Prática? 🎬',
+    description: [
+      'Preparamos um vídeo completo mostrando passo a passo como criar, configurar, testar e executar um fluxo de decisão.',
+    ],
+    align: 'center',
+    link: {
+      url: 'https://youtu.be/STzLSFdqOPY',
+      label: 'Assistir Tutorial no YouTube',
+    },
+  },
+  {
+    targetId: 'flow-editor-canvas',
     title: 'Pronto para Começar! 🎯',
     description:
       'Agora você conhece todas as ferramentas para criar fluxos incríveis. Comece adicionando seu primeiro nó e construa a lógica do seu negócio de forma visual!',
