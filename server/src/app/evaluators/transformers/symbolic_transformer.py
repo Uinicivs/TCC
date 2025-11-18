@@ -85,7 +85,7 @@ class SymbolicTransfomer(Transformer):
     def or_op(self, a, b):
         children = []
         children.extend(self._collect_children(a, 'or'))
-        children.extend(self._collect_children(b, ))
+        children.extend(self._collect_children(b, 'or'))
 
         expr = Or(*children) if len(children) > 1 else children[0]
 
