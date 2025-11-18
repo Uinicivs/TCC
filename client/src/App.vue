@@ -1,5 +1,5 @@
 <template>
-  <Toast />
+  <Toast position="bottom-right" />
   <DynamicDialog />
   <div class="h-screen">
     <RouterView />

@@ -7,7 +7,7 @@ import { updateFlowNodes } from '@/services/flowService'
 
 import { mapFlowToSchema } from '@/utils/flowFormatters'
 
-export function useFlowSync(flowId: string, delay = 5000) {
+export function useFlowSync(flowId: string, delay = 3000) {
   const previousNodes = ref<Node[]>([])
   const isUpdating = ref(false)
   const toast = useToast()
