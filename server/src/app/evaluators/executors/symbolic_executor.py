@@ -9,6 +9,7 @@ from z3 import (   # type: ignore
     is_or,
     is_and,
     is_not,
+    is_true,
     unknown,
     simplify,
 
@@ -279,7 +280,14 @@ class SymbolicExecutor:
 
             chk = self._check_with_timeout(self.solver)
             if chk == sat:
-                new_constraints = list(constraints) + [cond]
+                new_constraints = list(constraints)
+
+                if cond is not None:
+                    try:
+                        if not is_true(cond):
+                            new_constraints.append(cond)
+                    except Exception:
+                        new_constraints.append(cond)
 
                 child_nodes = self._get_children(node.nodeId, is_false_case)
 
@@ -371,7 +379,7 @@ class SymbolicExecutor:
 
         # 0) If no context, allow only "real" simplify improvements (conservative)
         if not concrete_base:
-            if is_and(expr):
+            if is_and(expr) and len(expr.children()) > 1:
                 children = list(expr.children())
                 remaining = []
                 removed_parts = []
@@ -433,6 +441,14 @@ class SymbolicExecutor:
             except Exception:
                 is_bool_literal = False
 
+            try:
+                is_false_literal = simplified.eq(BoolVal(False))
+            except Exception:
+                is_false_literal = False
+
+            if is_false_literal and is_and(expr):
+                return expr, []
+
             if is_bool_literal or len(str(simplified)) < len(str(expr)):
                 try:
                     self.transformer.reverse_map[simplified] = self._zf_text(
@@ -455,7 +471,7 @@ class SymbolicExecutor:
 
         # 2) If it's a conjunction, test each conjunct individually and remove those implied by base
         try:
-            if is_and(expr):
+            if is_and(expr) and len(expr.children()) > 1:
                 children = list(expr.children())
                 remaining = []
 
@@ -531,6 +547,14 @@ class SymbolicExecutor:
                         BoolVal(True)) or simplified.eq(BoolVal(False))
                 except Exception:
                     is_bool_literal = False
+
+                try:
+                    is_false_literal = simplified.eq(BoolVal(False))
+                except Exception:
+                    is_false_literal = False
+
+                if is_false_literal and is_and(expr):
+                    return expr, []
 
                 if is_bool_literal or len(str(simplified)) < len(str(expr)):
                     try:
