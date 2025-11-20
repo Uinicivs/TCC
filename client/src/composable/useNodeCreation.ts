@@ -97,7 +97,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     excludeId?: string,
     config?: { maxVerticalAttempts?: number; verticalStep?: number; mustResolve?: boolean },
   ): { x: number; y: number } => {
-    // Se posição preferida estiver livre, retorna direto
     if (!checkCollision(preferredX, preferredY, excludeId)) {
       return { x: preferredX, y: preferredY }
     }
@@ -105,7 +104,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     const stepX = SAFETY_MARGIN
     const horizontalOffsets = [0, stepX, -stepX, stepX * 2, -stepX * 2]
 
-    // Primeiro: variações horizontais no Y preferido
     for (const off of horizontalOffsets) {
       const x = preferredX + off
       if (!checkCollision(x, preferredY, excludeId)) {
@@ -113,8 +111,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       }
     }
 
-    // Segundo: incremento vertical mínimo até liberar;
-    // avança em passos pequenos e em cada Y tenta offsets horizontais novamente.
     const maxVerticalAttempts = config?.maxVerticalAttempts ?? 5
     const verticalStep = config?.verticalStep ?? SAFETY_MARGIN
     const mustResolve = config?.mustResolve ?? false
@@ -128,7 +124,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       }
     }
     if (mustResolve) {
-      // Busca estendida para garantir posição livre
       const extraLimit = maxVerticalAttempts + 60
       for (let i = maxVerticalAttempts + 1; i <= extraLimit; i++) {
         const candidateY = preferredY + i * verticalStep
@@ -392,7 +387,6 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         const childNode = flowStore.getNodeById(childId)
         if (childNode) {
           const childPositionY = baseY + VERTICAL_SPACING
-          // Mantém o X mais próximo possível; ajusta apenas se colisão
           const desiredX =
             baseX + (!childNode.data.isFalseCase ? -HORIZONTAL_SPACING : HORIZONTAL_SPACING)
 
