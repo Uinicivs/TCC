@@ -95,32 +95,52 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
     preferredX: number,
     preferredY: number,
     excludeId?: string,
+    config?: { maxVerticalAttempts?: number; verticalStep?: number; mustResolve?: boolean },
   ): { x: number; y: number } => {
+    // Se posição preferida estiver livre, retorna direto
     if (!checkCollision(preferredX, preferredY, excludeId)) {
       return { x: preferredX, y: preferredY }
     }
 
-    const stepSize = SAFETY_MARGIN
+    const stepX = SAFETY_MARGIN
+    const horizontalOffsets = [0, stepX, -stepX, stepX * 2, -stepX * 2]
 
-    for (let radius = stepSize; radius <= stepSize; radius += stepSize) {
-      const positions = [
-        { x: preferredX + radius, y: preferredY + radius },
-        { x: preferredX - radius, y: preferredY + radius },
-        { x: preferredX + radius, y: preferredY - radius },
-        { x: preferredX - radius, y: preferredY - radius },
-      ]
-
-      for (const position of positions) {
-        if (!checkCollision(position.x, position.y, excludeId)) {
-          return position
-        }
+    // Primeiro: variações horizontais no Y preferido
+    for (const off of horizontalOffsets) {
+      const x = preferredX + off
+      if (!checkCollision(x, preferredY, excludeId)) {
+        return { x, y: preferredY }
       }
     }
 
-    return {
-      x: preferredX,
-      y: preferredY,
+    // Segundo: incremento vertical mínimo até liberar;
+    // avança em passos pequenos e em cada Y tenta offsets horizontais novamente.
+    const maxVerticalAttempts = config?.maxVerticalAttempts ?? 5
+    const verticalStep = config?.verticalStep ?? SAFETY_MARGIN
+    const mustResolve = config?.mustResolve ?? false
+    for (let i = 1; i <= maxVerticalAttempts; i++) {
+      const candidateY = preferredY + i * verticalStep
+      for (const off of horizontalOffsets) {
+        const x = preferredX + off
+        if (!checkCollision(x, candidateY, excludeId)) {
+          return { x: x - 20, y: candidateY }
+        }
+      }
     }
+    if (mustResolve) {
+      // Busca estendida para garantir posição livre
+      const extraLimit = maxVerticalAttempts + 60
+      for (let i = maxVerticalAttempts + 1; i <= extraLimit; i++) {
+        const candidateY = preferredY + i * verticalStep
+        for (const off of horizontalOffsets) {
+          const x = preferredX + off
+          if (!checkCollision(x, candidateY, excludeId)) {
+            return { x: x - 20, y: candidateY }
+          }
+        }
+      }
+    }
+    return { x: preferredX, y: preferredY }
   }
 
   const toggleCreateNodeDialog = () => {
@@ -194,7 +214,12 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         : parentPosition.x - HORIZONTAL_SPACING
     }
 
-    const endNodePosition = findFreePosition(positionX, parentPosition.y + VERTICAL_SPACING)
+    const endNodePosition = findFreePosition(
+      positionX,
+      parentPosition.y + VERTICAL_SPACING,
+      undefined,
+      { maxVerticalAttempts: 8, verticalStep: SAFETY_MARGIN, mustResolve: true },
+    )
 
     return {
       id: uuidv4(),
@@ -345,7 +370,10 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
       formattedNodeData.isFalseCase = isFalseCase
     }
 
-    const finalPosition = findFreePosition(positionX, positionY)
+    const finalPosition = findFreePosition(positionX, positionY, undefined, {
+      maxVerticalAttempts: 5,
+      verticalStep: SAFETY_MARGIN,
+    })
 
     const formatNode: Node = {
       id: uuidv4(),
@@ -364,11 +392,14 @@ export function useNodeCreation(parentId: INode['parent'], handleId?: string) {
         const childNode = flowStore.getNodeById(childId)
         if (childNode) {
           const childPositionY = baseY + VERTICAL_SPACING
-          let childOffsetX = baseX
+          // Mantém o X mais próximo possível; ajusta apenas se colisão
+          const desiredX =
+            baseX + (!childNode.data.isFalseCase ? -HORIZONTAL_SPACING : HORIZONTAL_SPACING)
 
-          childOffsetX += !childNode.data.isFalseCase ? HORIZONTAL_SPACING * -1 : HORIZONTAL_SPACING
-
-          const freePosition = findFreePosition(childOffsetX, childPositionY, childId)
+          const freePosition = findFreePosition(desiredX, childPositionY, childId, {
+            maxVerticalAttempts: 5,
+            verticalStep: SAFETY_MARGIN,
+          })
 
           flowStore.updateNode(childId, {
             ...childNode,
