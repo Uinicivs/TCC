@@ -32,12 +32,7 @@ onMounted(() => {
 const handleClick = () => {
   useTutorial({
     steps: props.steps,
-    onFinish: (skip?: boolean) => {
-      if (authStore.user?.firstAccess) {
-        authStore.user.firstAccess = false
-      }
-      if (props.onFinish) props.onFinish(skip)
-    },
+    onFinish: props.onFinish,
   })
 }
 </script>

@@ -8,6 +8,7 @@ import { Controls } from '@vue-flow/controls'
 import { ProgressSpinner, Button, Card, Toolbar } from 'primevue'
 
 import { useFlowStore } from '@/stores/flow'
+import { useAuthStore } from '@/stores/auth'
 
 import { getFlowById } from '@/services/flowService'
 import { mapSchemaToFlow } from '@/utils/flowFormatters'
@@ -27,6 +28,7 @@ const router = useRouter()
 const flowId = route.params.id as string
 
 const flowStore = useFlowStore()
+const authStore = useAuthStore()
 const { nodes, edges, getStartNodeVariables } = storeToRefs(flowStore)
 
 const isLoading = ref<boolean>(true)
@@ -88,6 +90,12 @@ const nodeComponents = computed<Record<keyof typeof mappedNodes, Component>>(() 
 const goBack = () => {
   router.push('/')
 }
+
+const handleTutorialFinish = () => {
+  if (authStore.user?.firstAccess) {
+    authStore.user.firstAccess = false
+  }
+}
 </script>
 
 <template>
@@ -139,7 +147,11 @@ const goBack = () => {
 
             <template #end>
               <div class="flex space-x-1 items-center">
-                <HelpButton id="help-button" :steps="flowEditorTutorial" />
+                <HelpButton
+                  id="help-button"
+                  :steps="flowEditorTutorial"
+                  :on-finish="handleTutorialFinish"
+                />
                 <ThemeToggle />
                 <Button
                   id="test-flow-button"
