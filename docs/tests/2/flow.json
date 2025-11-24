@@ -1,0 +1,88 @@
+{
+    "flowId": "691678ad02bf39d8d98cbc16",
+    "flowName": "2. Caso com branch inconsistente (unsatisfiable)",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f5a",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "x",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+            "nodeName": "x > 10?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f5a",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x > 10"
+            }
+        },
+        {
+            "nodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "nodeName": "x < 5? (Inner)",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+            "isFalseCase": false,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x < 5"
+            }
+        },
+        {
+            "nodeId": "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
+            "nodeName": "Impossible",
+            "nodePositionX": 150.0,
+            "nodePositionY": 80.0,
+            "parentNodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "impossible"
+            }
+        },
+        {
+            "nodeId": "b5c6d7e8-f9a0-4b1c-2d3e-4f5a6b7c8d9e",
+            "nodeName": "Valid",
+            "nodePositionX": 150.0,
+            "nodePositionY": 60.0,
+            "parentNodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "valid"
+            }
+        },
+        {
+            "nodeId": "c6d7e8f9-a0b1-4c2d-3e4f-5a6b7c8d9e0f",
+            "nodeName": "Other",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "other"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T00:32:45.609000Z",
+    "updatedAt": "2025-11-15T12:22:04.977000Z"
+}

@@ -1,0 +1,46 @@
+{
+    "cases": [
+        {
+            "endNodeId": "end-minor-uuid-33445",
+            "endMetadata": {
+                "response": "minor"
+            },
+            "constraints": [
+                "18 > age"
+            ],
+            "concrete": {
+                "age": 0
+            }
+        },
+        {
+            "endNodeId": "end-valid-uuid-11223",
+            "endMetadata": {
+                "response": "valid"
+            },
+            "constraints": [
+                "age >= 18",
+                "0 <= age"
+            ],
+            "concrete": {
+                "age": 18
+            }
+        }
+    ],
+    "pruned": [
+        {
+            "nodeId": "end-bad-uuid-24680",
+            "isFalseCase": false,
+            "reason": "unreachable",
+            "unsatConstraints": [
+                "age >= 18",
+                "age < 0"
+            ]
+        }
+    ],
+    "reductions": [],
+    "uncovered": [],
+    "coverage": {
+        "endCount": 2,
+        "totalEndNodes": 3
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "flowId": "6916806c5422483348e383f0",
+    "flowName": "4. Caso com uncovered path (falta de tratativa)",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f5a",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "x",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+            "nodeName": "x > 10?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f5a",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x > 10"
+            }
+        },
+        {
+            "nodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "nodeName": "x > 20? (Inner)",
+            "nodePositionX": 100.0,
+            "nodePositionY": 60.0,
+            "parentNodeId": "e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b",
+            "isFalseCase": false,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x > 20"
+            }
+        },
+        {
+            "nodeId": "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
+            "nodeName": "Greater than 20",
+            "nodePositionX": 150.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "greater_than_20"
+            }
+        },
+        {
+            "nodeId": "b5c6d7e8-f9a0-4b1c-2d3e-4f5a6b7c8d9e",
+            "nodeName": "Between 10 and 20",
+            "nodePositionX": 150.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "between_10_and_20"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T01:05:48.213000Z",
+    "updatedAt": "2025-11-14T01:13:56.495000Z"
+}

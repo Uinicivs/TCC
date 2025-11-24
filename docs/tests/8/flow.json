@@ -1,0 +1,112 @@
+{
+    "flowId": "6916859b9fa90785d6f4f2cc",
+    "flowName": "8. Caso com nested inconsistency + nested reducibility",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "a0b1c2d3-e4f5-4a6b-8c7d-0e1f2a3b4c5d",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "score",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "b1c2d3e4-f5a6-4b7c-9d8e-1f2a3b4c5d6e",
+            "nodeName": "score >= 0?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "a0b1c2d3-e4f5-4a6b-8c7d-0e1f2a3b4c5d",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "score >= 0"
+            }
+        },
+        {
+            "nodeId": "c2d3e4f5-a6b7-4c8d-0e9f-2a3b4c5d6e7f",
+            "nodeName": "Contradiction Check",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "b1c2d3e4-f5a6-4b7c-9d8e-1f2a3b4c5d6e",
+            "isFalseCase": false,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "score >= 0 and score < -5"
+            }
+        },
+        {
+            "nodeId": "d3e4f5a6-b7c8-4d9e-1f0a-3b4c5d6e7f8a",
+            "nodeName": "Bad (Impossible)",
+            "nodePositionX": 150.0,
+            "nodePositionY": 80.0,
+            "parentNodeId": "c2d3e4f5-a6b7-4c8d-0e9f-2a3b4c5d6e7f",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "bad"
+            }
+        },
+        {
+            "nodeId": "e4f5a6b7-c8d9-4e0f-2a1b-4c5d6e7f8a9b",
+            "nodeName": "Redundant Check",
+            "nodePositionX": 150.0,
+            "nodePositionY": 60.0,
+            "parentNodeId": "c2d3e4f5-a6b7-4c8d-0e9f-2a3b4c5d6e7f",
+            "isFalseCase": true,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "score >= 0"
+            }
+        },
+        {
+            "nodeId": "f5a6b7c8-d9e0-4f1a-3b2c-5d6e7f8a9b0c",
+            "nodeName": "Good",
+            "nodePositionX": 200.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "e4f5a6b7-c8d9-4e0f-2a1b-4c5d6e7f8a9b",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "good"
+            }
+        },
+        {
+            "nodeId": "a6b7c8d9-e0f1-4a2b-4c3d-6e7f8a9b0c1d",
+            "nodeName": "Error (Unreachable)",
+            "nodePositionX": 200.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "e4f5a6b7-c8d9-4e0f-2a1b-4c5d6e7f8a9b",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "error"
+            }
+        },
+        {
+            "nodeId": "b7c8d9e0-f1a2-4b3c-5d4e-7f8a9b0c1d2e",
+            "nodeName": "Invalid",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "b1c2d3e4-f5a6-4b7c-9d8e-1f2a3b4c5d6e",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "invalid"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T01:27:55.184000Z",
+    "updatedAt": "2025-11-14T01:30:50.284000Z"
+}

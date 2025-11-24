@@ -1,0 +1,64 @@
+{
+    "flowId": "6916785302bf39d8d98cbc14",
+    "flowName": "1. Caso totalmente viável (sem inconsistências, sem reduções, sem pruned)",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "x",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+            "nodeName": "x >= 0?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x >= 0"
+            }
+        },
+        {
+            "nodeId": "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f",
+            "nodeName": "Ok",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "ok"
+            }
+        },
+        {
+            "nodeId": "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a",
+            "nodeName": "Negative",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "negative"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T00:31:15.292000Z",
+    "updatedAt": "2025-11-14T00:31:30.808000Z"
+}

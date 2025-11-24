@@ -1,0 +1,88 @@
+{
+    "flowId": "6916838eef2b3de277528dc9",
+    "flowName": "6. Caso com múltiplas reduções dentro de um AND composto",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "a1b2c3d4-1111-2222-3333-444455556666",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "x",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "b2c3d4e5-7777-8888-9999-000011112222",
+            "nodeName": "x > 10?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "a1b2c3d4-1111-2222-3333-444455556666",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x > 10"
+            }
+        },
+        {
+            "nodeId": "c3d4e5f6-3333-4444-5555-666677778888",
+            "nodeName": "x > 5... (Redundant Check)",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "b2c3d4e5-7777-8888-9999-000011112222",
+            "isFalseCase": false,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "x > 5 and x > 3 and x > 0"
+            }
+        },
+        {
+            "nodeId": "d4e5f6a7-9999-0000-1111-222233334444",
+            "nodeName": "End A",
+            "nodePositionX": 150.0,
+            "nodePositionY": 80.0,
+            "parentNodeId": "c3d4e5f6-3333-4444-5555-666677778888",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "A"
+            }
+        },
+        {
+            "nodeId": "e5f6a7b8-5555-6666-7777-888899990000",
+            "nodeName": "End B (Unreachable)",
+            "nodePositionX": 150.0,
+            "nodePositionY": 60.0,
+            "parentNodeId": "c3d4e5f6-3333-4444-5555-666677778888",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "B"
+            }
+        },
+        {
+            "nodeId": "f6a7b8c9-1212-3434-5656-787890901212",
+            "nodeName": "End C",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "b2c3d4e5-7777-8888-9999-000011112222",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "C"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T01:19:10.756000Z",
+    "updatedAt": "2025-11-14T01:19:30.969000Z"
+}
