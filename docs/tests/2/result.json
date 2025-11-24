@@ -1,0 +1,46 @@
+{
+    "cases": [
+        {
+            "endNodeId": "c6d7e8f9-a0b1-4c2d-3e4f-5a6b7c8d9e0f",
+            "endMetadata": {
+                "response": "other"
+            },
+            "constraints": [
+                "10 >= x"
+            ],
+            "concrete": {
+                "x": 0
+            }
+        },
+        {
+            "endNodeId": "b5c6d7e8-f9a0-4b1c-2d3e-4f5a6b7c8d9e",
+            "endMetadata": {
+                "response": "valid"
+            },
+            "constraints": [
+                "x > 10",
+                "5 <= x"
+            ],
+            "concrete": {
+                "x": 11
+            }
+        }
+    ],
+    "pruned": [
+        {
+            "nodeId": "a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d",
+            "isFalseCase": false,
+            "reason": "unreachable",
+            "unsatConstraints": [
+                "x > 10",
+                "x < 5"
+            ]
+        }
+    ],
+    "reductions": [],
+    "uncovered": [],
+    "coverage": {
+        "endCount": 2,
+        "totalEndNodes": 3
+    }
+}

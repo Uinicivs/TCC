@@ -1,0 +1,53 @@
+{
+    "cases": [
+        {
+            "endNodeId": "c4f5a6b7-d8e9-4f0a-3b1c-2d3e4f5a6b7c",
+            "endMetadata": {
+                "response": "minor"
+            },
+            "constraints": [
+                "18 > age"
+            ],
+            "concrete": {
+                "age": 0
+            }
+        },
+        {
+            "endNodeId": "a2d3e4f5-b6c7-4d8e-1f9a-0b1c2d3e4f5a",
+            "endMetadata": {
+                "response": "adult"
+            },
+            "constraints": [
+                "age >= 18"
+            ],
+            "concrete": {
+                "age": 18
+            }
+        }
+    ],
+    "pruned": [
+        {
+            "nodeId": "b3e4f5a6-c7d8-4e9f-2a0b-1c2d3e4f5a6b",
+            "isFalseCase": true,
+            "reason": "unsatisfiable",
+            "unsatConstraints": [
+                "not (True)"
+            ]
+        }
+    ],
+    "reductions": [
+        {
+            "nodeId": "f1c2d3e4-a5b6-4c7d-0e8f-9a0b1c2d3e4f",
+            "original": "age >= 10",
+            "simplified": "true",
+            "removedParts": [
+                "age >= 10"
+            ]
+        }
+    ],
+    "uncovered": [],
+    "coverage": {
+        "endCount": 2,
+        "totalEndNodes": 3
+    }
+}

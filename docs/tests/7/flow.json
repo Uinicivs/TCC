@@ -1,0 +1,88 @@
+{
+    "flowId": "69168423ef2b3de277528dcb",
+    "flowName": "7. Caso com pruned no false-branch do if",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "n",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+            "nodeName": "n < 0?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "n < 0"
+            }
+        },
+        {
+            "nodeId": "c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f",
+            "nodeName": "Neg",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "neg"
+            }
+        },
+        {
+            "nodeId": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+            "nodeName": "n < 0? (Impossible Check)",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e",
+            "isFalseCase": true,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "n < 0"
+            }
+        },
+        {
+            "nodeId": "e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b",
+            "nodeName": "Again Neg (Unreachable)",
+            "nodePositionX": 150.0,
+            "nodePositionY": 40.0,
+            "parentNodeId": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "again_neg"
+            }
+        },
+        {
+            "nodeId": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c",
+            "nodeName": "Non Neg",
+            "nodePositionX": 150.0,
+            "nodePositionY": 20.0,
+            "parentNodeId": "d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "non_neg"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T01:21:39.374000Z",
+    "updatedAt": "2025-11-14T01:23:11.085000Z"
+}

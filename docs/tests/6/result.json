@@ -1,0 +1,55 @@
+{
+    "cases": [
+        {
+            "endNodeId": "f6a7b8c9-1212-3434-5656-787890901212",
+            "endMetadata": {
+                "response": "C"
+            },
+            "constraints": [
+                "10 >= x"
+            ],
+            "concrete": {
+                "x": 0
+            }
+        },
+        {
+            "endNodeId": "d4e5f6a7-9999-0000-1111-222233334444",
+            "endMetadata": {
+                "response": "A"
+            },
+            "constraints": [
+                "x > 10"
+            ],
+            "concrete": {
+                "x": 11
+            }
+        }
+    ],
+    "pruned": [
+        {
+            "nodeId": "e5f6a7b8-5555-6666-7777-888899990000",
+            "isFalseCase": true,
+            "reason": "unsatisfiable",
+            "unsatConstraints": [
+                "not (True)"
+            ]
+        }
+    ],
+    "reductions": [
+        {
+            "nodeId": "c3d4e5f6-3333-4444-5555-666677778888",
+            "original": "(x > 5 and x > 3 and x > 0)",
+            "simplified": "true",
+            "removedParts": [
+                "x > 5",
+                "x > 3",
+                "x > 0"
+            ]
+        }
+    ],
+    "uncovered": [],
+    "coverage": {
+        "endCount": 2,
+        "totalEndNodes": 3
+    }
+}

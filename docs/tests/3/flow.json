@@ -1,0 +1,88 @@
+{
+    "flowId": "69167fb95422483348e383ee",
+    "flowName": "3. Caso com condição reduzível (redundant / simplificável)",
+    "flowDescription": ".",
+    "ownerId": "69013d2567e845d84dd9a2d1",
+    "nodes": [
+        {
+            "nodeId": "d9a0b1c2-e3f4-4a5b-8c6d-7e8f9a0b1c2d",
+            "nodeName": "Start Node",
+            "nodePositionX": 10.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": null,
+            "isFalseCase": null,
+            "nodeType": "START",
+            "metadata": {
+                "inputs": [
+                    {
+                        "displayName": "age",
+                        "type": "number",
+                        "required": true
+                    }
+                ]
+            }
+        },
+        {
+            "nodeId": "e0b1c2d3-f4a5-4b6c-9d7e-8f9a0b1c2d3e",
+            "nodeName": "Age >= 18?",
+            "nodePositionX": 50.0,
+            "nodePositionY": 50.0,
+            "parentNodeId": "d9a0b1c2-e3f4-4a5b-8c6d-7e8f9a0b1c2d",
+            "isFalseCase": null,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "age >= 18"
+            }
+        },
+        {
+            "nodeId": "f1c2d3e4-a5b6-4c7d-0e8f-9a0b1c2d3e4f",
+            "nodeName": "Age >= 10? (Redundant)",
+            "nodePositionX": 100.0,
+            "nodePositionY": 70.0,
+            "parentNodeId": "e0b1c2d3-f4a5-4b6c-9d7e-8f9a0b1c2d3e",
+            "isFalseCase": false,
+            "nodeType": "CONDITIONAL",
+            "metadata": {
+                "expression": "age >= 10"
+            }
+        },
+        {
+            "nodeId": "a2d3e4f5-b6c7-4d8e-1f9a-0b1c2d3e4f5a",
+            "nodeName": "Adult",
+            "nodePositionX": 150.0,
+            "nodePositionY": 80.0,
+            "parentNodeId": "f1c2d3e4-a5b6-4c7d-0e8f-9a0b1c2d3e4f",
+            "isFalseCase": false,
+            "nodeType": "END",
+            "metadata": {
+                "response": "adult"
+            }
+        },
+        {
+            "nodeId": "b3e4f5a6-c7d8-4e9f-2a0b-1c2d3e4f5a6b",
+            "nodeName": "Error (Unreachable)",
+            "nodePositionX": 150.0,
+            "nodePositionY": 60.0,
+            "parentNodeId": "f1c2d3e4-a5b6-4c7d-0e8f-9a0b1c2d3e4f",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "error"
+            }
+        },
+        {
+            "nodeId": "c4f5a6b7-d8e9-4f0a-3b1c-2d3e4f5a6b7c",
+            "nodeName": "Minor",
+            "nodePositionX": 100.0,
+            "nodePositionY": 30.0,
+            "parentNodeId": "e0b1c2d3-f4a5-4b6c-9d7e-8f9a0b1c2d3e",
+            "isFalseCase": true,
+            "nodeType": "END",
+            "metadata": {
+                "response": "minor"
+            }
+        }
+    ],
+    "createdAt": "2025-11-14T01:02:49.829000Z",
+    "updatedAt": "2025-11-14T01:03:09.324000Z"
+}
