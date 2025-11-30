@@ -1,5 +1,8 @@
 # Testes
 
+- [1. Testes de Verificação](#testes-de-verificação)
+- [2. Testes com Usuários](#testes-com-usuários)
+
 ## Testes de Verificação
 
 - [1. Caso totalmente viável](#1-caso-totalmente-viável-sem-inconsistências-sem-reduções-sem-pruned)
@@ -15,7 +18,7 @@
 
 Descrição: Árvore de decisão perfeita e mínima. Todas as condições são necessárias, todos os ramos são alcançáveis, não há redundâncias nem caminhos mortos. Representa o caso ideal: cobertura completa e determinística.
 
-Link: `tests/1/`
+Link: `verification_tests/1/`
 
 Exemplo:
 
@@ -36,7 +39,7 @@ ELSE:
 
 Descrição: Contém um ramo logicamente impossível. A condição `x > 10` torna `x < 5` falsa dentro do mesmo ramo — o nó `END 'impossible'` nunca será alcançado (dead branch).
 
-Link: `tests/2/`
+Link: `verification_tests/2/`
 
 Exemplo:
 
@@ -60,7 +63,7 @@ ELSE:
 
 Descrição: Redundância contextual: dentro do ramo `age >= 18`, a condição `age >= 10` é sempre verdadeira e pode ser eliminada. O ramo `END 'error'` é inalcançável.
 
-Link: `tests/3/`
+Link: `verification_tests/3/`
 
 Exemplo:
 
@@ -84,7 +87,7 @@ ELSE:
 
 Descrição: Árvore incompleta: falta o ramo `ELSE` do IF raiz. Não há tratamento para alguns valores (ex.: `x = 5`), representando um espaço de entrada sem cobertura.
 
-Link: `tests/4/`
+Link: `verification_tests/4/`
 
 Exemplo:
 
@@ -106,7 +109,7 @@ IF x > 10:
 
 Descrição: Inconsistência contextual: a condição `age < 0` dentro do ramo `age >= 18` nunca pode ser verdadeira. O nó `END 'bad'` é inalcançável, mas a condição isolada não é globalmente contraditória.
 
-Link: `tests/5/`
+Link: `verification_tests/5/`
 
 Exemplo:
 
@@ -130,7 +133,7 @@ ELSE:
 
 Descrição: Em `x > 10`, todas as condições do AND (`x > 5`, `x > 3`, `x > 0`) são subsumidas pela condição pai; a expressão pode ser reduzida a `true` no contexto. O ramo `END 'B'` é inalcançável.
 
-Link: `tests/6/`
+Link: `verification_tests/6/`
 
 Exemplo:
 
@@ -154,7 +157,7 @@ ELSE:
 
 Descrição: Pruning no false-branch: dentro do `ELSE` (quando `n >= 0`) a condição `n < 0` é sempre falsa — o ramo `END 'again_neg'` é inalcançável e pode ser removido.
 
-Link: `tests/7/`
+Link: `verification_tests/7/`
 
 Exemplo:
 
@@ -181,7 +184,7 @@ Descrição: Caso avançado com duas falhas aninhadas:
 - Condição interna impossível: `score >= 0 and score < -5` → contradição global → `END 'bad'` inalcançável.
 - Condição redundante no ELSE: `score >= 0` é redundante considerando o IF pai → `END 'error'` inalcançável.
 
-Link: `tests/8/`
+Link: `verification_tests/8/`
 
 Exemplo:
 
@@ -203,3 +206,28 @@ ELSE:
 ```
 
 ---
+
+## Testes com Usuários
+
+Os materiais de análise utilizados nos testes com usuários estão organizados da seguinte forma:
+
+- **Dados brutos:** `users_tests/raw_data/`
+  - Arquivos disponíveis: `indice-de-evolução-fluxo-vs-média-global.csv`, `razão-inconsistências-total-de-condições-fluxo-atual-vs-média-geral.csv`
+- **Notebooks e scripts de análise:** `users_tests/`
+  - `evolution_index.ipynb` — análise do índice de evolução e geração de gráficos comparativos.
+  - `inconsistencies_ratio.ipynb` — cálculo e plotagem da razão de inconsistências.
+
+Como usar
+
+- Para abrir os notebooks, use Jupyter (ou abra no VS Code):
+
+```powershell
+cd docs/users_tests
+jupyter notebook
+```
+
+- Os CSVs estão em formato tabular (valores separados por vírgula). Se encontrar problemas de codificação, verifique a codificação UTF-8 ao abrir.
+
+Observações
+
+- Os notebooks contêm células de pré-processamento que carregam os CSVs de `users_tests/raw_data/` — edite os caminhos relativos se executar a partir de outro diretório.
