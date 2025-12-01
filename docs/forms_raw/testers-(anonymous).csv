@@ -1,0 +1,42 @@
+Id,Start time,Completion time,Você aceita participar?,Um motor de regras/decisão é um sistema que aplica automaticamente um conjunto de regras lógicas para tomar decisões de forma consistente e automatizada. Seu papel é fundamental: pedimos que você tent,Seu cargo atual,Há quanto tempo trabalha na área?,"Você já teve contato ou sabe o que é um ""motor de regras"" ou ""motor de decisão""?","Você já teve contato ou sabe o que é a técnica de ""execução simbólica""?","Em alguns minutos, você receberá um e-mail com seus acessos ao Rulify, acompanhado de um guia textual para ajudar você a criar fluxos na plataforma e um vídeo tutorial explicando todas as funcionalida"
+1,11/21/25 9:21,11/21/25 9:25,Sim,Entendi!,Faturista e Assistente Financeira,2,Não,Não,OK
+2,11/21/25 9:28,11/21/25 9:32,Sim,Entendi!,Analista de Dados,1,Sim,Sim,OK
+3,11/21/25 9:32,11/21/25 9:34,Sim,Entendi!,Desenvolvedor Back-end Júnior,1,Sim,Sim,OK
+4,11/21/25 10:17,11/21/25 10:18,Sim,Entendi!,psicóloga,1,Não,Não,OK
+5,11/21/25 10:28,11/21/25 10:30,Sim,Entendi!,Dev Pleno,7,Sim,Sim,OK
+6,11/21/25 10:29,11/21/25 10:31,Sim,Entendi!,Desenvolvedor Frontend Pleno,4,Sim,Não,OK
+7,11/21/25 15:14,11/21/25 15:17,Sim,Entendi!,Sr Front End Developer ,5,Sim,Sim,OK
+8,11/22/25 8:44,11/22/25 8:49,Sim,Entendi!,Desenvolvedor RPA,3,Sim,Sim,OK
+9,11/24/25 9:52,11/24/25 9:56,Sim,Entendi!,Desenvolvedor front-end,3,Sim,Sim,OK
+10,11/24/25 10:02,11/24/25 10:30,Sim,Entendi!,Desenvolvedor,7,Não,Não,OK
+11,11/24/25 11:36,11/24/25 11:37,Sim,Entendi!,Técnico de Projetos,25,Não,Não,OK
+12,11/24/25 11:44,11/24/25 11:45,Sim,Entendi!,Desenvolvedor,2,Não,Sim,OK
+13,11/24/25 11:56,11/24/25 12:00,Sim,Entendi!,Estagiário em Desenvolvimento de Software,1,Sim,Não,OK
+14,11/24/25 12:19,11/24/25 12:20,Sim,Entendi!,Desenvolvedor FullStack,4,Não,Não,OK
+15,11/24/25 13:24,11/24/25 13:25,Sim,Entendi!,Software engineer,2,Sim,Não,OK
+16,11/24/25 23:32,11/24/25 23:33,Sim,Entendi!,Desenvolvedor Full Stack,3,Sim,Não,OK
+17,11/25/25 9:22,11/25/25 9:24,Sim,Entendi!,Product Owner ,15,Sim,Sim,OK
+18,11/25/25 15:17,11/25/25 15:18,Sim,Entendi!,Bacharel em S.I,3,Sim,Sim,OK
+19,11/25/25 19:19,11/25/25 19:20,Sim,Entendi!,Dev SAP Pleno,3,Não,Sim,OK
+20,11/25/25 19:19,11/25/25 19:20,Sim,Entendi!,Analista de sistemas JR,2,Sim,Sim,OK
+21,11/25/25 19:21,11/25/25 19:22,Sim,Entendi!,Analista de sistemas ,4,Sim,Sim,OK
+22,11/25/25 19:32,11/25/25 19:35,Sim,Entendi!,Desenvolvedor Front-end,10,Sim,Não,OK
+23,11/25/25 19:30,11/25/25 19:36,Sim,Entendi!,estudante,13,Não,Não,OK
+24,11/25/25 19:31,11/25/25 19:39,Sim,Entendi!,Técnico de Informática Junior,3,Não,Não,OK
+25,11/25/25 19:54,11/25/25 19:56,Sim,Entendi!,RPA Developer,4,Sim,Não,OK
+26,11/25/25 20:13,11/25/25 20:18,Sim,Entendi!,esfiheiro,1,Não,Não,OK
+27,11/25/25 20:57,11/25/25 20:57,Sim,Entendi!,Autônomo ,2,Não,Não,OK
+28,11/25/25 22:03,11/25/25 22:03,Sim,Entendi!,Estudante,1,Não,Não,OK
+29,11/26/25 7:42,11/26/25 7:43,Sim,Entendi!,Suporte HelpDesk,2,Sim,Sim,OK
+30,11/26/25 11:19,11/26/25 11:21,Sim,Entendi!,Desenvolvedor Full Stack,4,Sim,Sim,OK
+31,11/26/25 14:49,11/26/25 14:50,Sim,Entendi!,Estagiário em Engenharia de Software,2,Não,Não,OK
+32,11/26/25 20:25,11/26/25 20:26,Sim,Entendi!,Analista de Suprimentos ,1,Não,Não,OK
+33,11/27/25 17:20,11/27/25 17:22,Sim,Entendi!,Programador,3,Não,Não,OK
+34,11/28/25 16:05,11/28/25 16:08,Sim,Entendi!,Nenhum,0,Não,Sim,OK
+35,11/29/25 12:26,11/29/25 12:29,Sim,Entendi!,Estudante,0,Não,Não,OK
+36,11/30/25 13:51,11/30/25 13:53,Sim,Entendi!,Microeemprendedor,6,Não,Não,OK
+37,11/30/25 13:55,11/30/25 13:57,Sim,Entendi!,Engenheiro ,30,Não,Não,OK
+38,11/30/25 13:58,11/30/25 13:59,Sim,Entendi!,Estudante,0,Não,Não,OK
+39,11/30/25 16:34,11/30/25 16:42,Sim,Entendi!,Manobrista ,7,Não,Não,OK
+40,11/30/25 17:26,11/30/25 17:28,Sim,,Empresaria ,2,Sim,Sim,
+41,30/11/2025 19:11,30/11/2025 19:13,Sim,Entendi!,Desenvolvedora de software,4,Sim,Sim,OK
